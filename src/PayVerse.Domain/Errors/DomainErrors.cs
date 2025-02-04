@@ -110,32 +110,83 @@ public static class DomainErrors
 
     #region Roles
 
-    public static class Teacher
+    public static class Admin
     {
         public static readonly Func<Guid, Error> NotFound = id => new Error(
-            "Teacher.NotFound",
-            $"The teacher with the identifier {id} was not found.");
-
-        public static Error NotAssignedToClass(Guid teacherId, Guid classId) => new(
-            "Teacher.NotAssignedToClass",
-            $"Teacher with ID {teacherId} is not assigned to class {classId}.");
+            "Admin.NotFound",
+            $"The admin with the identifier {id} was not found.");
     }
 
-    public static class DepartmentHead
+    public static class BusinessUser
     {
         public static readonly Func<Guid, Error> NotFound = id => new Error(
-            "DepartmentHead.NotFound",
-            $"The department head with the identifier {id} was not found.");
+            "BusinessUser.NotFound",
+            $"The business user with the identifier {id} was not found.");
     }
 
-    public static class Student
+    public static class IndividualUser
     {
         public static readonly Func<Guid, Error> NotFound = id => new Error(
-            "Student.NotFound",
-            $"The student with the identifier {id} was not found.");
+            "IndividualUser.NotFound",
+            $"The individual user with the identifier {id} was not found.");
     }
 
     #endregion
 
+    #endregion
+    
+    #region Invoice
+    
+    #region Entities
+
+    public static class Invoice
+    {
+        public static readonly Func<Guid, Error> NotFound = id => new Error(
+            "Invoice.NotFound",
+            $"The invoice with the identifier {id} was not found.");
+
+        public static readonly Error NotExist = new(
+            "Invoice.NotExist",
+            $"There is no invoices");
+    }
+
+    public static class InvoiceItem
+    {
+        public static readonly Func<int, Error> NotFound = id => new Error(
+            "InvoiceItem.NotFound",
+            $"The invoice item with the identifier {id} was not found.");
+    }
+
+    #endregion
+
+    #region Value Objects
+
+    public static class Amount
+    {
+        public static readonly Error Negative = new(
+            "Amount.Negative",
+            "Amount must not be negative.");
+    }
+    
+    public static class InvoiceDate
+    {
+        public static readonly Error FutureDate = new(
+            "InvoiceDate.FutureDate",
+            "Invoice date must not be in the future.");
+    }
+
+    public static class InvoiceNumber
+    {
+        public static readonly Error Empty = new(
+            "InvoiceNumber.Empty",
+            "Invoice number must not be empty.");
+
+        public static readonly Error TooLong = new(
+            "InvoiceNumber.TooLong",
+            "Invoice number must not be too long.");
+    }
+
+    #endregion
+    
     #endregion
 }
