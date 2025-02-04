@@ -245,4 +245,34 @@ public static class DomainErrors
     #endregion
     
     #endregion
+    
+    #region Payments
+    
+    #region Entities
+
+    public static class Payment
+    {
+        public static readonly Func<Guid, Error> NotFound = id => new Error(
+            "Payment.NotFound",
+            $"The payment with the identifier {id} was not found.");
+
+        public static readonly Error NotExist = new(
+            "Payment.NotExist",
+            $"There is no payments");
+    }   
+
+    #endregion
+
+    #region Value Objects
+
+    public static class PaymentAmount
+    {
+        public static readonly Error Invalid = new(
+            "PaymentAmount.Invalid",
+            "Payment amount must be valid.");
+    }
+
+    #endregion
+    
+    #endregion
 }
