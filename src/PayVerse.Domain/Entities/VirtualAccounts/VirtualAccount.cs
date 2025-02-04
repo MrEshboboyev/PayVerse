@@ -1,6 +1,7 @@
 using PayVerse.Domain.Events.VirtualAccounts;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
+using PayVerse.Domain.ValueObjects;
 using PayVerse.Domain.ValueObjects.VirtualAccounts;
 
 namespace PayVerse.Domain.Entities.VirtualAccounts;

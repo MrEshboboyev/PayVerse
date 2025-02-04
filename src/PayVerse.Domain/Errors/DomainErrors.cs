@@ -275,4 +275,30 @@ public static class DomainErrors
     #endregion
     
     #endregion
+    
+    #region Wallet
+    
+    #region Entities
+    
+    public static class Wallet
+    {
+        public static Error TransactionNotFound(Guid transactionId) => new(
+            "Wallet.TransactionNotFound",
+            $"Transaction with ID {transactionId} was not found.");
+    }
+    
+    #endregion
+
+    #region Value Objects
+    
+    public static class WalletBalance
+    {
+        public static readonly Error Negative = new(
+            "WalletBalance.Negative",
+            "Wallet balance must not be negative.");
+    }
+    
+    #endregion
+
+    #endregion
 }
