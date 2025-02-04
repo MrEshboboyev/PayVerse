@@ -148,11 +148,15 @@ public static class DomainErrors
         public static readonly Error NotExist = new(
             "Invoice.NotExist",
             $"There is no invoices");
+        
+        public static readonly Func<Guid, Error> ItemNotFound = id => new Error(
+            "Invoice.ItemNotFound",
+            $"The invoice item with the identifier {id} was not found in this invoice.");
     }
 
     public static class InvoiceItem
     {
-        public static readonly Func<int, Error> NotFound = id => new Error(
+        public static readonly Func<Guid, Error> NotFound = id => new Error(
             "InvoiceItem.NotFound",
             $"The invoice item with the identifier {id} was not found.");
     }
@@ -186,6 +190,58 @@ public static class DomainErrors
             "Invoice number must not be too long.");
     }
 
+    #endregion
+    
+    #endregion
+    
+    #region VirtualAccount
+    
+    #region Entities
+
+    public static class VirtualAccount
+    {
+        public static readonly Func<Guid, Error> NotFound = id => new Error(
+            "AccountNumber.NotFound",
+            $"The account number with the identifier {id} was not found.");
+
+        public static readonly Error NotExist = new(
+            "AccountNumber.NotExist",
+            $"There is no AccountNumber");
+        
+        public static readonly Func<Guid, Error> ItemNotFound = id => new Error(
+            "Invoice.ItemNotFound",
+            $"The invoice item with the identifier {id} was not found in this invoice.");
+    }
+
+    #endregion
+
+    #region Value Objects
+
+    public static class AccountNumber
+    {
+        public static readonly Error Empty = new(
+            "AccountNumber.Empty",
+            "Account number must not be empty.");
+        
+        public static readonly Error InvalidLength = new(
+            "AccountNumber.InvalidLength",
+            "Account number must have a valid length.");
+    }
+
+    public static class Balance
+    {
+        public static readonly Error Negative = new(
+            "Balance.Negative",
+            "Balance must not be negative.");
+    }
+
+    public static class Currency
+    {
+        public static readonly Error Invalid = new(
+            "Currency.Invalid",
+            "Currency must be valid.");
+    }
+    
     #endregion
     
     #endregion
