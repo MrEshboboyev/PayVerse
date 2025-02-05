@@ -1,6 +1,7 @@
 using PayVerse.Domain.Enums.Payments;
 using PayVerse.Domain.Events.Payments;
 using PayVerse.Domain.Primitives;
+using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects.Payments;
 
 namespace PayVerse.Domain.Entities.Payments;
@@ -49,6 +50,35 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
         Guid userId)
     {
         return new Payment(id, amount, status, userId);
+    }
+    
+    #endregion
+    
+    #region Own methods
+
+    public Result UpdateStatus(PaymentStatus newStatus)
+    {
+        var oldStatus = Status;
+        
+        // Status locking or checking with guards (coming soon)
+        
+        #region Update status
+        
+        Status = newStatus;
+        
+        #endregion
+        
+        #region Domain Events
+        
+        RaiseDomainEvent(new PaymentStatusUpdatedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            oldStatus,
+            newStatus));
+        
+        #endregion
+        
+        return Result.Success();
     }
     
     #endregion
