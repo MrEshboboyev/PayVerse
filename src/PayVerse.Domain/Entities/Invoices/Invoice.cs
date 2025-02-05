@@ -68,7 +68,9 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
 
     #endregion
 
-    #region Methods
+    #region Item related Methods
+    
+    public InvoiceItem GetItemById(Guid id) => _items.FirstOrDefault(i => i.Id == id);
 
     public Result<InvoiceItem> AddItem(
         string description,
@@ -86,6 +88,15 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
         #region Add Invoice Item
         
         _items.Add(invoiceItem);
+        
+        #endregion
+        
+        #region Domain Events
+        
+        RaiseDomainEvent(new InvoiceItemAddedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            invoiceItem.Id));
         
         #endregion
         
@@ -108,6 +119,15 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
         #region Remove Invoice Item
         
         _items.Remove(item);  
+        
+        #endregion
+        
+        #region Domain Events
+        
+        RaiseDomainEvent(new InvoiceItemRemovedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            item.Amount.Value));
         
         #endregion
         
