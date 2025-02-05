@@ -282,6 +282,14 @@ public static class DomainErrors
     
     public static class Wallet
     {
+        public static readonly Func<Guid, Error> NotFound = id => new Error(
+            "Wallet.NotFound",
+            $"The wallet with the identifier {id} was not found.");
+
+        public static readonly Error NotExist = new(
+            "Wallet.NotExist",
+            "There is no wallets");
+        
         public static Error TransactionNotFound(Guid transactionId) => new(
             "Wallet.TransactionNotFound",
             $"Transaction with ID {transactionId} was not found.");

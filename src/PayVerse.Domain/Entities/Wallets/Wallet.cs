@@ -62,10 +62,13 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
     
     #endregion
     
-    #region Methods
+    #region Transaction related Methods
+    
+    public WalletTransaction GetTransactionById(Guid transactionId) => 
+        _transactions.FirstOrDefault(t => t.Id == transactionId);
 
     public Result<WalletTransaction> AddTransaction(
-        decimal amount,
+        Amount amount,
         DateTime date,
         string description)
     {
@@ -85,6 +88,15 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
         
         #endregion
         
+        #region Domain Events
+        
+        RaiseDomainEvent(new WalletTransactionAddedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            transaction.Id));
+        
+        #endregion
+        
         return Result.Success(transaction);
     }
 
@@ -101,7 +113,20 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
         
         #endregion
         
+        #region Remove transaction from wallet
+        
         _transactions.Remove(transaction);
+        
+        #endregion
+        
+        #region Domain Events
+        
+        RaiseDomainEvent(new WalletTransactionRemovedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            transaction.Id));
+        
+        #endregion
         
         return Result.Success();
     }

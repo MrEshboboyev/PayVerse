@@ -19,4 +19,8 @@
       <Folder Include="VirtualAccounts\Commands\Transactions\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Wallets\Queries\GetWalletTransactions\public sealed record GetWalletTransactionsQuery(Guid WalletId) : IRequest&lt;Result&lt;List&lt;WalletTransaction&gt;&gt;&gt;%3b.cs" />
+    </ItemGroup>
+
 </Project>

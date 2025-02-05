@@ -1,4 +1,5 @@
 using PayVerse.Domain.Primitives;
+using PayVerse.Domain.ValueObjects;
 
 namespace PayVerse.Domain.Entities.Wallets;
 
@@ -11,7 +12,7 @@ public sealed class WalletTransaction : Entity
     
     internal WalletTransaction(
         Guid id,
-        decimal amount,
+        Amount amount,
         DateTime date,
         string description) : base(id)
     {
@@ -24,7 +25,7 @@ public sealed class WalletTransaction : Entity
     
     #region Properties
 
-    public decimal Amount { get; private set; }
+    public Amount Amount { get; private set; }
     public DateTime Date { get; private set; }
     public string Description { get; private set; }
     
