@@ -66,10 +66,13 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
     
     #endregion
 
-    #region Methods
+    #region Transaction related Methods
+    
+    public Transaction GetTransactionById(Guid transactionId) 
+        => _transactions.FirstOrDefault(t => t.Id == transactionId);
     
     public Result<Transaction> AddTransaction(
-        decimal amount,
+        Amount amount,
         DateTime date,
         string description)
     {
@@ -86,6 +89,15 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
         #region Add Transaction to this Account
         
         _transactions.Add(transaction);
+        
+        #endregion
+        
+        #region Domain Events
+        
+        RaiseDomainEvent(new TransactionAddedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            transaction.Id));
         
         #endregion
         

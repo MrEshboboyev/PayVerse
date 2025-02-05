@@ -15,4 +15,8 @@
         <ProjectReference Include="..\PayVerse.Domain\PayVerse.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="VirtualAccounts\Commands\Transactions\" />
+    </ItemGroup>
+
 </Project>

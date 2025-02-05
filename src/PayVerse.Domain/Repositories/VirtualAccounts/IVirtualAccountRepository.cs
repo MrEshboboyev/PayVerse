@@ -4,6 +4,7 @@ namespace PayVerse.Domain.Repositories.VirtualAccounts;
 
 public interface IVirtualAccountRepository : IRepository<VirtualAccount>
 {
+    Task<IEnumerable<VirtualAccount>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<VirtualAccount>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<VirtualAccount> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<VirtualAccount> GetByIdWithTransactionsAsync(Guid id, CancellationToken cancellationToken = default);

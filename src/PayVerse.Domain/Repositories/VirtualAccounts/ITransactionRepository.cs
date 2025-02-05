@@ -4,6 +4,6 @@ namespace PayVerse.Domain.Repositories.VirtualAccounts;
 
 public interface ITransactionRepository
 {
-    Task AddAsync(Transaction transaction);
+    Task AddAsync(Transaction transaction, CancellationToken cancellationToken = default);
     Task DeleteAsync(Transaction transaction);
 }

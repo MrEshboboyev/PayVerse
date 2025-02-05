@@ -11,7 +11,7 @@ public sealed class AccountNumber : ValueObject
 {
     #region Constants
     
-    public const int MaxLength = 16; // Assuming a 16-digit virtual account number
+    public const int Length = 16; // Assuming a 16-digit virtual account number
     
     #endregion
     
@@ -40,7 +40,7 @@ public sealed class AccountNumber : ValueObject
                 DomainErrors.AccountNumber.Empty);
         }
 
-        if (value.Length != MaxLength)
+        if (value.Length != Length)
         {
             return Result.Failure<AccountNumber>(
                 DomainErrors.AccountNumber.InvalidLength);

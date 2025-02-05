@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace InspireEd.Domain.Repositories;
+namespace PayVerse.Domain.Repositories;
 
 /// <summary> 
 /// Defines the contract for a unit of work pattern. 

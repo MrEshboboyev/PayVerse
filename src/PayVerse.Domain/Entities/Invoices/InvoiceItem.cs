@@ -1,4 +1,5 @@
 using PayVerse.Domain.Primitives;
+using PayVerse.Domain.ValueObjects;
 using PayVerse.Domain.ValueObjects.Invoices;
 
 namespace PayVerse.Domain.Entities.Invoices;

@@ -2,6 +2,7 @@ using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Invoices;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
+using PayVerse.Domain.ValueObjects;
 using PayVerse.Domain.ValueObjects.Invoices;
 
 namespace PayVerse.Domain.Entities.Invoices;

@@ -2,7 +2,7 @@ using PayVerse.Domain.Errors;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
 
-namespace PayVerse.Domain.ValueObjects.Invoices;
+namespace PayVerse.Domain.ValueObjects;
 
 /// <summary>
 /// Represents an amount of money.
