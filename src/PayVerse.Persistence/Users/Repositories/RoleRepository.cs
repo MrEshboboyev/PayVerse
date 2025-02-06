@@ -20,7 +20,7 @@ public sealed class RoleRepository(ApplicationDbContext dbContext) : IRoleReposi
                 .Set<Role>()
                 .FirstOrDefaultAsync(r => r.Name == name, cancellationToken);
 
-    public async Task<List<Role>> GetRolesAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Role>> GetAllAsync(CancellationToken cancellationToken = default)
         => await dbContext
                 .Set<Role>()
                 .ToListAsync(cancellationToken);

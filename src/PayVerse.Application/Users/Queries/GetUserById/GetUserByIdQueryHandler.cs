@@ -1,4 +1,7 @@
 ﻿using PayVerse.Application.Abstractions.Messaging;
+using PayVerse.Application.Users.Queries.Common;
+using PayVerse.Application.Users.Queries.Common.Factories;
+using PayVerse.Application.Users.Queries.Common.Responses;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Repositories;
 using PayVerse.Domain.Repositories.Users;
@@ -13,24 +16,24 @@ internal sealed class GetUserByIdQueryHandler(IUserRepository userRepository)
         GetUserByIdQuery request,
         CancellationToken cancellationToken)
     {
+        var userId = request.UserId;
+        
         // Fetch the user from the repository
-        var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);   
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken);   
 
         // If user is not found, return a failure result
         if (user is null)
         {
             return Result.Failure<UserResponse>(
-                DomainErrors.User.NotFound(request.UserId));
+                DomainErrors.User.NotFound(userId));
         }
+        
+        #region Prepare response
+        
+        var response = UserResponseFactory.Create(user);
+        
+        #endregion
 
-        // Create and return the UserResponse object
-        var response = new UserResponse(
-            user.Id,
-            user.Email.Value,
-            user.FirstName.Value,
-            user.LastName.Value,
-            user.Roles.Select(role => role.Name.ToString()));
-
-        return response;
+        return Result.Success(response);
     }
 }
