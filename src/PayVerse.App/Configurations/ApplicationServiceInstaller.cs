@@ -2,6 +2,7 @@
 using PayVerse.Application.Behaviors;
 using PayVerse.Infrastructure.Idempotence;
 using MediatR;
+using PayVerse.Application;
 
 namespace PayVerse.App.Configurations;
 
@@ -9,7 +10,12 @@ public class ApplicationServiceInstaller : IServiceInstaller
 {
     public void Install(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMediatR(Application.AssemblyReference.Assembly);
+        // Add MediatR services for handling commands and queries
+        services.AddMediatR(cfg =>
+        {
+            // Register handlers from the specified assembly
+            cfg.RegisterServicesFromAssembly(AssemblyReference.Assembly);
+        });
 
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
 
@@ -18,7 +24,7 @@ public class ApplicationServiceInstaller : IServiceInstaller
         services.Decorate(typeof(INotificationHandler<>), typeof(IdempotentDomainEventHandler<>));
 
         services.AddValidatorsFromAssembly(
-            Application.AssemblyReference.Assembly,
+            AssemblyReference.Assembly,
             includeInternalTypes: true);
     }
 }
