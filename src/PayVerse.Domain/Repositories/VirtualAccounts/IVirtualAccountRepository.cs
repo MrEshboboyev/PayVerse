@@ -11,5 +11,5 @@ public interface IVirtualAccountRepository : IRepository<VirtualAccount>
     
     Task AddAsync(VirtualAccount virtualAccount, CancellationToken cancellationToken = default);
     Task UpdateAsync(VirtualAccount virtualAccount, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task DeleteAsync(VirtualAccount virtualAccount, CancellationToken cancellationToken = default);
 }
