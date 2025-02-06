@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using PayVerse.Application.Invoices.Commands.AddInvoiceItem;
 using PayVerse.Application.Invoices.Commands.CreateInvoice;
 using PayVerse.Application.Invoices.Commands.RemoveInvoiceItem;
-using PayVerse.Application.Invoices.Queries.GetAllInvoices;
 using PayVerse.Application.Invoices.Queries.GetInvoiceById;
 using PayVerse.Application.Invoices.Queries.GetInvoiceItemById;
 using PayVerse.Application.Invoices.Queries.GetInvoiceItems;
@@ -20,16 +19,6 @@ namespace PayVerse.Presentation.Controllers;
 public sealed class InvoiceController(ISender sender) : ApiController(sender)
 {
     #region Get Endpoints
-    
-    [HttpGet("user/{userId:guid}")]
-    public async Task<IActionResult> GetInvoicesByUserId(
-        Guid userId,
-        CancellationToken cancellationToken)
-    {
-        var query = new GetInvoicesByUserIdQuery(userId);
-        var response = await Sender.Send(query, cancellationToken);
-        return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
-    }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetInvoiceById(

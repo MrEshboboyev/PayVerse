@@ -17,7 +17,7 @@ internal sealed class GetInvoiceWithItemsByIdQueryHandler(
         var invoiceId = request.InvoiceId;
         
         // Get Invoice
-        var invoiceWithItems = await invoiceRepository.GetInvoiceWithItemsByIdAsync(
+        var invoiceWithItems = await invoiceRepository.GetByIdWithItemsAsync(
             invoiceId,
             cancellationToken);
         if (invoiceWithItems is null)

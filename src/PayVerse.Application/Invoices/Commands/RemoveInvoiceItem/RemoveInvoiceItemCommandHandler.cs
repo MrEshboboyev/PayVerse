@@ -18,7 +18,7 @@ internal sealed class RemoveInvoiceItemCommandHandler(
         
         #region Get Invoice
 
-        var invoice = await invoiceRepository.GetByIdAsync(invoiceId, cancellationToken);
+        var invoice = await invoiceRepository.GetByIdWithItemsAsync(invoiceId, cancellationToken);
         if (invoice is null)
         {
             return Result.Failure(
@@ -44,6 +44,9 @@ internal sealed class RemoveInvoiceItemCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         #endregion
+        
+        // TO-DO 
+        // InvoiceItem removed from Invoice, but not removed from database
 
         return Result.Success();
     }
