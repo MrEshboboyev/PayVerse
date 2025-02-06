@@ -22,22 +22,22 @@ internal sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
     {
         var claims = new List<Claim>
         {
-                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new(JwtRegisteredClaimNames.Email, user.Email.Value)
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email.Value)
         };
 
         #region Add Roles
-        
+
         // Add roles
         claims.AddRange(user.Roles.Select(
-            role => new Claim(ClaimTypes.Role, role.Name)));
+            role => new Claim("role", role.Name)));
 
         #endregion
 
         var signingCredentials = new SigningCredentials(
-             new SymmetricSecurityKey(
-                 Encoding.UTF8.GetBytes(_options.SecretKey)),
-             SecurityAlgorithms.HmacSha256);
+            new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_options.SecretKey)),
+            SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             _options.Issuer,
@@ -48,9 +48,8 @@ internal sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
             signingCredentials);
 
         var tokenValue = new JwtSecurityTokenHandler()
-             .WriteToken(token);
+            .WriteToken(token);
 
         return tokenValue;
     }
 }
-

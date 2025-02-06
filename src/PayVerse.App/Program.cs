@@ -1,8 +1,12 @@
+using DotNetEnv;
 using PayVerse.App.Configurations;
 using PayVerse.App.Middlewares;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load the .env file
+Env.Load();
 
 builder.Services
     .InstallServices(
