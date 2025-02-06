@@ -11,6 +11,7 @@ namespace PayVerse.Application.Users.Commands.CreateUser;
 
 internal sealed class CreateUserCommandHandler(
     IUserRepository userRepository,
+    IRoleRepository roleRepository,
     IUnitOfWork unitOfWork,
     IPasswordHasher passwordHasher) : ICommandHandler<CreateUserCommand, Guid>
 {
@@ -18,9 +19,16 @@ internal sealed class CreateUserCommandHandler(
         CreateUserCommand request, 
         CancellationToken cancellationToken)
     {
+        var (email, password, firstName, lastName, roleId) = request;
+        
         #region Create Email and checking email unique
 
-        var emailResult = Email.Create(request.Email);
+        var emailResult = Email.Create(email);
+        if (emailResult.IsFailure)
+        {
+            return Result.Failure<Guid>(emailResult.Error);
+        }
+        
         if (!await userRepository.IsEmailUniqueAsync(emailResult.Value, cancellationToken))
         {
             return Result.Failure<Guid>(
@@ -31,14 +39,14 @@ internal sealed class CreateUserCommandHandler(
 
         #region Create Other value objects (FirstName, LastName) 
 
-        var createFirstNameResult = FirstName.Create(request.FirstName);
+        var createFirstNameResult = FirstName.Create(firstName);
         if (createFirstNameResult.IsFailure)
         {
             return Result.Failure<Guid>(
                 createFirstNameResult.Error);
         }
 
-        var createLastNameResult = LastName.Create(request.LastName);
+        var createLastNameResult = LastName.Create(lastName);
         if (createLastNameResult.IsFailure)
         {
             return Result.Failure<Guid>(
@@ -49,7 +57,18 @@ internal sealed class CreateUserCommandHandler(
 
         #region Create Password Hash
 
-        var passwordHash = passwordHasher.Hash(request.Password);
+        var passwordHash = passwordHasher.Hash(password);
+        
+        #endregion
+        
+        #region Get Role
+        
+        var role = await roleRepository.GetByIdAsync(roleId, cancellationToken);
+        if (role is null)
+        {
+            return Result.Failure<Guid>(
+                DomainErrors.Role.NotFound(roleId));
+        }
         
         #endregion
         
@@ -61,7 +80,7 @@ internal sealed class CreateUserCommandHandler(
             passwordHash,
             createFirstNameResult.Value,
             createLastNameResult.Value,
-            Role.IndividualUser
+            role
         );
         
         #endregion

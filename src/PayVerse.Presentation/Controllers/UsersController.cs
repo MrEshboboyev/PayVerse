@@ -6,7 +6,7 @@ using PayVerse.Presentation.Contracts.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using PayVerse.Domain.Entities.Users;
 
 namespace PayVerse.Presentation.Controllers;
 
@@ -47,11 +47,22 @@ public sealed class UsersController(ISender sender) : ApiController(sender)
         [FromBody] RegisterUserRequest request,
         CancellationToken cancellationToken)
     {
+        #region Get Role from Name
+
+        var role = Role.FromName(request.RoleName);
+        if (!new[] { Role.IndividualUser, Role.BusinessUser }.Contains(role))
+        {
+            return BadRequest();
+        }
+
+        #endregion
+        
         var command = new CreateUserCommand(
             request.Email,
             request.Password,
             request.FirstName,
-            request.LastName);
+            request.LastName,
+            role.Id);
 
         var result = await Sender.Send(command, cancellationToken);
         
