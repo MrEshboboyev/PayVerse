@@ -29,12 +29,9 @@ internal sealed class GetInvoiceWithItemsByIdQueryHandler(
         // Prepare response
         var response = new InvoiceWithItemsResponse
         (
-            InvoiceResponseFactory.Create(invoiceWithItems), 
-            new InvoiceItemListResponse(
-                invoiceWithItems.Items
-                    .Select(InvoiceItemResponseFactory.Create)
-                    .ToList()
-                    .AsReadOnly())
+            InvoiceResponseFactory.Create(invoiceWithItems),
+            invoiceWithItems.Items.Select(InvoiceItemResponseFactory.Create)
+                .ToList().AsReadOnly()
         );
 
         return Result.Success(response);

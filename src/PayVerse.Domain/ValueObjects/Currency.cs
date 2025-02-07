@@ -11,7 +11,7 @@ public sealed class Currency : ValueObject
 {
     #region Constants
     
-    public const int CodeLength = 32;
+    public const int CodeLength = 3;
     
     #endregion
     

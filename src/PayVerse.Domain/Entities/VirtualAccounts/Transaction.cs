@@ -17,6 +17,7 @@ public sealed class Transaction : Entity
         DateTime date,
         string description) : base(id)
     {
+        VirtualAccountId = virtualAccountId;
         Amount = amount;
         Date = date;
         Description = description;

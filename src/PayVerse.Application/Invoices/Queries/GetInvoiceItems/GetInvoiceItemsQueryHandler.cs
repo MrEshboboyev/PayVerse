@@ -18,7 +18,7 @@ internal sealed class GetInvoiceItemsQueryHandler(
         
         #region Get Invoice
 
-        var invoice = await invoiceRepository.GetByIdAsync(invoiceId, cancellationToken);
+        var invoice = await invoiceRepository.GetByIdWithItemsAsync(invoiceId, cancellationToken);
         if (invoice is null)
         {
             return Result.Failure<InvoiceItemListResponse>(

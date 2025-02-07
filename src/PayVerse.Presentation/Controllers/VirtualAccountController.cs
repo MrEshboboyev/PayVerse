@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PayVerse.Application.VirtualAccounts.Commands.AddTransaction;
 using PayVerse.Application.VirtualAccounts.Commands.CreateVirtualAccount;
+using PayVerse.Application.VirtualAccounts.Queries.GetTransactionById;
 using PayVerse.Application.VirtualAccounts.Queries.GetTransactions;
 using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountById;
 using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountsByUserId;
+using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountWithTransactionsById;
 using PayVerse.Presentation.Abstractions;
 using PayVerse.Presentation.Contracts.VirtualAccounts;
 
@@ -45,6 +47,27 @@ public sealed class VirtualAccountController(ISender sender) : ApiController(sen
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
+    
+    [HttpGet("{virtualAccountId:guid}/transactions/{transactionId:guid}")]
+    public async Task<IActionResult> GetTransactionById(
+        Guid virtualAccountId,
+        Guid transactionId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTransactionByIdQuery(virtualAccountId, transactionId);
+        var response = await Sender.Send(query, cancellationToken);
+        return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
+
+    [HttpGet("{virtualAccountId:guid}/with-transactions")]
+    public async Task<IActionResult> GetVirtualAccountWithTransactionsById(
+        Guid virtualAccountId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetVirtualAccountWithTransactionsByIdQuery(virtualAccountId);
+        var response = await Sender.Send(query, cancellationToken);
+        return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
 
     #endregion
 
@@ -59,7 +82,7 @@ public sealed class VirtualAccountController(ISender sender) : ApiController(sen
             request.AccountNumber,
             request.CurrencyCode,
             request.Balance,
-            request.UserId);
+            GetUserId());
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
