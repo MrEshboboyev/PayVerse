@@ -53,8 +53,7 @@ public sealed class PaymentController(ISender sender) : ApiController(sender)
 
     [HttpPost]
     public async Task<IActionResult> CreatePayment(
-        [FromBody]
-        CreatePaymentRequest request,
+        [FromBody] CreatePaymentRequest request,
         CancellationToken cancellationToken)
     {
         var command = new CreatePaymentCommand(
@@ -69,13 +68,13 @@ public sealed class PaymentController(ISender sender) : ApiController(sender)
 
     #region Patch Endpoints
 
-    [HttpPatch("{id:guid}/status/{status}")]
+    [HttpPatch("{paymentId:guid}/status/{status}")]
     public async Task<IActionResult> UpdatePaymentStatus(
-        Guid id,
+        Guid paymentId,
         PaymentStatus status,
         CancellationToken cancellationToken)
     {
-        var command = new UpdatePaymentStatusCommand(id, status);
+        var command = new UpdatePaymentStatusCommand(paymentId, status);
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }

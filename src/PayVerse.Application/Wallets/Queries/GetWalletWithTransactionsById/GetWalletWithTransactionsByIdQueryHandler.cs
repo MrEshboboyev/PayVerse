@@ -5,13 +5,13 @@ using PayVerse.Domain.Errors;
 using PayVerse.Domain.Repositories.Wallets;
 using PayVerse.Domain.Shared;
 
-namespace PayVerse.Application.Wallets.Queries.GetWalletTransactions;
+namespace PayVerse.Application.Wallets.Queries.GetWalletWithTransactionsById;
 
-internal sealed class GetWalletTransactionsQueryHandler(
-    IWalletRepository walletRepository) : IQueryHandler<GetWalletTransactionsQuery, WalletTransactionListResponse>
+internal sealed class GetWalletWithTransactionsByIdQueryHandler(
+    IWalletRepository walletRepository) : IQueryHandler<GetWalletWithTransactionsByIdQuery, WalletWithTransactionsResponse>
 {
-    public async Task<Result<WalletTransactionListResponse>> Handle(
-        GetWalletTransactionsQuery request,
+    public async Task<Result<WalletWithTransactionsResponse>> Handle(
+        GetWalletWithTransactionsByIdQuery request,
         CancellationToken cancellationToken)
     {
         var walletId = request.WalletId;
@@ -23,7 +23,7 @@ internal sealed class GetWalletTransactionsQueryHandler(
             cancellationToken);
         if (wallet is null)
         {
-            return Result.Failure<WalletTransactionListResponse>(
+            return Result.Failure<WalletWithTransactionsResponse>(
                 DomainErrors.Wallet.NotFound(walletId));
         }
         
@@ -31,11 +31,11 @@ internal sealed class GetWalletTransactionsQueryHandler(
         
         #region Prepare response
         
-        var response = new WalletTransactionListResponse(
+        var response = new WalletWithTransactionsResponse(
+            WalletResponseFactory.Create(wallet),
             wallet.Transactions
                 .Select(WalletTransactionResponseFactory.Create)
-                .ToList()
-                .AsReadOnly());
+                .ToList().AsReadOnly());
         
         #endregion
         

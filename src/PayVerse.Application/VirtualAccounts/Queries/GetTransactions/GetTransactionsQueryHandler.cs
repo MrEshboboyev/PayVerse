@@ -1,7 +1,6 @@
 using PayVerse.Application.Abstractions.Messaging;
 using PayVerse.Application.VirtualAccounts.Queries.Common.Factories;
 using PayVerse.Application.VirtualAccounts.Queries.Common.Responses;
-using PayVerse.Domain.Entities.VirtualAccounts;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Repositories.VirtualAccounts;
 using PayVerse.Domain.Shared;
@@ -19,7 +18,7 @@ internal sealed class GetTransactionsQueryHandler(
         
         #region Get Virtual Account
 
-        var virtualAccount = await virtualAccountRepository.GetByIdAsync(
+        var virtualAccount = await virtualAccountRepository.GetByIdWithTransactionsAsync(
             virtualAccountId,
             cancellationToken);
         if (virtualAccount is null)

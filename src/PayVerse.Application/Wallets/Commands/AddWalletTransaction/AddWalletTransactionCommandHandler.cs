@@ -30,7 +30,9 @@ internal sealed class AddWalletTransactionCommandHandler(
         
         #region Get Wallet
 
-        var wallet = await walletRepository.GetByIdAsync(walletId, cancellationToken);
+        var wallet = await walletRepository.GetByIdWithTransactionsAsync(
+            walletId,
+            cancellationToken);
         if (wallet is null)
         {
             return Result.Failure(
@@ -52,7 +54,6 @@ internal sealed class AddWalletTransactionCommandHandler(
         #region Save Changes
 
         await walletTransactionRepository.AddAsync(transactionResult.Value, cancellationToken);
-        await walletRepository.UpdateAsync(wallet, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         #endregion

@@ -17,6 +17,7 @@ public sealed class WalletTransaction : Entity
         DateTime date,
         string description) : base(id)
     {
+        WalletId = walletId;
         Amount = amount;
         Date = date;
         Description = description;
@@ -26,7 +27,7 @@ public sealed class WalletTransaction : Entity
     
     #region Properties
 
-    public Guid WalletId { get; set; }
+    public Guid WalletId { get; private set; }
     public Amount Amount { get; private set; }
     public DateTime Date { get; private set; }
     public string Description { get; private set; }

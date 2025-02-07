@@ -2,9 +2,9 @@ namespace PayVerse.Domain.Enums.Payments;
 
 public enum PaymentStatus
 {
-    Pending,
-    Completed,
-    Failed,
-    Cancelled,
-    Refunded
+    Pending = 10,
+    Completed = 20,
+    Failed = 30,
+    Cancelled = 40,
+    Refunded = 50
 }

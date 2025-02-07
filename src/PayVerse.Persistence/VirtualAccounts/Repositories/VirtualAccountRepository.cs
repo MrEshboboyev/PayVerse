@@ -18,7 +18,8 @@ public sealed class VirtualAccountRepository(ApplicationDbContext dbContext) : I
 
     public async Task<VirtualAccount> GetByIdWithTransactionsAsync(Guid id,
         CancellationToken cancellationToken = default)
-        => await dbContext.Set<VirtualAccount>().Include(va => va.Transactions)
+        => await dbContext.Set<VirtualAccount>()
+            .Include(va => va.Transactions)
             .FirstOrDefaultAsync(va => va.Id == id, cancellationToken);
 
     public async Task AddAsync(VirtualAccount virtualAccount, CancellationToken cancellationToken = default)

@@ -8,6 +8,7 @@ using PayVerse.Application.Wallets.Queries.GetWalletById;
 using PayVerse.Application.Wallets.Queries.GetWalletsByUserId;
 using PayVerse.Application.Wallets.Queries.GetWalletTransactionById;
 using PayVerse.Application.Wallets.Queries.GetWalletTransactions;
+using PayVerse.Application.Wallets.Queries.GetWalletWithTransactionsById;
 using PayVerse.Presentation.Abstractions;
 using PayVerse.Presentation.Contracts.Wallets;
 
@@ -30,7 +31,7 @@ public sealed class WalletController(ISender sender) : ApiController(sender)
     }
 
     [HttpGet("user")]
-    public async Task<IActionResult> GetWalletsByUserId(
+    public async Task<IActionResult> GetWallets(
         CancellationToken cancellationToken)
     {
         var query = new GetWalletsByUserIdQuery(GetUserId());
@@ -58,6 +59,16 @@ public sealed class WalletController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
+    
+    [HttpGet("{walletId:guid}/with-transactions")]
+    public async Task<IActionResult> GetWalletWithTransactions(
+        Guid walletId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetWalletWithTransactionsByIdQuery(walletId);
+        var response = await Sender.Send(query, cancellationToken);
+        return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
 
     #endregion
 
@@ -71,7 +82,7 @@ public sealed class WalletController(ISender sender) : ApiController(sender)
         var command = new CreateWalletCommand(
             GetUserId(),
             request.Balance,
-            request.Currency);
+            request.CurrencyCode);
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }

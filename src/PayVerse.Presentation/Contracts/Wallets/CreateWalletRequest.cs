@@ -2,4 +2,4 @@ namespace PayVerse.Presentation.Contracts.Wallets;
 
 public sealed record CreateWalletRequest(
     decimal Balance,
-    string Currency);
+    string CurrencyCode);
