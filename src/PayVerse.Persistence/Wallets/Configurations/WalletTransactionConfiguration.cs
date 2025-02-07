@@ -18,6 +18,17 @@ internal sealed class WalletTransactionConfiguration : IEntityTypeConfiguration<
 
         // Configure the primary key
         builder.HasKey(x => x.Id);
+        
+        // Explicitly map InvoiceId as a non-nullable foreign key
+        builder
+            .Property(x => x.WalletId)
+            .IsRequired();
+
+        builder
+            .HasOne<Wallet>()
+            .WithMany(x => x.Transactions)
+            .HasForeignKey(x => x.WalletId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete
 
         // Configure properties
         builder.Property(x => x.Amount)

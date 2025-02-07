@@ -18,6 +18,17 @@ internal sealed class InvoiceItemConfiguration : IEntityTypeConfiguration<Invoic
 
         // Configure the primary key
         builder.HasKey(x => x.Id);
+        
+        // Explicitly map InvoiceId as a non-nullable foreign key
+        builder
+            .Property(x => x.InvoiceId)
+            .IsRequired();
+
+        builder
+            .HasOne<Invoice>()
+            .WithMany(x => x.Items)
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete
 
         // Configure property conversions and constraints
         builder
@@ -29,12 +40,5 @@ internal sealed class InvoiceItemConfiguration : IEntityTypeConfiguration<Invoic
             .Property(x => x.Amount)
             .HasConversion(x => x.Value, v => Amount.Create(v).Value)
             .IsRequired();
-
-        // Configure the foreign key relationship with Invoice
-        builder
-            .HasOne<Invoice>()
-            .WithMany(x => x.Items)
-            .HasForeignKey("InvoiceId")
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

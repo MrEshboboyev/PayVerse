@@ -12,6 +12,7 @@ public sealed class Transaction : Entity
     
     internal Transaction(
         Guid id,
+        Guid virtualAccountId,
         Amount amount,
         DateTime date,
         string description) : base(id)
@@ -25,6 +26,7 @@ public sealed class Transaction : Entity
     
     #region Properties
 
+    public Guid VirtualAccountId { get; set; }
     public Amount Amount { get; private set; }
     public DateTime Date { get; private set; }
     public string Description { get; private set; }

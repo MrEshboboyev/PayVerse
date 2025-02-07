@@ -12,8 +12,8 @@ using PayVerse.Persistence;
 namespace PayVerse.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250206092045_Initial_Create")]
-    partial class Initial_Create
+    [Migration("20250207082549_ForeignKeyRelationshipBetweeneEntities")]
+    partial class ForeignKeyRelationshipBetweeneEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,7 +69,7 @@ namespace PayVerse.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<Guid?>("InvoiceId")
+                    b.Property<Guid>("InvoiceId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -189,7 +189,7 @@ namespace PayVerse.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<Guid?>("VirtualAccountId")
+                    b.Property<Guid>("VirtualAccountId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -273,7 +273,7 @@ namespace PayVerse.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<Guid?>("WalletId")
+                    b.Property<Guid>("WalletId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -342,7 +342,8 @@ namespace PayVerse.Persistence.Migrations
                     b.HasOne("PayVerse.Domain.Entities.Invoices.Invoice", null)
                         .WithMany("Items")
                         .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PayVerse.Domain.Entities.VirtualAccounts.Transaction", b =>
@@ -350,7 +351,8 @@ namespace PayVerse.Persistence.Migrations
                     b.HasOne("PayVerse.Domain.Entities.VirtualAccounts.VirtualAccount", null)
                         .WithMany("Transactions")
                         .HasForeignKey("VirtualAccountId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PayVerse.Domain.Entities.Wallets.WalletTransaction", b =>
@@ -358,7 +360,8 @@ namespace PayVerse.Persistence.Migrations
                     b.HasOne("PayVerse.Domain.Entities.Wallets.Wallet", null)
                         .WithMany("Transactions")
                         .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RoleUser", b =>

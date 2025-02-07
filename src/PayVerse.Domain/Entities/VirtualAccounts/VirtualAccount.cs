@@ -80,6 +80,7 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
         
         var transaction = new Transaction(
             Guid.NewGuid(),
+            Id,
             amount,
             date,
             description);

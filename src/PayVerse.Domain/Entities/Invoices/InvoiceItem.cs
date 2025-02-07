@@ -12,9 +12,11 @@ public sealed class InvoiceItem : Entity
     
     internal InvoiceItem(
         Guid id,
+        Guid invoiceId, 
         string description,
         Amount amount) : base(id)
     {
+        InvoiceId = invoiceId;
         Description = description;
         Amount = amount;
     }
@@ -22,7 +24,8 @@ public sealed class InvoiceItem : Entity
     #endregion
 
     #region Properties
-    
+
+    public Guid InvoiceId { get; private set; }
     public string Description { get; private set; }
     public Amount Amount { get; private set; }
     

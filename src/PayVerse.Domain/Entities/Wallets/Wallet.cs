@@ -76,6 +76,7 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
         
         var transaction = new WalletTransaction(
             Guid.NewGuid(),
+            Id,
             amount,
             date,
             description);

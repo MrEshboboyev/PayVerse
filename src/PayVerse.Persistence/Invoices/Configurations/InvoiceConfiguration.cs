@@ -33,13 +33,13 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder
             .Property(x => x.TotalAmount)
             .HasConversion(x => x.Value, v => Amount.Create(v).Value);
-
-        // Configure the relationship with InvoiceItems
-        builder
-            .HasMany(x => x.Items)
-            .WithOne()
-            .HasForeignKey("InvoiceId")
-            .OnDelete(DeleteBehavior.Cascade);
+        //
+        // // Configure the relationship with InvoiceItems
+        // builder
+        //     .HasMany(x => x.Items)
+        //     .WithOne()
+        //     .HasForeignKey("InvoiceId")
+        //     .OnDelete(DeleteBehavior.Cascade);
 
         // Configure auditing properties
         builder

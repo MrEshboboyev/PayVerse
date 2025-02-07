@@ -18,6 +18,17 @@ internal sealed class TransactionConfiguration : IEntityTypeConfiguration<Transa
 
         // Configure the primary key
         builder.HasKey(x => x.Id);
+        
+        // Explicitly map InvoiceId as a non-nullable foreign key
+        builder
+            .Property(x => x.VirtualAccountId)
+            .IsRequired();
+
+        builder
+            .HasOne<VirtualAccount>()
+            .WithMany(x => x.Transactions)
+            .HasForeignKey(x => x.VirtualAccountId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete
 
         // Configure properties
         builder.Property(x => x.Amount)

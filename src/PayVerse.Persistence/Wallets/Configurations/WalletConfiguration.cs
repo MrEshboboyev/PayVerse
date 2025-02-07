@@ -37,10 +37,5 @@ internal sealed class WalletConfiguration : IEntityTypeConfiguration<Wallet>
 
         builder.Property(x => x.ModifiedOnUtc)
             .IsRequired(false);
-
-        builder.HasMany(x => x.Transactions)
-            .WithOne()
-            .HasForeignKey("WalletId")
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

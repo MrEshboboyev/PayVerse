@@ -81,6 +81,7 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
         
         var invoiceItem = new InvoiceItem(
             Guid.NewGuid(),
+            Id,
             description,
             amount);
         

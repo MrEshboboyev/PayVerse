@@ -34,10 +34,5 @@ internal sealed class VirtualAccountConfiguration : IEntityTypeConfiguration<Vir
             .IsRequired();
 
         builder.Property(x => x.UserId).IsRequired();
-
-        builder.HasMany(x => x.Transactions)
-            .WithOne()
-            .HasForeignKey("VirtualAccountId")
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

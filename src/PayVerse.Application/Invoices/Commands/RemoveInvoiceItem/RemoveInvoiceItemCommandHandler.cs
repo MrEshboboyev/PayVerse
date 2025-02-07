@@ -44,9 +44,6 @@ internal sealed class RemoveInvoiceItemCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         #endregion
-        
-        // TO-DO 
-        // InvoiceItem removed from Invoice, but not removed from database
 
         return Result.Success();
     }
