@@ -2,8 +2,14 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PayVerse.Application.Invoices.Commands.AddInvoiceItem;
+using PayVerse.Application.Invoices.Commands.AddTaxToInvoice;
+using PayVerse.Application.Invoices.Commands.ApplyDiscountToInvoice;
 using PayVerse.Application.Invoices.Commands.CreateInvoice;
+using PayVerse.Application.Invoices.Commands.CreateRecurringInvoice;
+using PayVerse.Application.Invoices.Commands.MarkInvoiceAsOverdue;
+using PayVerse.Application.Invoices.Commands.MarkInvoiceAsPaid;
 using PayVerse.Application.Invoices.Commands.RemoveInvoiceItem;
+using PayVerse.Application.Invoices.Commands.SendInvoiceToClient;
 using PayVerse.Application.Invoices.Queries.GetInvoiceById;
 using PayVerse.Application.Invoices.Queries.GetInvoiceItemById;
 using PayVerse.Application.Invoices.Queries.GetInvoiceItems;
@@ -102,6 +108,77 @@ public sealed class InvoiceController(ISender sender) : ApiController(sender)
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
 
+    [HttpPost("send-to-client")]
+    public async Task<IActionResult> SendInvoiceToClient(
+        [FromBody] SendInvoiceToClientRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new SendInvoiceToClientCommand(
+            request.InvoiceId,
+            request.Email);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("{invoiceId:guid}/mark-as-paid")]
+    public async Task<IActionResult> MarkInvoiceAsPaid(
+        Guid invoiceId,
+        CancellationToken cancellationToken)
+    {
+        var command = new MarkInvoiceAsPaidCommand(invoiceId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("{invoiceId:guid}/mark-as-overdue")]
+    public async Task<IActionResult> MarkInvoiceAsOverdue(
+        Guid invoiceId,
+        CancellationToken cancellationToken)
+    {
+        var command = new MarkInvoiceAsOverdueCommand(invoiceId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("apply-discount")]
+    public async Task<IActionResult> ApplyDiscountToInvoice(
+        [FromBody] ApplyDiscountToInvoiceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ApplyDiscountToInvoiceCommand(
+            request.InvoiceId,
+            request.DiscountAmount);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("add-tax")]
+    public async Task<IActionResult> AddTaxToInvoice(
+        [FromBody] AddTaxToInvoiceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new AddTaxToInvoiceCommand(
+            request.InvoiceId,
+            request.TaxAmount);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("create-recurring")]
+    public async Task<IActionResult> CreateRecurringInvoice(
+        [FromBody] CreateRecurringInvoiceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateRecurringInvoiceCommand(
+            request.InvoiceNumber,
+            request.InvoiceDate, 
+            request.TotalAmount,
+            GetUserId(),
+            request.FrequencyInMonths);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
     #endregion
 
     #region Delete Endpoints
@@ -119,3 +196,4 @@ public sealed class InvoiceController(ISender sender) : ApiController(sender)
 
     #endregion
 }
+    

@@ -100,7 +100,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
     
     #region Post endpoints
     
-    [HttpPost("reset-password")]
+    [HttpPost("users/reset-password")]
     public async Task<IActionResult> ChangePassword(
         [FromBody] ResetPasswordRequest request,
         CancellationToken cancellationToken)

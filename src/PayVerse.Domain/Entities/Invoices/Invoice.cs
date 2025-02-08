@@ -1,3 +1,4 @@
+using PayVerse.Domain.Enums.Invoices;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Invoices;
 using PayVerse.Domain.Primitives;
@@ -27,6 +28,7 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
         Amount totalAmount,
         Guid userId) : base(id)
     {
+        Status = InvoiceStatus.Draft;
         InvoiceNumber = invoiceNumber;
         InvoiceDate = invoiceDate;
         TotalAmount = totalAmount;
@@ -45,6 +47,8 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
 
     #region Properties
 
+    public InvoiceStatus Status { get; private set; }
+    public int RecurringFrequencyInMonths { get; private set; }
     public InvoiceNumber InvoiceNumber { get; private set; }
     public InvoiceDate InvoiceDate { get; private set; }
     public Amount TotalAmount { get; private set; }
@@ -136,5 +140,77 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
         return Result.Success();
     } 
 
+    #endregion
+    
+    #region Status related Methods
+    
+    public Result MarkAsPaid()
+    {
+        Status = InvoiceStatus.Paid;
+        
+        RaiseDomainEvent(new InvoicePaidDomainEvent(
+            Guid.NewGuid(),
+            Id));
+        
+        return Result.Success();
+    }
+
+    public Result MarkAsOverdue()
+    {
+        Status = InvoiceStatus.Overdue;
+        
+        RaiseDomainEvent(new InvoiceOverdueDomainEvent(
+            Guid.NewGuid(),
+            Id));
+        
+        return Result.Success();
+    }
+
+    public Result SetRecurring(int frequencyInMonths)
+    {
+        Status = InvoiceStatus.Recurring;
+        
+        RecurringFrequencyInMonths = frequencyInMonths;
+        
+        RaiseDomainEvent(new RecurringInvoiceCreatedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            frequencyInMonths));
+        
+        return Result.Success();
+    }
+    
+    #endregion
+    
+    #region Discount related Methods
+    
+    public Result ApplyDiscount(Amount discountAmount)
+    {
+        TotalAmount = Amount.Create(TotalAmount.Value - discountAmount.Value).Value;
+        
+        RaiseDomainEvent(new InvoiceDiscountAppliedDomainEvent(
+            Guid.NewGuid(),
+            Id, 
+            discountAmount.Value));
+        
+        return Result.Success();
+    }
+    
+    #endregion
+    
+    #region Tax related Methods
+
+    public Result AddTax(Amount taxAmount)
+    {
+        TotalAmount = Amount.Create(TotalAmount.Value + taxAmount.Value).Value;
+        
+        RaiseDomainEvent(new InvoiceTaxAddedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            taxAmount.Value));
+        
+        return Result.Success();
+    }
+    
     #endregion
 }

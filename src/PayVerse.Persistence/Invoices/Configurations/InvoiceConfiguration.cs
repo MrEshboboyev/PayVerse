@@ -33,13 +33,15 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder
             .Property(x => x.TotalAmount)
             .HasConversion(x => x.Value, v => Amount.Create(v).Value);
-        //
-        // // Configure the relationship with InvoiceItems
-        // builder
-        //     .HasMany(x => x.Items)
-        //     .WithOne()
-        //     .HasForeignKey("InvoiceId")
-        //     .OnDelete(DeleteBehavior.Cascade);
+        
+        builder
+            .Property(x => x.Status)
+            .HasConversion<string>();
+
+        // Configure RecurringFrequencyInMonths field
+        builder
+            .Property(x => x.RecurringFrequencyInMonths)
+            .IsRequired(false);
 
         // Configure auditing properties
         builder
