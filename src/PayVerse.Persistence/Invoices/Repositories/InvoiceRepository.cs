@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PayVerse.Domain.Entities.Invoices;
+using PayVerse.Domain.Enums.Invoices;
 using PayVerse.Domain.Repositories.Invoices;
 
 namespace PayVerse.Persistence.Invoices.Repositories;
@@ -47,4 +48,48 @@ public sealed class InvoiceRepository(ApplicationDbContext dbContext) : IInvoice
         => dbContext
             .Set<Invoice>()
             .Remove(invoice);
+    
+    public async Task<IEnumerable<Invoice>> GetOverdueAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext
+            .Set<Invoice>()
+            .Where(x => x.Status == InvoiceStatus.Overdue)
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<IEnumerable<Invoice>> GetByStatusAsync(
+        InvoiceStatus status,
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext
+            .Set<Invoice>()
+            .Where(x => x.Status == status)
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<IEnumerable<Invoice>> GetByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext
+            .Set<Invoice>()
+            .Where(x => 
+                x.InvoiceDate.Value >= startDate 
+                && x.InvoiceDate.Value <= endDate)
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<decimal> GetTotalRevenueByUserAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext
+            .Set<Invoice>()
+            .Where(x =>
+                x.UserId == userId 
+                && x.Status == InvoiceStatus.Paid)
+            .SumAsync(x => x.TotalAmount.Value, cancellationToken);
+    }
 }

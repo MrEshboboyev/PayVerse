@@ -1,4 +1,5 @@
 using PayVerse.Domain.Entities.Invoices;
+using PayVerse.Domain.Enums.Invoices;
 
 namespace PayVerse.Domain.Repositories.Invoices;
 
@@ -14,4 +15,19 @@ public interface IInvoiceRepository : IRepository<Invoice>
     Task AddAsync(Invoice invoice, CancellationToken cancellationToken = default);
     Task UpdateAsync(Invoice invoice, CancellationToken cancellationToken = default);
     Task DeleteAsync(Invoice invoice, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<Invoice>> GetOverdueAsync(CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<Invoice>> GetByStatusAsync(
+        InvoiceStatus status,
+        CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<Invoice>> GetByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
+
+    Task<decimal> GetTotalRevenueByUserAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
 }

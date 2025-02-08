@@ -13,8 +13,13 @@ using PayVerse.Application.Invoices.Commands.SendInvoiceToClient;
 using PayVerse.Application.Invoices.Queries.GetInvoiceById;
 using PayVerse.Application.Invoices.Queries.GetInvoiceItemById;
 using PayVerse.Application.Invoices.Queries.GetInvoiceItems;
+using PayVerse.Application.Invoices.Queries.GetInvoicesByDateRange;
+using PayVerse.Application.Invoices.Queries.GetInvoicesByStatus;
 using PayVerse.Application.Invoices.Queries.GetInvoicesByUserId;
 using PayVerse.Application.Invoices.Queries.GetInvoiceWithItemsById;
+using PayVerse.Application.Invoices.Queries.GetOverdueInvoices;
+using PayVerse.Application.Invoices.Queries.GetTotalRevenueByUser;
+using PayVerse.Domain.Enums.Invoices;
 using PayVerse.Presentation.Abstractions;
 using PayVerse.Presentation.Contracts.Invoices;
 
@@ -74,6 +79,15 @@ public sealed class InvoiceController(ISender sender) : ApiController(sender)
         var query = new GetInvoiceWithItemsByIdQuery(id);
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
+
+    [HttpGet("total-revenue")]
+    public async Task<IActionResult> GetTotalRevenue(
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTotalRevenueByUserQuery(GetUserId());
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
     }
 
     #endregion
@@ -196,4 +210,3 @@ public sealed class InvoiceController(ISender sender) : ApiController(sender)
 
     #endregion
 }
-    

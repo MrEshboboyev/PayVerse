@@ -2,7 +2,11 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PayVerse.Application.Invoices.Queries.GetAllInvoices;
+using PayVerse.Application.Invoices.Queries.GetInvoicesByDateRange;
+using PayVerse.Application.Invoices.Queries.GetInvoicesByStatus;
 using PayVerse.Application.Invoices.Queries.GetInvoicesByUserId;
+using PayVerse.Application.Invoices.Queries.GetOverdueInvoices;
+using PayVerse.Application.Invoices.Queries.GetTotalRevenueByUser;
 using PayVerse.Application.Payments.Queries.GetAllPayments;
 using PayVerse.Application.Payments.Queries.GetPaymentsByUserId;
 using PayVerse.Application.Users.Commands.AssignRoleToUser;
@@ -20,6 +24,7 @@ using PayVerse.Application.VirtualAccounts.Queries.GetAllVirtualAccounts;
 using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountsByUserId;
 using PayVerse.Application.Wallets.Queries.GetAllWallets;
 using PayVerse.Application.Wallets.Queries.GetWalletsByUserId;
+using PayVerse.Domain.Enums.Invoices;
 using PayVerse.Presentation.Abstractions;
 using PayVerse.Presentation.Contracts.Admins;
 using PayVerse.Presentation.Contracts.Users;
@@ -164,9 +169,9 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
     
     #endregion
     
-    #region Get Endpoints
-
     #region Invoices
+    
+    #region Get endpoints
     
     [HttpGet("invoices")]
     public async Task<IActionResult> GetAllInvoices(CancellationToken cancellationToken)
@@ -186,7 +191,52 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
     
+    [HttpGet("invoices/overdue")]
+    public async Task<IActionResult> GetOverdueInvoices(
+        CancellationToken cancellationToken)
+    {
+        var query = new GetOverdueInvoicesQuery();
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+
+    [HttpGet("invoices/status/{status}")]
+    public async Task<IActionResult> GetInvoicesByStatus(
+        InvoiceStatus status,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetInvoicesByStatusQuery(status);
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+
+    [HttpGet("invoices/date-range/{startDate:datetime}/{endDate:datetime}")]
+    public async Task<IActionResult> GetInvoicesByDateRange(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetInvoicesByDateRangeQuery(startDate, endDate);
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+    
+    [HttpGet("invoices/{userId:guid}/total-revenue")]
+    public async Task<IActionResult> GetTotalRevenueByUser(
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTotalRevenueByUserQuery(userId);
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+    
     #endregion
+    
+    #endregion
+    
+    #region Get Endpoints
+
     
     #region VirtualAccounts
     
