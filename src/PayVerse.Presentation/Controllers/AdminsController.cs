@@ -7,7 +7,10 @@ using PayVerse.Application.Invoices.Queries.GetInvoicesByStatus;
 using PayVerse.Application.Invoices.Queries.GetInvoicesByUserId;
 using PayVerse.Application.Invoices.Queries.GetOverdueInvoices;
 using PayVerse.Application.Invoices.Queries.GetTotalRevenueByUser;
+using PayVerse.Application.Payments.Commands.RefundPayment;
+using PayVerse.Application.Payments.Commands.RetryFailedPayment;
 using PayVerse.Application.Payments.Queries.GetAllPayments;
+using PayVerse.Application.Payments.Queries.GetPaymentsByDateRange;
 using PayVerse.Application.Payments.Queries.GetPaymentsByUserId;
 using PayVerse.Application.Users.Commands.AssignRoleToUser;
 using PayVerse.Application.Users.Commands.BlockUser;
@@ -311,9 +314,9 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
     
     #endregion
     
-    #region Get Endpoints
-    
     #region Payments
+    
+    #region Get endpoints
     
     [HttpGet("payments")]
     public async Task<IActionResult> GetAllPayments(CancellationToken cancellationToken)
@@ -332,6 +335,43 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
+    
+    [HttpGet("payments/date-range/{startDate:datetime}/{endDate:datetime}")]
+    public async Task<IActionResult> GetPaymentsByDateRange(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetPaymentsByDateRangeQuery(startDate, endDate);
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+    
+    #endregion
+    
+    #region Patch endpoints 
+    
+    [HttpPatch("{paymentId:guid}/refund")]
+    public async Task<IActionResult> RefundPayment(
+        Guid paymentId,
+        CancellationToken cancellationToken)
+    {
+        var command = new RefundPaymentCommand(paymentId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPatch("{paymentId:guid}/retry")]
+    public async Task<IActionResult> RetryFailedPayment(
+        Guid paymentId,
+        CancellationToken cancellationToken)
+    {
+        var command = new RetryFailedPaymentCommand(paymentId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    #endregion
     
     #endregion
     
@@ -354,8 +394,6 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
-    #endregion
     
     #endregion
 }

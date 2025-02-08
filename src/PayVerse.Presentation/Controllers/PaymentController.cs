@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PayVerse.Application.Payments.Commands.CreatePayment;
+using PayVerse.Application.Payments.Commands.SchedulePayment;
 using PayVerse.Application.Payments.Commands.UpdatePaymentStatus;
 using PayVerse.Application.Payments.Queries.GetPaymentById;
 using PayVerse.Application.Payments.Queries.GetPaymentsByStatus;
@@ -60,6 +61,20 @@ public sealed class PaymentController(ISender sender) : ApiController(sender)
             request.Amount,
             request.Status,
             GetUserId());
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("schedule")]
+    public async Task<IActionResult> SchedulePayment(
+        [FromBody] SchedulePaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new SchedulePaymentCommand(
+            request.Amount,
+            request.Status,
+            GetUserId(),
+            request.ScheduledDate);
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }

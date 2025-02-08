@@ -13,4 +13,9 @@ public interface IPaymentRepository : IRepository<Payment>
     Task AddAsync(Payment payment, CancellationToken cancellationToken = default);
     Task UpdateAsync(Payment payment, CancellationToken cancellationToken = default);
     Task DeleteAsync(Payment payment, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<Payment>> GetByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
 }
