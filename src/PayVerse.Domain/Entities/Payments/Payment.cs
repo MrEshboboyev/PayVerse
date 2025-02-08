@@ -17,12 +17,14 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
         Guid id,
         PaymentAmount amount,
         PaymentStatus status,
-        Guid userId)
+        Guid userId,
+        DateTime? scheduledDate = null)
         : base(id)
     {
         Amount = amount;
         Status = status;
         UserId = userId;
+        ScheduledDate = scheduledDate;
 
         RaiseDomainEvent(new PaymentInitiatedDomainEvent(
             Guid.NewGuid(),
@@ -36,6 +38,7 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
     public PaymentAmount Amount { get; private set; }
     public PaymentStatus Status { get; private set; }
     public Guid UserId { get; private set; }
+    public DateTime? ScheduledDate { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
     
@@ -47,9 +50,10 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
         Guid id,
         PaymentAmount amount,
         PaymentStatus status,
-        Guid userId)
+        Guid userId,
+        DateTime? scheduledDate = null)
     {
-        return new Payment(id, amount, status, userId);
+        return new Payment(id, amount, status, userId, scheduledDate);
     }
     
     #endregion

@@ -39,5 +39,8 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.Property(x => x.ModifiedOnUtc)
             .IsRequired(false);
+        
+        builder.Property(x => x.ScheduledDate)
+            .IsRequired(false);
     }
 }
