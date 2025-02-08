@@ -5,6 +5,8 @@ namespace PayVerse.Domain.Repositories.Users;
 
 public interface IUserRepository
 {
+    Task<IEnumerable<User>> SearchAsync(string email, string name, int? roleId, CancellationToken cancellationToken = default);
+    
     /// <summary>
     /// Retrieves a user by their unique identifier.
     /// </summary>

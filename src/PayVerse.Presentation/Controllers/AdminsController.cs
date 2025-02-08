@@ -13,12 +13,15 @@ using PayVerse.Application.Users.Commands.UnblockUser;
 using PayVerse.Application.Users.Queries.GetAllRoles;
 using PayVerse.Application.Users.Queries.GetAllUsers;
 using PayVerse.Application.Users.Queries.GetUserById;
+using PayVerse.Application.Users.Queries.GetUserRoles;
 using PayVerse.Application.Users.Queries.GetUserWithRolesById;
+using PayVerse.Application.Users.Queries.SearchUsers;
 using PayVerse.Application.VirtualAccounts.Queries.GetAllVirtualAccounts;
 using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountsByUserId;
 using PayVerse.Application.Wallets.Queries.GetAllWallets;
 using PayVerse.Application.Wallets.Queries.GetWalletsByUserId;
 using PayVerse.Presentation.Abstractions;
+using PayVerse.Presentation.Contracts.Admins;
 using PayVerse.Presentation.Contracts.Users;
 
 namespace PayVerse.Presentation.Controllers;
@@ -66,6 +69,29 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         CancellationToken cancellationToken)
     {
         var query = new GetAllRolesQuery();
+        var response = await Sender.Send(query, cancellationToken);
+        return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
+    
+    [HttpGet("users/{userId:guid}/roles")]
+    public async Task<IActionResult> GetUserRoles(
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetUserRolesQuery(userId);
+        var response = await Sender.Send(query, cancellationToken);
+        return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
+    
+    [HttpGet("search-users")]
+    public async Task<IActionResult> GetUserRoles(
+        [FromBody] SearchUsersRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new SearchUsersQuery(
+            request.Email,
+            request.Name,
+            request.RoleId);
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }

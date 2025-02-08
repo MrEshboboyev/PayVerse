@@ -1,7 +1,4 @@
-﻿using PayVerse.Domain.Entities;
-using PayVerse.Domain.Repositories;
-using PayVerse.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PayVerse.Domain.Entities.Users;
 using PayVerse.Domain.Repositories.Users;
 using PayVerse.Domain.ValueObjects.Users;
@@ -10,6 +7,35 @@ namespace PayVerse.Persistence.Users.Repositories;
 
 public sealed class UserRepository(ApplicationDbContext dbContext) : IUserRepository
 {
+    public async Task<IEnumerable<User>> SearchAsync(
+        string email,
+        string name,
+        int? roleId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.Set<User>().AsQueryable();
+
+        if (!string.IsNullOrEmpty(email))
+        {
+            query = query.Where(user => user.Email.Value == email);
+        }
+
+        if (!string.IsNullOrEmpty(name))
+        {
+            query = query.Where(user => user.FirstName.Value == name 
+                                        || user.LastName.Value == name);
+        }
+
+        if (roleId.HasValue)
+        {
+            query = query
+                .Include(user => user.Roles)
+                .Where(user => user.Roles.Any(role => role.Id == roleId));
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
+    
     public async Task<List<User>> GetUsersAsync(CancellationToken cancellationToken = default)
         => await dbContext.Set<User>()
             .ToListAsync(cancellationToken);
