@@ -203,10 +203,30 @@ public static class DomainErrors
         public static readonly Func<Guid, Error> NotFound = id => new Error(
             "AccountNumber.NotFound",
             $"The account number with the identifier {id} was not found.");
+        
+        public static readonly Error FromOrToAccountNotActive = new(
+            "VirtualAccount.FromOrToAccountNotActive",
+            "Both accounts must be active for a transfer.");
 
-        public static readonly Error NotExist = new(
-            "AccountNumber.NotExist",
-            $"There is no AccountNumber");
+        public static readonly Func<Guid, Error> AccountAlreadyClosed = id => new Error(
+            "VirtualAccount.AccountAlreadyClosed",
+            $"The account [ID : {id}] is already closed.");
+
+        public static readonly Func<Guid, Error> AccountAlreadyClosedOrFrozen = id => new Error(
+            "VirtualAccount.AccountAlreadyClosedOrFrozen",
+            $"The account [ID : {id}] is either already closed or frozen.");
+
+        public static readonly Func<Guid, Error> AccountNotFrozen = id => new Error(
+            "VirtualAccount.AccountNotFrozen",
+            $"The account [ID : {id}] is not frozen.");
+
+        public static readonly Func<Guid, Error> InsufficientFunds = id => new Error(
+            "VirtualAccount.InsufficientFunds",
+            $"Insufficient funds in account with [ID : {id}].");
+
+        public static readonly Func<decimal, Error> FinalBalanceFailure = amount => new Error(
+            "VirtualAccount.FinalBalanceFailure",
+            $"Unable to create balance with amount {amount}.");
         
         public static readonly Func<Guid, Error> ItemNotFound = id => new Error(
             "Invoice.ItemNotFound",

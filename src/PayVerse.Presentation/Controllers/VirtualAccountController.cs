@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PayVerse.Application.VirtualAccounts.Commands.AddTransaction;
 using PayVerse.Application.VirtualAccounts.Commands.CreateVirtualAccount;
+using PayVerse.Application.VirtualAccounts.Commands.TransferFunds;
 using PayVerse.Application.VirtualAccounts.Queries.GetTransactionById;
 using PayVerse.Application.VirtualAccounts.Queries.GetTransactions;
 using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountById;
@@ -98,6 +99,19 @@ public sealed class VirtualAccountController(ISender sender) : ApiController(sen
             request.Amount,
             request.Date,
             request.Description);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    [HttpPost("transfer-funds")]
+    public async Task<IActionResult> TransferFunds(
+        [FromBody] TransferFundsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new TransferFundsCommand(
+            request.FromAccountId,
+            request.ToAccountId,
+            request.Amount);
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }

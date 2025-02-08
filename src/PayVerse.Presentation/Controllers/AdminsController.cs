@@ -20,6 +20,10 @@ using PayVerse.Application.Users.Queries.GetUserById;
 using PayVerse.Application.Users.Queries.GetUserRoles;
 using PayVerse.Application.Users.Queries.GetUserWithRolesById;
 using PayVerse.Application.Users.Queries.SearchUsers;
+using PayVerse.Application.VirtualAccounts.Commands.CloseVirtualAccount;
+using PayVerse.Application.VirtualAccounts.Commands.FreezeVirtualAccount;
+using PayVerse.Application.VirtualAccounts.Commands.SetOverdraftLimit;
+using PayVerse.Application.VirtualAccounts.Commands.UnfreezeVirtualAccount;
 using PayVerse.Application.VirtualAccounts.Queries.GetAllVirtualAccounts;
 using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountsByUserId;
 using PayVerse.Application.Wallets.Queries.GetAllWallets;
@@ -235,10 +239,9 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
     
     #endregion
     
-    #region Get Endpoints
-
-    
     #region VirtualAccounts
+    
+    #region Get endpoints
     
     [HttpGet("virtual_accounts")]
     public async Task<IActionResult> GetAllVirtualAccounts(CancellationToken cancellationToken)
@@ -259,6 +262,56 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
     }
     
     #endregion
+    
+    #region Post endpoints
+
+    [HttpPost("virtual-accounts/{accountId:guid}/close")]
+    public async Task<IActionResult> CloseVirtualAccount(
+        Guid accountId,
+        CancellationToken cancellationToken)
+    {
+        var command = new CloseVirtualAccountCommand(accountId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("virtual-accounts/{accountId:guid}/freeze")]
+    public async Task<IActionResult> FreezeVirtualAccount(
+        Guid accountId,
+        CancellationToken cancellationToken)
+    {
+        var command = new FreezeVirtualAccountCommand(accountId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("virtual-accounts/{accountId:guid}/unfreeze")]
+    public async Task<IActionResult> UnfreezeVirtualAccount(
+        Guid accountId,
+        CancellationToken cancellationToken)
+    {
+        var command = new UnfreezeVirtualAccountCommand(accountId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("virtual-accounts/set-overdraft-limit")]
+    public async Task<IActionResult> SetOverdraftLimit(
+        [FromBody] SetOverdraftLimitRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new SetOverdraftLimitCommand(
+            request.AccountId,
+            request.OverdraftLimit);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    #endregion
+    
+    #endregion
+    
+    #region Get Endpoints
     
     #region Payments
     

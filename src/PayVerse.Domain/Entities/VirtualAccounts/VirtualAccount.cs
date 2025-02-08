@@ -1,3 +1,5 @@
+using PayVerse.Domain.Enums.VirtualAccounts;
+using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.VirtualAccounts;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
@@ -31,6 +33,7 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
         Currency = currency;
         Balance = balance;
         UserId = userId;
+        Status = VirtualAccountStatus.Active;
 
         RaiseDomainEvent(new VirtualAccountCreatedDomainEvent(
             Guid.NewGuid(),
@@ -46,6 +49,8 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
     public Currency Currency { get; private set; }
     public Balance Balance { get; private set; }
     public Guid UserId { get; private set; }
+    public VirtualAccountStatus Status { get; private set; }
+    public decimal OverdraftLimit { get; private set; }
     public IReadOnlyCollection<Transaction> Transactions => _transactions.AsReadOnly();
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
@@ -62,6 +67,127 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
         Guid userId)
     {
         return new VirtualAccount(id, accountNumber, currency, balance, userId);
+    }
+    
+    #endregion
+    
+    #region Own methods
+    
+    public Result Close()
+    {
+        if (Status is VirtualAccountStatus.Closed)
+        {
+            return Result.Failure(
+                DomainErrors.VirtualAccount.AccountAlreadyClosed(Id));
+        }
+
+        Status = VirtualAccountStatus.Closed;
+        
+        RaiseDomainEvent(new VirtualAccountClosedDomainEvent(
+            Guid.NewGuid(),
+            Id));
+        
+        return Result.Success();
+    }
+
+    public Result Freeze()
+    {
+        if (Status is VirtualAccountStatus.Closed or VirtualAccountStatus.Frozen)
+        {
+            return Result.Failure(
+                DomainErrors.VirtualAccount.AccountAlreadyClosedOrFrozen(Id));
+        }
+
+        Status = VirtualAccountStatus.Frozen;
+        
+        RaiseDomainEvent(new VirtualAccountFrozenDomainEvent(
+            Guid.NewGuid(),
+            Id));
+        
+        return Result.Success();
+    }
+
+    public Result Unfreeze()
+    {
+        if (Status is not VirtualAccountStatus.Frozen)
+        {
+            return Result.Failure(
+                DomainErrors.VirtualAccount.AccountNotFrozen(Id));
+        }
+
+        Status = VirtualAccountStatus.Active;
+        
+        RaiseDomainEvent(new VirtualAccountUnfrozenDomainEvent(
+            Guid.NewGuid(),
+            Id));
+        
+        return Result.Success();
+    }
+
+    public Result TransferFunds(
+        VirtualAccount toAccount,
+        Amount amount)
+    {
+        if (Status is not VirtualAccountStatus.Active
+            || toAccount.Status is not VirtualAccountStatus.Active)
+        {
+            return Result.Failure(
+                DomainErrors.VirtualAccount.FromOrToAccountNotActive);
+        }
+
+        if (Balance.Value + OverdraftLimit < amount.Value)
+        {
+            return Result.Failure(
+                DomainErrors.VirtualAccount.InsufficientFunds(Id));
+        }
+
+        #region Remove amount from this account
+    
+        var finalBalanceResult = Balance.Create(Balance.Value - amount.Value);
+        if (finalBalanceResult.IsFailure)
+        {
+            return Result.Failure(
+                DomainErrors.VirtualAccount.FinalBalanceFailure(amount.Value));
+        }
+        Balance = finalBalanceResult.Value;
+    
+        #endregion
+    
+        #region ToAccount balance updated
+
+        var toAccountFinalBalanceResult = Balance.Create(toAccount.Balance.Value + amount.Value);
+        if (toAccountFinalBalanceResult.IsFailure)
+        {
+            return Result.Failure(
+                DomainErrors.VirtualAccount.FinalBalanceFailure(amount.Value));
+        }
+        toAccount.Balance = toAccountFinalBalanceResult.Value;
+
+        #endregion
+
+        #region Domain Events
+        
+        RaiseDomainEvent(new FundsTransferredDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            toAccount.Id,
+            amount.Value));
+        
+        #endregion
+
+        return Result.Success();
+    }
+
+    public Result SetOverdraftLimit(decimal overdraftLimit)
+    {
+        OverdraftLimit = overdraftLimit;
+        
+        RaiseDomainEvent(new OverdraftLimitSetDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            overdraftLimit));
+        
+        return Result.Success();
     }
     
     #endregion

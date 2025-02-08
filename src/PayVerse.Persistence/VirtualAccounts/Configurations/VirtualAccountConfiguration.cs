@@ -34,5 +34,9 @@ internal sealed class VirtualAccountConfiguration : IEntityTypeConfiguration<Vir
             .IsRequired();
 
         builder.Property(x => x.UserId).IsRequired();
+        
+        builder.Property(x => x.Status)
+            .HasConversion<string>()
+            .IsRequired();
     }
 }
