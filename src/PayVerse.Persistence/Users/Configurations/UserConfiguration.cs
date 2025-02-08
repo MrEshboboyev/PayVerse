@@ -35,6 +35,14 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .Property(x => x.LastName)
             .HasConversion(x => x.Value, v => LastName.Create(v).Value)
             .HasMaxLength(LastName.MaxLength);
+        
+        builder
+            .Property(x => x.IsBlocked)
+            .HasDefaultValue(false);
+        
+        builder
+            .Property(x => x.TwoFactorEnabled)
+            .HasDefaultValue(false);
 
         // Configure unique constraint on Email
         builder.HasIndex(x => x.Email).IsUnique();

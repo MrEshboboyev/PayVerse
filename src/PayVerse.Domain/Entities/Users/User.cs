@@ -13,7 +13,7 @@ public sealed class User : AggregateRoot, IAuditableEntity
 {
     #region Private fields
     
-    private readonly List<Role> _roles = [];
+    private readonly List<Role> _roles = new();
     
     #endregion
     
@@ -30,6 +30,8 @@ public sealed class User : AggregateRoot, IAuditableEntity
         PasswordHash = passwordHash;
         FirstName = firstName;
         LastName = lastName;
+        IsBlocked = false;
+        TwoFactorEnabled = false;
 
         #region Domain Events
 
@@ -49,6 +51,8 @@ public sealed class User : AggregateRoot, IAuditableEntity
     public LastName LastName { get; private set; }
     public Email Email { get; private set; }
     public string PasswordHash { get; private set; }
+    public bool IsBlocked { get; private set; }
+    public bool TwoFactorEnabled { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
     public IReadOnlyCollection<Role> Roles => _roles.AsReadOnly();
@@ -120,11 +124,6 @@ public sealed class User : AggregateRoot, IAuditableEntity
 
     public bool IsInRole(Role role) => _roles.Contains(role);
 
-    /// <summary>
-    /// Updates the details of the user.
-    /// </summary>
-    /// <param name="firstName">The new first name of the user.</param>
-    /// <param name="lastName">The new last name of the user.</param>
     public Result UpdateDetails(FirstName firstName, LastName lastName)
     {
         #region Update fields
@@ -167,6 +166,59 @@ public sealed class User : AggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
+
+    #region Block/Unblock
+    
+    public Result Block()
+    {
+        IsBlocked = true;
+
+        #region Domain Events
+
+        RaiseDomainEvent(new UserBlockedDomainEvent(
+            Guid.NewGuid(),
+            Id));
+
+        #endregion
+
+        return Result.Success();
+    }
+
+    public Result Unblock()
+    {
+        IsBlocked = false;
+
+        #region Domain Events
+
+        RaiseDomainEvent(new UserUnblockedDomainEvent(
+            Guid.NewGuid(),
+            Id));
+
+        #endregion
+
+        return Result.Success();
+    }
+    
+    #endregion
+    
+    #region Other security methods (2FA)
+
+    public Result EnableTwoFactorAuthentication()
+    {
+        TwoFactorEnabled = true;
+
+        #region Domain Events
+
+        RaiseDomainEvent(new TwoFactorAuthenticationEnabledDomainEvent(
+            Guid.NewGuid(),
+            Id));
+
+        #endregion
+
+        return Result.Success();
+    }
+    
+    #endregion
 
     #endregion
 }

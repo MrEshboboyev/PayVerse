@@ -15,4 +15,10 @@
       <ProjectReference Include="..\PayVerse.Application\PayVerse.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore.Identity">
+        <HintPath>..\..\..\..\.nuget\packages\microsoft.aspnetcore.app.ref\9.0.1\ref\net9.0\Microsoft.AspNetCore.Identity.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

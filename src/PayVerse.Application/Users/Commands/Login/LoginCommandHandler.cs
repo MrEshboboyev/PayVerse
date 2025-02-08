@@ -15,7 +15,9 @@ internal sealed class LoginCommandHandler(
     IJwtProvider jwtProvider, 
     IPasswordHasher passwordHasher) : ICommandHandler<LoginCommand, string>
 {
-    public async Task<Result<string>> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(
+        LoginCommand request,
+        CancellationToken cancellationToken)
     {
         #region Prepare Value Objects
 

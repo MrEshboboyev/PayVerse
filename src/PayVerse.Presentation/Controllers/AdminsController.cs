@@ -5,6 +5,11 @@ using PayVerse.Application.Invoices.Queries.GetAllInvoices;
 using PayVerse.Application.Invoices.Queries.GetInvoicesByUserId;
 using PayVerse.Application.Payments.Queries.GetAllPayments;
 using PayVerse.Application.Payments.Queries.GetPaymentsByUserId;
+using PayVerse.Application.Users.Commands.AssignRoleToUser;
+using PayVerse.Application.Users.Commands.BlockUser;
+using PayVerse.Application.Users.Commands.ResetPassword;
+using PayVerse.Application.Users.Commands.RevokeRoleFromUser;
+using PayVerse.Application.Users.Commands.UnblockUser;
 using PayVerse.Application.Users.Queries.GetAllRoles;
 using PayVerse.Application.Users.Queries.GetAllUsers;
 using PayVerse.Application.Users.Queries.GetUserById;
@@ -14,6 +19,7 @@ using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountsByUserId;
 using PayVerse.Application.Wallets.Queries.GetAllWallets;
 using PayVerse.Application.Wallets.Queries.GetWalletsByUserId;
 using PayVerse.Presentation.Abstractions;
+using PayVerse.Presentation.Contracts.Users;
 
 namespace PayVerse.Presentation.Controllers;
 
@@ -21,9 +27,9 @@ namespace PayVerse.Presentation.Controllers;
 [Authorize(Roles = "Admin")]
 public sealed class AdminsController(ISender sender) : ApiController(sender)
 {
-    #region Get Endpoints
-    
     #region Users
+    
+    #region Get endpoints
     
     [HttpGet("users")]
     public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken)
@@ -65,6 +71,74 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
     }
     
     #endregion
+    
+    #region Post endpoints
+    
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ResetPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ResetPasswordCommand(
+            request.UserId,
+            request.NewPassword);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    [HttpPost("users/block/{userId:guid}")]
+    public async Task<IActionResult> BlockUser(
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var command = new BlockUserCommand(userId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("users/unblock/{userId:guid}")]
+    public async Task<IActionResult> UnblockUser(
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var command = new UnblockUserCommand(userId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    [HttpPost("users/{userId:guid}/assign-role/{roleId:int}")]
+    public async Task<IActionResult> AssignRoleToUser(
+        Guid userId,
+        int roleId,
+        CancellationToken cancellationToken)
+    {
+        var command = new AssignRoleToUserCommand(
+            userId,
+            roleId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("users/{userId:guid}/revoke-role/{roleId:int}")]
+    public async Task<IActionResult> RevokeRoleFromUser(
+        Guid userId,
+        int roleId,
+        CancellationToken cancellationToken)
+    {
+        var command = new RevokeRoleFromUserCommand(
+            userId,
+            roleId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    
+    
+    #endregion
+    
+    #endregion
+    
+    #region Get Endpoints
 
     #region Invoices
     
