@@ -36,4 +36,17 @@ public sealed class VirtualAccountRepository(ApplicationDbContext dbContext) : I
         dbContext.Set<VirtualAccount>().Remove(virtualAccount);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+    
+    public async Task<IEnumerable<Transaction>> GetTransactionsByDateAsync(
+        Guid accountId,
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        var account = await dbContext.Set<VirtualAccount>()
+            .Include(va => va.Transactions)
+            .FirstOrDefaultAsync(va => va.Id == accountId, cancellationToken);
+
+        return account?.Transactions.Where(t => t.Date >= startDate && t.Date <= endDate) ?? Enumerable.Empty<Transaction>();
+    }
 }

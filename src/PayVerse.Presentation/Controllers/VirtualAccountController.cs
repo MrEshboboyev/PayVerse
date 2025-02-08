@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using PayVerse.Application.VirtualAccounts.Commands.AddTransaction;
 using PayVerse.Application.VirtualAccounts.Commands.CreateVirtualAccount;
 using PayVerse.Application.VirtualAccounts.Commands.TransferFunds;
+using PayVerse.Application.VirtualAccounts.Queries.GetAccountBalance;
+using PayVerse.Application.VirtualAccounts.Queries.GetTotalDepositsAndWithdrawals;
 using PayVerse.Application.VirtualAccounts.Queries.GetTransactionById;
+using PayVerse.Application.VirtualAccounts.Queries.GetTransactionHistoryByDate;
 using PayVerse.Application.VirtualAccounts.Queries.GetTransactions;
 using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountById;
 using PayVerse.Application.VirtualAccounts.Queries.GetVirtualAccountsByUserId;
@@ -68,6 +71,41 @@ public sealed class VirtualAccountController(ISender sender) : ApiController(sen
         var query = new GetVirtualAccountWithTransactionsByIdQuery(virtualAccountId);
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
+    
+    [HttpGet("{accountId:guid}/balance")]
+    public async Task<IActionResult> GetAccountBalance(
+        Guid accountId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetAccountBalanceQuery(accountId);
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+
+    [HttpGet("{accountId:guid}/transactions/{startDate:datetime}/{endDate:datetime}")]
+    public async Task<IActionResult> GetTransactionHistoryByDate(
+        Guid accountId,
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTransactionHistoryByDateQuery(
+            accountId,
+            startDate,
+            endDate);
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+
+    [HttpGet("{accountId:guid}/total-deposits-withdrawals")]
+    public async Task<IActionResult> GetTotalDepositsAndWithdrawals(
+        Guid accountId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTotalDepositsAndWithdrawalsQuery(accountId);
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
     }
 
     #endregion
