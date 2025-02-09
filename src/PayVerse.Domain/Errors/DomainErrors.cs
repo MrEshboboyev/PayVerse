@@ -411,4 +411,36 @@ public static class DomainErrors
     #endregion
     
     #endregion
+    
+    #region Reports
+    
+    #region Entities
+    
+    public static class FinancialReport
+    {
+        public static readonly Func<Guid, Error> CannotMarkAsCompleted = reportId => new Error(
+            "FinancialReport.CannotMarkAsCompleted",
+            $"The report with ID {reportId} cannot be marked as completed" +
+            $" because it is not in the pending status.");
+
+        public static readonly Func<Guid, Error> CannotMarkAsFailed = reportId => new Error(
+            "FinancialReport.CannotMarkAsFailed",
+            $"The report with ID {reportId} cannot be marked as failed" +
+            $" because it is not in the pending status.");
+    }
+
+    #endregion
+    
+    #region Value objects
+    
+    public static class ReportPeriod
+    {
+        public static readonly Func<DateOnly, DateOnly, Error> InvalidDateRange = (start, end) => new Error(
+            "ReportPeriod.InvalidDateRange",
+            $"The report period start date {start} cannot be later than the end date {end}.");
+    }
+    
+    #endregion
+    
+    #endregion
 }
