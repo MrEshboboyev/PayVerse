@@ -306,9 +306,13 @@ public static class DomainErrors
             "Wallet.NotFound",
             $"The wallet with the identifier {id} was not found.");
 
-        public static readonly Error NotExist = new(
-            "Wallet.NotExist",
-            "There is no wallets");
+        public static readonly Func<int, int, Error> InsufficientLoyaltyPoints = (
+            requiredPoints,
+            availablePoints) => new Error(
+            "Wallet.InsufficientLoyaltyPoints",
+            $"Insufficient loyalty points." +
+            $" Required: {requiredPoints}," +
+            $" Available: {availablePoints}.");
         
         public static Error TransactionNotFound(Guid transactionId) => new(
             "Wallet.TransactionNotFound",

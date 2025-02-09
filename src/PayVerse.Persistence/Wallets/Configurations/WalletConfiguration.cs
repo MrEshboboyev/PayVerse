@@ -34,6 +34,12 @@ internal sealed class WalletConfiguration : IEntityTypeConfiguration<Wallet>
 
         builder.Property(x => x.CreatedOnUtc)
             .IsRequired();
+        
+        builder.Property(x => x.SpendingLimit)
+            .IsRequired(false);
+        
+        builder.Property(x => x.LoyaltyPoints)
+            .IsRequired();
 
         builder.Property(x => x.ModifiedOnUtc)
             .IsRequired(false);

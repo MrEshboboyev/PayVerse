@@ -43,6 +43,8 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
     public WalletBalance Balance { get; private set; }
     public Currency Currency { get; private set; }
     public Guid UserId { get; private set; }
+    public decimal? SpendingLimit { get; private set; }
+    public int LoyaltyPoints { get; private set; }
     public IReadOnlyCollection<WalletTransaction> Transactions => _transactions.AsReadOnly();
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
@@ -58,6 +60,57 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
         Guid userId)
     {
         return new Wallet(id, balance, currency, userId);
+    }
+    
+    #endregion
+    
+    #region Own methods
+    
+    public Result ConvertCurrency(
+        Currency newCurrency,
+        decimal newBalance)
+    {
+        var oldCurrencyCode = Currency.Code;
+        Balance = WalletBalance.Create(newBalance).Value;
+        Currency = newCurrency;
+
+        RaiseDomainEvent(new WalletCurrencyConvertedDomainEvent(
+            Guid.NewGuid(),
+            Id, 
+            oldCurrencyCode, 
+            newCurrency.Code));
+        
+        return Result.Success();
+    }
+
+    public Result SetSpendingLimit(decimal spendingLimit)
+    {
+        SpendingLimit = spendingLimit;
+
+        RaiseDomainEvent(new SpendingLimitSetDomainEvent(
+            Guid.NewGuid(), 
+            Id,
+            spendingLimit));
+        
+        return Result.Success();
+    }
+
+    public Result RedeemLoyaltyPoints(int points)
+    {
+        if (points > LoyaltyPoints)
+        {
+            return Result.Failure(
+                DomainErrors.Wallet.InsufficientLoyaltyPoints(points, LoyaltyPoints));
+        }
+
+        LoyaltyPoints -= points;
+
+        RaiseDomainEvent(new LoyaltyPointsRedeemedDomainEvent(
+            Guid.NewGuid(), 
+            Id,
+            points));
+
+        return Result.Success();
     }
     
     #endregion

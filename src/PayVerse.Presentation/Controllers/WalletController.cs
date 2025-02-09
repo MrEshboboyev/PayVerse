@@ -2,8 +2,11 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PayVerse.Application.Wallets.Commands.AddWalletTransaction;
+using PayVerse.Application.Wallets.Commands.ConvertWalletCurrency;
 using PayVerse.Application.Wallets.Commands.CreateWallet;
+using PayVerse.Application.Wallets.Commands.RedeemLoyaltyPoints;
 using PayVerse.Application.Wallets.Commands.RemoveWalletTransaction;
+using PayVerse.Application.Wallets.Commands.SetSpendingLimit;
 using PayVerse.Application.Wallets.Queries.GetWalletById;
 using PayVerse.Application.Wallets.Queries.GetWalletsByUserId;
 using PayVerse.Application.Wallets.Queries.GetWalletTransactionById;
@@ -98,6 +101,45 @@ public sealed class WalletController(ISender sender) : ApiController(sender)
             request.Amount,
             request.Date,
             request.Description);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    [HttpPost("{walletId:guid}/convert-currency/{newCurrencyCode}")]
+    public async Task<IActionResult> ConvertWalletCurrency(
+        Guid walletId,
+        string newCurrencyCode,
+        CancellationToken cancellationToken)
+    {
+        var command = new ConvertWalletCurrencyCommand(
+            walletId,
+            newCurrencyCode);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("{walletId:guid}/set-spending-limit")]
+    public async Task<IActionResult> SetSpendingLimit(
+        Guid walletId,
+        [FromBody] SetSpendingLimitRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new SetSpendingLimitCommand(
+            walletId,
+            request.SpendingLimit);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+
+    [HttpPost("{walletId:guid}/redeem-loyalty-points")]
+    public async Task<IActionResult> RedeemLoyaltyPoints(
+        Guid walletId,
+        [FromBody] RedeemLoyaltyPointsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new RedeemLoyaltyPointsCommand(
+            walletId,
+            request.Points);
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
