@@ -356,6 +356,10 @@ public static class DomainErrors
     
     public static class Notification
     {
+        public static readonly Func<Guid, Error> NotFound = notificationId => new Error(
+            "Notification.NotFound",
+            $"The notification with ID {notificationId} was not found.");
+        
         public static readonly Func<Guid, Error> AlreadyRead = notificationId => new Error(
             "Notification.AlreadyRead",
             $"The notification with ID {notificationId} has already been marked as read.");
