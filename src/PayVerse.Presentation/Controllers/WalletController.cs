@@ -7,6 +7,8 @@ using PayVerse.Application.Wallets.Commands.CreateWallet;
 using PayVerse.Application.Wallets.Commands.RedeemLoyaltyPoints;
 using PayVerse.Application.Wallets.Commands.RemoveWalletTransaction;
 using PayVerse.Application.Wallets.Commands.SetSpendingLimit;
+using PayVerse.Application.Wallets.Queries.GetLoyaltyPointsBalance;
+using PayVerse.Application.Wallets.Queries.GetWalletBalanceByCurrency;
 using PayVerse.Application.Wallets.Queries.GetWalletById;
 using PayVerse.Application.Wallets.Queries.GetWalletsByUserId;
 using PayVerse.Application.Wallets.Queries.GetWalletTransactionById;
@@ -71,6 +73,27 @@ public sealed class WalletController(ISender sender) : ApiController(sender)
         var query = new GetWalletWithTransactionsByIdQuery(walletId);
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
+    
+    [HttpGet("{walletId:guid}/balance")]
+    public async Task<IActionResult> GetWalletBalanceByCurrency(
+        Guid walletId,
+        [FromQuery] string currencyCode,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetWalletBalanceByCurrencyQuery(walletId, currencyCode);
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+
+    [HttpGet("{walletId:guid}/loyalty-points")]
+    public async Task<IActionResult> GetLoyaltyPointsBalance(
+        Guid walletId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetLoyaltyPointsBalanceQuery(walletId);
+        var result = await Sender.Send(query, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
     }
 
     #endregion
