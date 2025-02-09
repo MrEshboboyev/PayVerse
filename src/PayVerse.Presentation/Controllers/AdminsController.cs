@@ -7,6 +7,9 @@ using PayVerse.Application.Invoices.Queries.GetInvoicesByStatus;
 using PayVerse.Application.Invoices.Queries.GetInvoicesByUserId;
 using PayVerse.Application.Invoices.Queries.GetOverdueInvoices;
 using PayVerse.Application.Invoices.Queries.GetTotalRevenueByUser;
+using PayVerse.Application.Notifications.Commands.CreateNotification;
+using PayVerse.Application.Notifications.Commands.SendNotification;
+using PayVerse.Application.Notifications.Commands.UpdateNotificationMessage;
 using PayVerse.Application.Payments.Commands.RefundPayment;
 using PayVerse.Application.Payments.Commands.RetryFailedPayment;
 using PayVerse.Application.Payments.Queries.GetAllPayments;
@@ -394,6 +397,56 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
+    
+    #endregion
+    
+    #region Notifications
+    
+    #region Post endpoints
+    
+    [HttpPost("notifications")]
+    public async Task<IActionResult> CreateNotification(
+        [FromBody] CreateNotificationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateNotificationCommand(
+            request.Message,
+            request.Type,
+            request.Priority,
+            request.UserId,
+            request.DeliveryMethod);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    #endregion
+    
+    #region Put endpoints
+    
+    [HttpPut("notifications/{notificationId:guid}/send")]
+    public async Task<IActionResult> SendNotification(
+        Guid notificationId,
+        CancellationToken cancellationToken)
+    {
+        var command = new SendNotificationCommand(notificationId);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    [HttpPut("notifications/{notificationId:guid}")]
+    public async Task<IActionResult> UpdateNotification(
+        Guid notificationId,
+        [FromBody] UpdateNotificationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateNotificationMessageCommand(
+            notificationId,
+            request.NewMessage);
+        var result = await Sender.Send(command, cancellationToken);
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
+    }
+    
+    #endregion
     
     #endregion
 }
