@@ -333,4 +333,19 @@ public static class DomainErrors
     #endregion
 
     #endregion
+    
+    #region Security
+    
+    public static class SecurityIncident
+    {
+        public static readonly Func<Guid, Error> IncidentAlreadyResolved = incidentId => new Error(
+            "SecurityIncident.AlreadyResolved",
+            $"The security incident with ID {incidentId} is already resolved.");
+
+        public static readonly Func<Guid, Error> IncidentAlreadyEscalated = incidentId => new Error(
+            "SecurityIncident.AlreadyEscalated",
+            $"The security incident with ID {incidentId} is already escalated.");
+    }
+    
+    #endregion
 }
