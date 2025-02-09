@@ -8,13 +8,11 @@ internal sealed class UserRegisteredDomainEventHandler(
     IUserRepository userRepository)
           : IDomainEventHandler<UserCreatedDomainEvent>
 {
-    private readonly IUserRepository _userRepository = userRepository;
-
     public async Task Handle(
         UserCreatedDomainEvent notification,
         CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(
+        var user = await userRepository.GetByIdAsync(
             notification.UserId,
             cancellationToken);
 

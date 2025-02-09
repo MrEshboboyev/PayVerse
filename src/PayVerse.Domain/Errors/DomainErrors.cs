@@ -418,6 +418,10 @@ public static class DomainErrors
     
     public static class FinancialReport
     {
+        public static readonly Func<Guid, Error> NotFound = reportId => new Error(
+            "FinancialReport.NotFound",
+            $"The report with ID {reportId} was not found.");
+        
         public static readonly Func<Guid, Error> CannotMarkAsCompleted = reportId => new Error(
             "FinancialReport.CannotMarkAsCompleted",
             $"The report with ID {reportId} cannot be marked as completed" +
