@@ -1,4 +1,5 @@
-﻿using PayVerse.Domain.Shared;
+﻿using PayVerse.Domain.Entities.Notifications;
+using PayVerse.Domain.Shared;
 
 namespace PayVerse.Domain.Errors;
 
@@ -346,6 +347,64 @@ public static class DomainErrors
             "SecurityIncident.AlreadyEscalated",
             $"The security incident with ID {incidentId} is already escalated.");
     }
+    
+    #endregion
+    
+    #region Notifications
+    
+    #region Entities
+    
+    public static class Notification
+    {
+        public static readonly Func<Guid, Error> AlreadyRead = notificationId => new Error(
+            "Notification.AlreadyRead",
+            $"The notification with ID {notificationId} has already been marked as read.");
+        
+        public static readonly Func<Guid, Error> AlreadySent = notificationId => new Error(
+            "Notification.AlreadySent",
+            $"The notification with ID {notificationId} has already been sent.");
+
+        public static readonly Func<Guid, Error> NotSentYet = notificationId => new Error(
+            "Notification.NotSentYet",
+            $"The notification with ID {notificationId} has not been sent yet.");
+
+        public static readonly Func<Guid, Error> CannotModifySentNotification = notificationId => new Error(
+            "Notification.CannotModifySentNotification",
+            $"The notification with ID {notificationId} cannot be modified because" +
+            $" it has already been sent.");
+    }
+    
+    #endregion
+    
+    #region Value objects
+    
+    public static class NotificationMessage
+    {
+        // Existing error definitions...
+
+        public static readonly Func<string, Error> Empty = message => new Error(
+            "NotificationMessage.Empty",
+            $"Notification message cannot be empty. Provided message: '{message}'");
+
+        public static readonly Func<string, int, Error> TooLong = (message, maxLength) => new Error(
+            "NotificationMessage.TooLong",
+            $"Notification message cannot exceed {maxLength} characters. Provided message length: {message.Length}.");
+    }
+
+    public static class NotificationType
+    {
+        // Existing error definitions...
+
+        public static readonly Func<string, Error> Invalid = type => new Error(
+            "NotificationType.Invalid",
+            $"Notification type is invalid. Provided type: '{type}'");
+
+        public static readonly Func<string, IEnumerable<string>, Error> Unsupported = (type, validTypes) => new Error(
+            "NotificationType.Unsupported",
+            $"Notification type '{type}' is not supported. Supported types are: {string.Join(", ", validTypes)}");
+    }
+    
+    #endregion
     
     #endregion
 }
