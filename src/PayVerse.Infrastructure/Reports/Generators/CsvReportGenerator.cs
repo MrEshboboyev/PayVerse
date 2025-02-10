@@ -1,9 +1,9 @@
 using PayVerse.Application.Reports.Services;
 using PayVerse.Domain.Entities.Reports;
 
-namespace PayVerse.Infrastructure.ReportGenerators;
+namespace PayVerse.Infrastructure.Reports.Generators;
 
-internal sealed class CsvReportGenerator : IReportGenerator
+public sealed class CsvReportGenerator : IReportGenerator
 {
     public async Task<string> GenerateAsync(FinancialReport report, CancellationToken cancellationToken)
     {

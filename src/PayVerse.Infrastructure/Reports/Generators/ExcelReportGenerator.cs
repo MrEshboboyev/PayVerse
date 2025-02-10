@@ -2,10 +2,9 @@ using OfficeOpenXml;
 using PayVerse.Application.Reports.Services;
 using PayVerse.Domain.Entities.Reports;
 
-namespace PayVerse.Infrastructure.ReportGenerators;
+namespace PayVerse.Infrastructure.Reports.Generators;
 
-
-internal sealed class ExcelReportGenerator : IReportGenerator
+public sealed class ExcelReportGenerator : IReportGenerator
 {
     public async Task<string> GenerateAsync(FinancialReport report, CancellationToken cancellationToken)
     {

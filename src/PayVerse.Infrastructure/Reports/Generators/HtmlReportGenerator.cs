@@ -1,9 +1,9 @@
 using PayVerse.Application.Reports.Services;
 using PayVerse.Domain.Entities.Reports;
 
-namespace PayVerse.Infrastructure.ReportGenerators;
+namespace PayVerse.Infrastructure.Reports.Generators;
 
-internal sealed class HtmlReportGenerator : IReportGenerator
+public sealed class HtmlReportGenerator : IReportGenerator
 {
     public async Task<string> GenerateAsync(FinancialReport report, CancellationToken cancellationToken)
     {

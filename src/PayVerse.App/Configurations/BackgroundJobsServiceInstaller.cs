@@ -7,23 +7,32 @@ public class BackgroundJobsServiceInstaller : IServiceInstaller
 {
     public void Install(IServiceCollection services, IConfiguration configuration)
     {
-        // Register the job with DI
+        // Register the jobs with DI
         services.AddScoped<IJob, ProcessOutboxMessagesJob>();
+        services.AddScoped<IJob, GenerateFinancialReportJob>();
 
         // Configure Quartz
         services.AddQuartz(configure =>
         {
-            var jobKey = new JobKey(nameof(ProcessOutboxMessagesJob));
+            // Configure ProcessOutboxMessagesJob
+            var processOutboxJobKey = new JobKey(nameof(ProcessOutboxMessagesJob));
             configure
-                .AddJob<ProcessOutboxMessagesJob>(jobKey)  // Add the job
-                .AddTrigger(                               // Add a trigger
-                    trigger =>
-                        trigger.ForJob(jobKey) 
-                            .WithSimpleSchedule(
-                                schedule =>
-                                    schedule.WithIntervalInSeconds(10)
-                                        .RepeatForever()));
-            // Remove the obsolete method. The default DI job factory is now used automatically.
+                .AddJob<ProcessOutboxMessagesJob>(processOutboxJobKey)
+                .AddTrigger(trigger => trigger
+                    .ForJob(processOutboxJobKey)
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInSeconds(10)
+                        .RepeatForever()));
+
+            // Configure GenerateFinancialReportJob
+            var generateReportJobKey = new JobKey(nameof(GenerateFinancialReportJob));
+            configure
+                .AddJob<GenerateFinancialReportJob>(generateReportJobKey)
+                .AddTrigger(trigger => trigger
+                    .ForJob(generateReportJobKey)
+                    .WithSimpleSchedule(schedule => schedule
+                        .WithIntervalInMinutes(30)  // Adjust interval as needed
+                        .RepeatForever()));
         });
 
         // Add Quartz as a hosted service

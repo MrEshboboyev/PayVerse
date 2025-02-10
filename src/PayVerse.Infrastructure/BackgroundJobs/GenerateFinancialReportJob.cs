@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using PayVerse.Domain.Enums.Reports;
 using PayVerse.Domain.Repositories;
 using PayVerse.Domain.Repositories.Reports;
-using PayVerse.Infrastructure.ReportGenerators;
+using PayVerse.Infrastructure.Reports.Factories;
 using Quartz;
 
 namespace PayVerse.Infrastructure.BackgroundJobs;
@@ -44,7 +44,7 @@ public sealed class GenerateFinancialReportJob(
         try
         {
             // Get the appropriate report generator
-            var generator = reportGeneratorFactory.GetGenerator(report.FileType);
+            var generator = reportGeneratorFactory.CreateReportGenerator(report.FileType);
 
             // Generate the report file
             var filePath = await generator.GenerateAsync(report, context.CancellationToken);

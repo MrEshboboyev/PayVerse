@@ -1,4 +1,8 @@
-﻿using Scrutor;
+﻿using PayVerse.Application.Wallets.Converters;
+using PayVerse.Infrastructure.Converters;
+using PayVerse.Infrastructure.Reports.Factories;
+using PayVerse.Infrastructure.Reports.Generators;
+using Scrutor;
 
 namespace PayVerse.App.Configurations;
 
@@ -16,5 +20,15 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                       .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                       .AsMatchingInterface()
                       .WithScopedLifetime());
+        
+        services.AddScoped<ReportGeneratorFactory>();
+
+        //
+        // services.AddTransient<CsvReportGenerator>();
+        // services.AddTransient<ExcelReportGenerator>();
+        // services.AddTransient<HtmlReportGenerator>();
+        // services.AddTransient<JsonReportGenerator>();
+        // services.AddTransient<PdfReportGenerator>();
+        // services.AddTransient<TxtReportGenerator>();
     }
 }
