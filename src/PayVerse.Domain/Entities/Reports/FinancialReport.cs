@@ -15,11 +15,13 @@ public sealed class FinancialReport : AggregateRoot, IAuditableEntity
         Guid id,
         ReportPeriod period,
         ReportType type,
+        FileType fileType, 
         Guid generatedBy)
         : base(id)
     {
         Period = period;
         Type = type;
+        FileType = fileType;
         GeneratedBy = generatedBy;
         GeneratedAt = DateTime.UtcNow;
         Status = ReportStatus.Pending;
@@ -31,6 +33,7 @@ public sealed class FinancialReport : AggregateRoot, IAuditableEntity
 
     public ReportPeriod Period { get; private set; }
     public ReportType Type { get; private set; }
+    public FileType FileType { get; private set; }
     public ReportStatus Status { get; private set; }
     public string FilePath { get; private set; }
     public Guid GeneratedBy { get; private set; }
@@ -46,9 +49,10 @@ public sealed class FinancialReport : AggregateRoot, IAuditableEntity
         Guid id,
         ReportPeriod period,
         ReportType type,
+        FileType fileType,
         Guid userId)
     {
-        return new FinancialReport(id, period, type, userId);
+        return new FinancialReport(id, period, type, fileType, userId);
     }
     
     #endregion

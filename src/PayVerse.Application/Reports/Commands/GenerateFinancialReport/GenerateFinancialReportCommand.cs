@@ -7,4 +7,5 @@ public sealed record GenerateFinancialReportCommand(
     Guid UserId,
     DateOnly StartDate,
     DateOnly EndDate,
-    ReportType Type) : ICommand<Guid>;
+    ReportType Type,
+    FileType FileType) : ICommand<Guid>;

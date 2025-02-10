@@ -5,7 +5,6 @@ using MediatR;
 using Newtonsoft.Json;
 using Quartz;
 using Microsoft.EntityFrameworkCore;
-using Polly.Retry;
 using Polly;
 
 namespace PayVerse.Infrastructure.BackgroundJobs;

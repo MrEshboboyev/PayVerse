@@ -17,5 +17,8 @@ internal class GenerateFinancialReportCommandValidator : AbstractValidator<Gener
 
         RuleFor(cmd => cmd.Type)
             .IsInEnum().WithMessage("Report type is not valid.");
+        
+        RuleFor(cmd => cmd.FileType)
+            .IsInEnum().WithMessage("File type is not valid.");
     }
 }

@@ -15,7 +15,7 @@ internal sealed class GenerateFinancialReportCommandHandler(
         GenerateFinancialReportCommand request,
         CancellationToken cancellationToken)
     {
-        var (userId, startDate, endDate, type) = request;
+        var (userId, startDate, endDate, type, fileType) = request;
         
         #region Prepare value objects
         
@@ -33,6 +33,7 @@ internal sealed class GenerateFinancialReportCommandHandler(
             Guid.NewGuid(),
             periodResult.Value,
             type,
+            fileType,
             userId);
         
         #endregion
