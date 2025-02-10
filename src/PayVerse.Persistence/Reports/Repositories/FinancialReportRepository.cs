@@ -7,6 +7,13 @@ namespace PayVerse.Persistence.Reports.Repositories;
 
 public sealed class FinancialReportRepository(ApplicationDbContext dbContext) : IFinancialReportRepository
 {
+    public async Task<IEnumerable<FinancialReport>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Set<FinancialReport>()
+            .ToListAsync(cancellationToken);
+    }
+    
     public async Task<FinancialReport> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)

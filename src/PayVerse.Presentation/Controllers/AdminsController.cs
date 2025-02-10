@@ -15,6 +15,9 @@ using PayVerse.Application.Payments.Commands.RetryFailedPayment;
 using PayVerse.Application.Payments.Queries.GetAllPayments;
 using PayVerse.Application.Payments.Queries.GetPaymentsByDateRange;
 using PayVerse.Application.Payments.Queries.GetPaymentsByUserId;
+using PayVerse.Application.Reports.Queries.GetAllReports;
+using PayVerse.Application.Reports.Queries.GetFinancialReportsByPeriod;
+using PayVerse.Application.Reports.Queries.GetFinancialReportsByUser;
 using PayVerse.Application.Users.Commands.AssignRoleToUser;
 using PayVerse.Application.Users.Commands.BlockUser;
 using PayVerse.Application.Users.Commands.ResetPassword;
@@ -46,9 +49,9 @@ namespace PayVerse.Presentation.Controllers;
 public sealed class AdminsController(ISender sender) : ApiController(sender)
 {
     #region Users
-    
+
     #region Get endpoints
-    
+
     [HttpGet("users")]
     public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken)
     {
@@ -56,7 +59,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     [HttpGet("users/{userId:guid}")]
     public async Task<IActionResult> GetUserById(
         Guid userId,
@@ -66,8 +69,8 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
-    
+
+
     [HttpGet("users/{userId:guid}/with-roles")]
     public async Task<IActionResult> GetUserWithRolesById(
         Guid userId,
@@ -77,7 +80,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     // Roles
     [HttpGet("roles")]
     public async Task<IActionResult> GetAllRoles(
@@ -87,7 +90,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     [HttpGet("users/{userId:guid}/roles")]
     public async Task<IActionResult> GetUserRoles(
         Guid userId,
@@ -97,7 +100,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     [HttpGet("search-users")]
     public async Task<IActionResult> GetUserRoles(
         [FromBody] SearchUsersRequest request,
@@ -110,11 +113,11 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     #endregion
-    
+
     #region Post endpoints
-    
+
     [HttpPost("users/reset-password")]
     public async Task<IActionResult> ChangePassword(
         [FromBody] ResetPasswordRequest request,
@@ -126,7 +129,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
-    
+
     [HttpPost("users/block/{userId:guid}")]
     public async Task<IActionResult> BlockUser(
         Guid userId,
@@ -146,7 +149,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
-    
+
     [HttpPost("users/{userId:guid}/assign-role/{roleId:int}")]
     public async Task<IActionResult> AssignRoleToUser(
         Guid userId,
@@ -172,17 +175,15 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
-    
-    
-    
+
     #endregion
-    
+
     #endregion
-    
+
     #region Invoices
-    
+
     #region Get endpoints
-    
+
     [HttpGet("invoices")]
     public async Task<IActionResult> GetAllInvoices(CancellationToken cancellationToken)
     {
@@ -190,7 +191,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     [HttpGet("invoices/user/{userId:guid}")]
     public async Task<IActionResult> GetInvoicesByUserId(
         Guid userId,
@@ -200,7 +201,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     [HttpGet("invoices/overdue")]
     public async Task<IActionResult> GetOverdueInvoices(
         CancellationToken cancellationToken)
@@ -230,7 +231,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(query, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
     }
-    
+
     [HttpGet("invoices/{userId:guid}/total-revenue")]
     public async Task<IActionResult> GetTotalRevenueByUser(
         Guid userId,
@@ -240,15 +241,15 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(query, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
     }
-    
+
     #endregion
-    
+
     #endregion
-    
+
     #region VirtualAccounts
-    
+
     #region Get endpoints
-    
+
     [HttpGet("virtual_accounts")]
     public async Task<IActionResult> GetAllVirtualAccounts(CancellationToken cancellationToken)
     {
@@ -256,7 +257,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     [HttpGet("virtual_accounts/user/{userId:guid}")]
     public async Task<IActionResult> GetVirtualAccountsByUserId(
         Guid userId,
@@ -266,9 +267,9 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     #endregion
-    
+
     #region Post endpoints
 
     [HttpPost("virtual-accounts/{accountId:guid}/close")]
@@ -312,15 +313,15 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
-    
+
     #endregion
-    
+
     #endregion
-    
+
     #region Payments
-    
+
     #region Get endpoints
-    
+
     [HttpGet("payments")]
     public async Task<IActionResult> GetAllPayments(CancellationToken cancellationToken)
     {
@@ -328,7 +329,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     [HttpGet("payments/user/{userId:guid}")]
     public async Task<IActionResult> GetPaymentsByUserId(
         Guid userId,
@@ -338,7 +339,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     [HttpGet("payments/date-range/{startDate:datetime}/{endDate:datetime}")]
     public async Task<IActionResult> GetPaymentsByDateRange(
         DateTime startDate,
@@ -349,11 +350,11 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(query, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
     }
-    
+
     #endregion
-    
-    #region Patch endpoints 
-    
+
+    #region Patch endpoints
+
     [HttpPatch("{paymentId:guid}/refund")]
     public async Task<IActionResult> RefundPayment(
         Guid paymentId,
@@ -373,13 +374,13 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
-    
+
     #endregion
-    
+
     #endregion
-    
+
     #region Wallets
-    
+
     [HttpGet("wallets")]
     public async Task<IActionResult> GetAllWallets(CancellationToken cancellationToken)
     {
@@ -387,7 +388,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     [HttpGet("wallets/user/{userId:guid}")]
     public async Task<IActionResult> GetWalletsByUserId(
         Guid userId,
@@ -397,13 +398,13 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
-    
+
     #endregion
-    
+
     #region Notifications
-    
+
     #region Post endpoints
-    
+
     [HttpPost("notifications")]
     public async Task<IActionResult> CreateNotification(
         [FromBody] CreateNotificationRequest request,
@@ -418,11 +419,11 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
-    
+
     #endregion
-    
+
     #region Put endpoints
-    
+
     [HttpPut("notifications/{notificationId:guid}/send")]
     public async Task<IActionResult> SendNotification(
         Guid notificationId,
@@ -432,7 +433,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
-    
+
     [HttpPut("notifications/{notificationId:guid}")]
     public async Task<IActionResult> UpdateNotification(
         Guid notificationId,
@@ -445,8 +446,56 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
-    
+
     #endregion
-    
+
+    #endregion
+
+    #region Reports
+
+    #region Get endpoints
+
+    [HttpGet("reports")]
+    public async Task<IActionResult> GetAllReports(CancellationToken cancellationToken)
+    {
+        var query = new GetAllReportsQuery();
+        var response = await Sender.Send(query, cancellationToken);
+        return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
+
+    // fix this -> coming soon
+    [HttpGet("reports/{startDate}/{endDate}")]
+    public async Task<IActionResult> GetReportsByPeriod(
+        string startDate,
+        string endDate,
+        CancellationToken cancellationToken)
+    {
+        if (!DateOnly.TryParse(startDate, out var startDateOnly))
+        {
+            return BadRequest("Invalid start date format.");
+        }
+
+        if (!DateOnly.TryParse(endDate, out var endDateOnly))
+        {
+            return BadRequest("Invalid end date format.");
+        }
+
+        var query = new GetFinancialReportsByPeriodQuery(startDateOnly, endDateOnly);
+        var response = await Sender.Send(query, cancellationToken);
+        return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
+
+    [HttpGet("reports/user/{userId:guid}")]
+    public async Task<IActionResult> GetUserReports(
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetFinancialReportsByUserQuery(userId);
+        var response = await Sender.Send(query, cancellationToken);
+        return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
+    }
+
+    #endregion
+
     #endregion
 }
