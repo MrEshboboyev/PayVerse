@@ -1,4 +1,5 @@
-﻿using PayVerse.Application.Wallets.Converters;
+﻿using PayVerse.Application.Reports.Services;
+using PayVerse.Application.Wallets.Converters;
 using PayVerse.Infrastructure.Converters;
 using PayVerse.Infrastructure.Reports.Factories;
 using PayVerse.Infrastructure.Reports.Generators;
@@ -21,14 +22,16 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                       .AsMatchingInterface()
                       .WithScopedLifetime());
         
-        services.AddScoped<ReportGeneratorFactory>();
+        services.AddHttpClient<ICurrencyConverter, CurrencyConverter>();
+        // services.AddScoped<IReportGenerator, ReportGene>(); // Register the report generator
+        services.AddScoped<IReportGeneratorFactory, ReportGeneratorFactory>();
 
-        //
-        // services.AddTransient<CsvReportGenerator>();
-        // services.AddTransient<ExcelReportGenerator>();
-        // services.AddTransient<HtmlReportGenerator>();
-        // services.AddTransient<JsonReportGenerator>();
-        // services.AddTransient<PdfReportGenerator>();
-        // services.AddTransient<TxtReportGenerator>();
+        
+        services.AddTransient<CsvReportGenerator>();
+        services.AddTransient<ExcelReportGenerator>();
+        services.AddTransient<HtmlReportGenerator>();
+        services.AddTransient<JsonReportGenerator>();
+        services.AddTransient<PdfReportGenerator>();
+        services.AddTransient<TxtReportGenerator>();
     }
 }

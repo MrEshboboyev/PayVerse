@@ -48,7 +48,7 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
     #region Properties
 
     public InvoiceStatus Status { get; private set; }
-    public int RecurringFrequencyInMonths { get; private set; }
+    public int? RecurringFrequencyInMonths { get; private set; }
     public InvoiceNumber InvoiceNumber { get; private set; }
     public InvoiceDate InvoiceDate { get; private set; }
     public Amount TotalAmount { get; private set; }
