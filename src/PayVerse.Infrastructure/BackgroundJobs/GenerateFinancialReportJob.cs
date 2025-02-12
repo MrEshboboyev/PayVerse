@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
+using PayVerse.Application.Reports.Services;
 using PayVerse.Domain.Enums.Reports;
 using PayVerse.Domain.Repositories;
 using PayVerse.Domain.Repositories.Reports;
-using PayVerse.Infrastructure.Reports.Factories;
 using Quartz;
 
 namespace PayVerse.Infrastructure.BackgroundJobs;
@@ -13,7 +13,7 @@ namespace PayVerse.Infrastructure.BackgroundJobs;
 [DisallowConcurrentExecution]
 public sealed class GenerateFinancialReportJob(
     IFinancialReportRepository financialReportRepository,
-    ReportGeneratorFactory reportGeneratorFactory,
+    IReportGeneratorFactory reportGeneratorFactory,
     // IEmailService emailService,
     IUnitOfWork unitOfWork,
     ILogger<GenerateFinancialReportJob> logger) : IJob

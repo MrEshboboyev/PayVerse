@@ -4,7 +4,7 @@ using PayVerse.Domain.Entities.Reports;
 
 namespace PayVerse.Infrastructure.Reports.Generators;
 
-public sealed class JsonReportGenerator : IReportGenerator
+public class JsonReportGenerator : IReportGenerator
 {
     public async Task<string> GenerateAsync(FinancialReport report, CancellationToken cancellationToken)
     {
@@ -12,12 +12,14 @@ public sealed class JsonReportGenerator : IReportGenerator
 
         var jsonContent = JsonConvert.SerializeObject(new
         {
+            report.Id,
+            report.Period.StartDate,
+            report.Period.EndDate,
             report.Type,
-            report.Period,
             report.GeneratedBy,
             report.Status,
             report.GeneratedAt
-        });
+        }, Formatting.Indented);
 
         await File.WriteAllTextAsync(filePath, jsonContent, cancellationToken);
 

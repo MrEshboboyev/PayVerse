@@ -1,12 +1,16 @@
 using DotNetEnv;
 using PayVerse.App.Configurations;
 using PayVerse.App.Middlewares;
+using QuestPDF.Infrastructure;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Load the .env file
 Env.Load();
+
+// configure license for QuestPDF
+QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services
     .InstallServices(

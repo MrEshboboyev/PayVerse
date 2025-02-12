@@ -1,4 +1,5 @@
 using PayVerse.Application.Abstractions.Messaging;
+using PayVerse.Application.Reports.Services;
 using PayVerse.Domain.Entities.Reports;
 using PayVerse.Domain.Repositories;
 using PayVerse.Domain.Repositories.Reports;
@@ -9,6 +10,7 @@ namespace PayVerse.Application.Reports.Commands.GenerateFinancialReport;
 
 internal sealed class GenerateFinancialReportCommandHandler(
     IFinancialReportRepository financialReportRepository,
+    IReportGeneratorFactory reportGeneratorFactory,
     IUnitOfWork unitOfWork) : ICommandHandler<GenerateFinancialReportCommand, Guid>
 {
     public async Task<Result<Guid>> Handle(
@@ -35,6 +37,22 @@ internal sealed class GenerateFinancialReportCommandHandler(
             type,
             fileType,
             userId);
+        
+        #endregion
+        
+        #region Generate report
+        
+        // Generate the report
+        var generator = reportGeneratorFactory.CreateReportGenerator(report.FileType);
+        var filePath = await generator.GenerateAsync(report, cancellationToken);
+
+        // Update report with file path and mark as completed
+        var updateResult = report.MarkAsCompleted(filePath);
+        if (updateResult.IsFailure)
+        {
+            return Result.Failure<Guid>(
+                updateResult.Error);
+        }
         
         #endregion
 
