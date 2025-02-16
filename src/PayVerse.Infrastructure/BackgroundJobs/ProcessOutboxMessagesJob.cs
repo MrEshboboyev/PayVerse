@@ -24,10 +24,11 @@ public class ProcessOutboxMessagesJob(
     /// <param name="context">The job execution context.</param>
     public async Task Execute(IJobExecutionContext context)
     {
-        // Retrieve unprocessed outbox messages
+        // Retrieve unprocessed outbox messages in a deterministic order
         var messages = await dbContext
             .Set<OutboxMessage>()
             .Where(m => m.ProcessedOnUtc == null)
+            .OrderBy(m => m.OccurredOnUtc) // Ensure consistent ordering
             .Take(20)
             .ToListAsync(context.CancellationToken);
 

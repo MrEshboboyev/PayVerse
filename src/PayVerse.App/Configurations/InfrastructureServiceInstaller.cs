@@ -23,7 +23,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                       .WithScopedLifetime());
         
         services.AddHttpClient<ICurrencyConverter, CurrencyConverter>();
-        // services.AddScoped<IReportGenerator, ReportGene>(); // Register the report generator
         services.AddScoped<IReportGeneratorFactory, ReportGeneratorFactory>();
 
         
