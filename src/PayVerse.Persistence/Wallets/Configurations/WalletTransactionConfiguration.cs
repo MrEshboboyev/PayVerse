@@ -19,7 +19,7 @@ internal sealed class WalletTransactionConfiguration : IEntityTypeConfiguration<
         // Configure the primary key
         builder.HasKey(x => x.Id);
         
-        // Explicitly map InvoiceId as a non-nullable foreign key
+        // Explicitly map WalletId as a non-nullable foreign key
         builder
             .Property(x => x.WalletId)
             .IsRequired();
