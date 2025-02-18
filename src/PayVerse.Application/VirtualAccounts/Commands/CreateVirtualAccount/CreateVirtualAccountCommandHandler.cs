@@ -1,10 +1,9 @@
 using PayVerse.Application.Abstractions.Messaging;
-using PayVerse.Domain.Entities.VirtualAccounts;
+using PayVerse.Domain.Factories.VirtualAccounts;
 using PayVerse.Domain.Repositories;
 using PayVerse.Domain.Repositories.VirtualAccounts;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects;
-using PayVerse.Domain.ValueObjects.VirtualAccounts;
 
 namespace PayVerse.Application.VirtualAccounts.Commands.CreateVirtualAccount;
 
@@ -16,16 +15,9 @@ internal sealed class CreateVirtualAccountCommandHandler(
         CreateVirtualAccountCommand request,
         CancellationToken cancellationToken)
     {
-        var (accountNumber, currencyCode, balance, userId) = request;
+        var (currencyCode, userId) = request;
         
         #region Prepare value objects
-        
-        var accountNumberResult = AccountNumber.Create(accountNumber);
-        if (accountNumberResult.IsFailure)
-        {
-            return Result.Failure(
-                accountNumberResult.Error);
-        }
         
         var currencyResult = Currency.Create(currencyCode);
         if (currencyResult.IsFailure)
@@ -34,23 +26,13 @@ internal sealed class CreateVirtualAccountCommandHandler(
                 currencyResult.Error);
         }
         
-        var balanceResult = Balance.Create(balance);
-        if (balanceResult.IsFailure)
-        {
-            return Result.Failure(
-                balanceResult.Error);
-        }
-        
         #endregion
         
         #region Create Virtual Account
 
-        var virtualAccount = VirtualAccount.Create(
-            Guid.NewGuid(),
-            accountNumberResult.Value,
-            currencyResult.Value,
-            balanceResult.Value,
-            userId);
+        var virtualAccount = VirtualAccountFactory.Create(
+            userId,
+            currencyResult.Value);
 
         #endregion
 

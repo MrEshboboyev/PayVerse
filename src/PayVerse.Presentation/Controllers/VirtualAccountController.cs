@@ -118,9 +118,7 @@ public sealed class VirtualAccountController(ISender sender) : ApiController(sen
         CancellationToken cancellationToken)
     {
         var command = new CreateVirtualAccountCommand(
-            request.AccountNumber,
             request.CurrencyCode,
-            request.Balance,
             GetUserId());
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);

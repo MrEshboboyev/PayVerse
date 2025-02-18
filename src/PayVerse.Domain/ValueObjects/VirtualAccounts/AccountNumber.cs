@@ -30,29 +30,26 @@ public sealed class AccountNumber : ValueObject
     
     #endregion
 
-    #region Factory Method
-    
-    public static Result<AccountNumber> Create(string value)
+    #region Methods
+
+    public static AccountNumber Generate()
     {
-        if (string.IsNullOrWhiteSpace(value))
+        var random = new Random();
+        var buffer = new char[Length];
+
+        for (int i = 0; i < Length; i++)
         {
-            return Result.Failure<AccountNumber>(
-                DomainErrors.AccountNumber.Empty);
+            buffer[i] = (char)('0' + random.Next(10)); // Generates a random digit between 0 and 9.
         }
 
-        if (value.Length != Length)
-        {
-            return Result.Failure<AccountNumber>(
-                DomainErrors.AccountNumber.InvalidLength);
-        }
-
-        return Result.Success(new AccountNumber(value));
+        var accountNumber = new string(buffer);
+        return new AccountNumber(accountNumber);
     }
-    
+
     #endregion
 
     #region Overrides
-    
+
     protected override IEnumerable<object> GetAtomicValues()
     {
         yield return Value;
