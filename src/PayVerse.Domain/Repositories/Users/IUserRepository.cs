@@ -44,17 +44,17 @@ public interface IUserRepository
     /// Adds a new user to the repository.
     /// </summary>
     /// <param name="user">The user entity to add.</param>
-    void Add(User user);
+    Task AddAsync(User user, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates an existing user in the repository.
     /// </summary>
     /// <param name="user">The user entity to update.</param>
-    void Update(User user);
+    Task UpdateAsync(User user, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Deletes an existing user from the repository.
     /// </summary>
     /// <param name="user">The user entity to delete.</param>
-    void Delete(User user);
+    Task DeleteAsync(User user, CancellationToken cancellationToken = default);
 }

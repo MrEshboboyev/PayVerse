@@ -74,13 +74,12 @@ public sealed class UserRepository(ApplicationDbContext dbContext) : IUserReposi
         => await dbContext.Set<User>()
             .ToListAsync(cancellationToken);
 
-    public void Add(User user) =>
-        dbContext.Set<User>().Add(user);
+    public async Task AddAsync(User user, CancellationToken cancellationToken = default) 
+        => await dbContext.Set<User>().AddAsync(user, cancellationToken);
 
-    public void Update(User user) =>
-        dbContext.Set<User>().Update(user);
+    public async Task UpdateAsync(User user, CancellationToken cancellationToken = default) 
+        =>dbContext.Set<User>().Update(user);
 
-    public void Delete(User user)
-        => dbContext.Set<User>()
-            .Remove(user);
+    public async Task DeleteAsync(User user, CancellationToken cancellationToken = default)
+        => dbContext.Set<User>().Remove(user);
 }

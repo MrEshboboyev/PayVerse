@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PayVerse.Application.Users.Commands.CreateUser;
+using PayVerse.Application.Users.Commands.CreateUserAndWallet;
 using PayVerse.Application.Users.Commands.Login;
 using PayVerse.Domain.Entities.Users;
 using PayVerse.Presentation.Abstractions;
@@ -48,5 +49,33 @@ public sealed class AuthController(ISender sender) : ApiController(sender)
         var result = await Sender.Send(command, cancellationToken);
         
         return result.IsFailure ? HandleFailure(result) : Ok(result.Value);
+    }
+
+    [HttpPost("create-user-and-wallet")]
+    public async Task<IActionResult> CreateUserAndWallet(
+        [FromBody] CreateUserAndWalletRequest request,
+        CancellationToken cancellationToken)
+    {
+        #region Get Role from Name
+
+        var role = Role.FromName(request.RoleName);
+        if (!new[] { Role.IndividualUser, Role.BusinessUser }.Contains(role))
+        {
+            return BadRequest();
+        }
+
+        #endregion
+
+        var command = new CreateUserAndWalletCommand(
+            request.Email,
+            request.Password,
+            request.FirstName,
+            request.LastName,
+            role.Id,
+            request.Currency);
+
+        var result = await Sender.Send(command, cancellationToken);
+
+        return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
 }
