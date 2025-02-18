@@ -9,9 +9,11 @@
     <ItemGroup>
         <PackageReference Include="EPPlus" />
         <PackageReference Include="Microsoft.AspNetCore.Authorization" />
+        <PackageReference Include="PayPalServerSDK" />
         <PackageReference Include="Polly" />
         <PackageReference Include="Quartz" />
         <PackageReference Include="QuestPDF" />
+        <PackageReference Include="Stripe.net" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     </ItemGroup>
 

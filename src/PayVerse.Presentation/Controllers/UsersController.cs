@@ -1,18 +1,13 @@
-﻿using PayVerse.Application.Users.Commands.CreateUser;
-using PayVerse.Application.Users.Commands.Login;
-using PayVerse.Application.Users.Queries.GetUserById;
+﻿using PayVerse.Application.Users.Queries.GetUserById;
 using PayVerse.Presentation.Abstractions;
 using PayVerse.Presentation.Contracts.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PayVerse.Application.Users.Commands.BlockUser;
 using PayVerse.Application.Users.Commands.ChangePassword;
 using PayVerse.Application.Users.Commands.EnableTwoFactorAuthentication;
-using PayVerse.Application.Users.Commands.UnblockUser;
 using PayVerse.Application.Users.Commands.UpdateUser;
 using PayVerse.Application.Users.Queries.GetUserRoles;
-using PayVerse.Domain.Entities.Users;
 
 namespace PayVerse.Presentation.Controllers;
 

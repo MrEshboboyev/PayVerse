@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PayVerse.Domain.Entities.Payments;
 using PayVerse.Domain.Enums.Payments;
-using PayVerse.Domain.ValueObjects.Payments;
+using PayVerse.Domain.ValueObjects;
 using PayVerse.Persistence.Payments.Constants;
 
 namespace PayVerse.Persistence.Payments.Configurations;
@@ -22,7 +22,7 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         // Configure properties
         builder.Property(x => x.Amount)
-            .HasConversion(x => x.Value, v => PaymentAmount.Create(v).Value)
+            .HasConversion(x => x.Value, v => Amount.Create(v).Value)
             .IsRequired();
 
         builder.Property(x => x.Status)

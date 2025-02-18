@@ -3,7 +3,7 @@ using PayVerse.Domain.Entities.Payments;
 using PayVerse.Domain.Repositories;
 using PayVerse.Domain.Repositories.Payments;
 using PayVerse.Domain.Shared;
-using PayVerse.Domain.ValueObjects.Payments;
+using PayVerse.Domain.ValueObjects;
 
 namespace PayVerse.Application.Payments.Commands.CreatePayment;
 
@@ -19,7 +19,7 @@ internal sealed class CreatePaymentCommandHandler(
         
         #region Prepare value objects
 
-        var amountResult = PaymentAmount.Create(amount);
+        var amountResult = Amount.Create(amount);
         if (amountResult.IsFailure)
         {
             return Result.Failure(

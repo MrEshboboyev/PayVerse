@@ -2,7 +2,7 @@ using PayVerse.Domain.Enums.Payments;
 using PayVerse.Domain.Events.Payments;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
-using PayVerse.Domain.ValueObjects.Payments;
+using PayVerse.Domain.ValueObjects;
 
 namespace PayVerse.Domain.Entities.Payments;
 
@@ -15,7 +15,7 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
     
     private Payment(
         Guid id,
-        PaymentAmount amount,
+        Amount amount,
         PaymentStatus status,
         Guid userId,
         DateTime? scheduledDate = null)
@@ -35,7 +35,7 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
 
     #region Properties
     
-    public PaymentAmount Amount { get; private set; }
+    public Amount Amount { get; private set; }
     public PaymentStatus Status { get; private set; }
     public Guid UserId { get; private set; }
     public DateTime? ScheduledDate { get; private set; }
@@ -48,7 +48,7 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
     
     public static Payment Create(
         Guid id,
-        PaymentAmount amount,
+        Amount amount,
         PaymentStatus status,
         Guid userId,
         DateTime? scheduledDate = null)
