@@ -3,6 +3,7 @@ using PayVerse.Application.Wallets.Converters;
 using PayVerse.Infrastructure.Converters;
 using PayVerse.Infrastructure.Reports.Factories;
 using PayVerse.Infrastructure.Reports.Generators;
+using PayVerse.Infrastructure.Services.Security;
 using Scrutor;
 
 namespace PayVerse.App.Configurations;
@@ -21,11 +22,12 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                       .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                       .AsMatchingInterface()
                       .WithScopedLifetime());
-        
+
+        services.AddSingleton<AuditLogService>(AuditLogService.Instance);
+
         services.AddHttpClient<ICurrencyConverter, CurrencyConverter>();
         services.AddScoped<IReportGeneratorFactory, ReportGeneratorFactory>();
 
-        
         services.AddTransient<CsvReportGenerator>();
         services.AddTransient<ExcelReportGenerator>();
         services.AddTransient<HtmlReportGenerator>();
