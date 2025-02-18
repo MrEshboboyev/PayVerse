@@ -13,13 +13,9 @@ using PayVerse.Application.Invoices.Commands.SendInvoiceToClient;
 using PayVerse.Application.Invoices.Queries.GetInvoiceById;
 using PayVerse.Application.Invoices.Queries.GetInvoiceItemById;
 using PayVerse.Application.Invoices.Queries.GetInvoiceItems;
-using PayVerse.Application.Invoices.Queries.GetInvoicesByDateRange;
-using PayVerse.Application.Invoices.Queries.GetInvoicesByStatus;
 using PayVerse.Application.Invoices.Queries.GetInvoicesByUserId;
 using PayVerse.Application.Invoices.Queries.GetInvoiceWithItemsById;
-using PayVerse.Application.Invoices.Queries.GetOverdueInvoices;
 using PayVerse.Application.Invoices.Queries.GetTotalRevenueByUser;
-using PayVerse.Domain.Enums.Invoices;
 using PayVerse.Presentation.Abstractions;
 using PayVerse.Presentation.Contracts.Invoices;
 
@@ -94,23 +90,22 @@ public sealed class InvoiceController(ISender sender) : ApiController(sender)
 
     #region Post Endpoints
 
-    [HttpPost]
+    [HttpPost("create-invoice")]
     public async Task<IActionResult> CreateInvoice(
         [FromBody] CreateInvoiceRequest request,
         CancellationToken cancellationToken)
     {
         var command = new CreateInvoiceCommand(
-            request.InvoiceNumber,
-            request.Date, 
-            request.TotalAmount,
-            GetUserId());
+            GetUserId(),
+            [.. request.Items.Select(item => (item.Description, item.Amount))]);
+
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }
 
     [HttpPost("{invoiceId:guid}/items")]
     public async Task<IActionResult> AddInvoiceItem(
-        Guid invoiceId, 
+        Guid invoiceId,
         [FromBody] AddInvoiceItemRequest request,
         CancellationToken cancellationToken)
     {
@@ -185,7 +180,7 @@ public sealed class InvoiceController(ISender sender) : ApiController(sender)
     {
         var command = new CreateRecurringInvoiceCommand(
             request.InvoiceNumber,
-            request.InvoiceDate, 
+            request.InvoiceDate,
             request.TotalAmount,
             GetUserId(),
             request.FrequencyInMonths);

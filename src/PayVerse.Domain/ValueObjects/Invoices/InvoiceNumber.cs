@@ -30,29 +30,19 @@ public sealed class InvoiceNumber : ValueObject
     
     #endregion
 
-    #region Factory Method
-    
-    public static Result<InvoiceNumber> Create(string value)
+    #region Methods
+
+    public static InvoiceNumber Generate()
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return Result.Failure<InvoiceNumber>(
-                DomainErrors.InvoiceNumber.Empty);
-        }
-
-        if (value.Length > MaxLength)
-        {
-            return Result.Failure<InvoiceNumber>(
-                DomainErrors.InvoiceNumber.TooLong);
-        }
-
-        return Result.Success(new InvoiceNumber(value));
+        // Generates a new GUID and takes the first MaxLength characters.
+        var invoiceNumber = Guid.NewGuid().ToString("N")[..MaxLength];
+        return new InvoiceNumber(invoiceNumber);
     }
-    
+
     #endregion
 
     #region Overrides
-    
+
     protected override IEnumerable<object> GetAtomicValues()
     {
         yield return Value;
