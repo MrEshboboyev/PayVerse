@@ -18,7 +18,7 @@ public class CryptoPaymentStrategy(ILogger<CryptoPaymentStrategy> logger) : IPay
             // Simulate crypto payment processing
             await Task.Delay(1000); // Simulating some network latency
 
-            _logger.LogInformation($"₿ Processing Crypto Payment for {payment.Id}: {payment.Amount.Value} {payment.Currency}");
+            _logger.LogInformation($"₿ Processing Crypto Payment for {payment.Id}: {payment.Amount.Value} USD");
 
             // Here you would have actual integration with a crypto payment gateway
             return Result.Success();

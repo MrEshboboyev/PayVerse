@@ -18,7 +18,7 @@ public class CreditCardPaymentStrategy(ILogger<CreditCardPaymentStrategy> logger
             // Simulate credit card payment processing
             await Task.Delay(500); // Simulating some processing time
 
-            _logger.LogInformation($"💳 Processing Credit Card Payment for {payment.Id}: {payment.Amount.Value} {payment.Currency}");
+            _logger.LogInformation($"💳 Processing Credit Card Payment for {payment.Id}: {payment.Amount.Value} USD");
 
             // Here you would integrate with a credit card payment gateway like Stripe or PayPal
             return Result.Success();
