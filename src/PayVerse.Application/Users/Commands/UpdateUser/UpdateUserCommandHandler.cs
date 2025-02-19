@@ -59,7 +59,7 @@ internal sealed class UpdateUserCommandHandler(
         
         #region Update database
         
-        userRepository.Update(user);
+        await userRepository.UpdateAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         
         #endregion

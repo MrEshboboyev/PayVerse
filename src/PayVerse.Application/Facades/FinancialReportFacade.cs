@@ -5,6 +5,12 @@ using PayVerse.Domain.ValueObjects.Reports;
 
 namespace PayVerse.Application.Facades;
 
+// ✅ Simplifies the process of generating, saving, and emailing financial reports.
+
+// ✅ Future Benefits:
+// Prevents code duplication by providing a unified interface.
+// Easily extends to support PDF exports, API integrations.
+
 public class FinancialReportFacade(IFinancialReportService reportService)
 {
     private readonly IFinancialReportService _reportService =
@@ -26,7 +32,8 @@ public class FinancialReportFacade(IFinancialReportService reportService)
     {
         Console.WriteLine("[Facade] Starting financial report process...");
 
-        // Generate Report
+        #region Generate Report
+
         var generateResult = await _reportService.GenerateReportAsync(
             userId, 
             period, 
@@ -40,21 +47,33 @@ public class FinancialReportFacade(IFinancialReportService reportService)
 
         var report = generateResult.Value;
 
-        // Save Report
-        var saveResult = await _reportService.SaveReportAsync(report, "path/to/save/report.pdf"); // Placeholder path
+        #endregion
+
+        #region Save Report
+
+        var saveResult = await _reportService.SaveReportAsync(
+            report, 
+            "path/to/save/report.pdf"); // Placeholder path
         if (saveResult.IsFailure)
         {
             Console.WriteLine($"[Facade] Error saving report: {saveResult.Error}");
             return Result.Failure(saveResult.Error);
         }
 
-        // Send Report
-        var sendResult = await _reportService.SendReportByEmailAsync(report, email);
+        #endregion
+
+        #region Send Report
+
+        var sendResult = await _reportService.SendReportByEmailAsync(
+            report, 
+            email);
         if (sendResult.IsFailure)
         {
             Console.WriteLine($"[Facade] Error sending report via email: {sendResult.Error}");
             return Result.Failure(sendResult.Error);
         }
+
+        #endregion
 
         Console.WriteLine("[Facade] Financial report process completed successfully.");
         return Result.Success();

@@ -23,7 +23,6 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         // Configure property conversions and constraints
         builder
             .Property(x => x.InvoiceNumber)
-            .HasConversion(x => x.Value, v => InvoiceNumber.Create(v).Value)
             .HasMaxLength(InvoiceNumber.MaxLength);
 
         builder

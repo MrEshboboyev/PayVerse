@@ -39,7 +39,7 @@ internal sealed class ResetPasswordCommandHandler(
         
         #endregion
 
-        userRepository.Update(user);
+        await userRepository.UpdateAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

@@ -45,7 +45,7 @@ internal sealed class AssignRoleToUserCommandHandler(
         
         #region Update database
 
-        userRepository.Update(user);
+        await userRepository.UpdateAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         
         #endregion

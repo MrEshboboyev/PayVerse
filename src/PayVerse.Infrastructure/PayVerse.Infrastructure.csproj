@@ -8,7 +8,10 @@
 
     <ItemGroup>
         <PackageReference Include="EPPlus" />
+        <PackageReference Include="MailKit" />
         <PackageReference Include="Microsoft.AspNetCore.Authorization" />
+        <PackageReference Include="PayPalCheckoutSdk" />
+        <PackageReference Include="PayPalHttp" />
         <PackageReference Include="Polly" />
         <PackageReference Include="Quartz" />
         <PackageReference Include="QuestPDF" />

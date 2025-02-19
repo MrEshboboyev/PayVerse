@@ -1,4 +1,5 @@
 ﻿using PayVerse.Domain.Entities.Payments;
+using PayVerse.Domain.Shared;
 
 namespace PayVerse.Infrastructure.Adapters;
 
@@ -11,6 +12,6 @@ public interface IPaymentGateway
     /// Processes a payment through the specific payment gateway.
     /// </summary>
     /// <param name="payment">The payment to process.</param>
-    /// <returns>True if the payment was processed successfully, false otherwise.</returns>
-    Task<bool> ProcessPaymentAsync(Payment payment);
+    /// <returns>A Result object indicating the success or failure of the payment processing.</returns>
+    Task<Result> ProcessPaymentAsync(Payment payment);
 }

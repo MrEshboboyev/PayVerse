@@ -22,7 +22,6 @@ internal sealed class VirtualAccountConfiguration : IEntityTypeConfiguration<Vir
 
         // Configure properties
         builder.Property(x => x.AccountNumber)
-            .HasConversion(x => x.Value, v => AccountNumber.Create(v).Value)
             .IsRequired();
 
         builder.Property(x => x.Currency)

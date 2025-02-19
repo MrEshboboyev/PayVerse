@@ -83,6 +83,14 @@ public static class DomainErrors
         public static readonly Error InvalidFormat = new(
             "Email.InvalidFormat",
             "Email format is invalid");
+
+        public static readonly Func<string, Error> SendingFailed = errorMessage => new Error(
+            "Email.SendingFailed",
+            $"Failed to send email: {errorMessage}");
+
+        public static readonly Func<string, Error> SendingFailedWithAttachment = errorMessage => new Error(
+            "Email.SendingFailedWithAttachment",
+            $"Failed to send email with attachment: {errorMessage}");
     }
 
     public static class FirstName
@@ -294,13 +302,31 @@ public static class DomainErrors
     }
 
     #endregion
-    
+
+    #region Adapters
+
+    public static class PayPal
+    {
+        public static readonly Func<string, Error> ProcessingFailed = message => new Error(
+            "PayPal.ProcessingFailed",
+            $"PayPal payment processing failed: {message}");
+    }
+
+    public static class Stripe
+    {
+        public static readonly Func<string, Error> ProcessingFailed = message => new Error(
+            "Stripe.ProcessingFailed",
+            $"Stripe payment processing failed: {message}");
+    }
+
     #endregion
-    
+
+    #endregion
+
     #region Wallet
-    
+
     #region Entities
-    
+
     public static class Wallet
     {
         public static readonly Func<Guid, Error> NotFound = id => new Error(
@@ -431,6 +457,10 @@ public static class DomainErrors
             "FinancialReport.CannotMarkAsFailed",
             $"The report with ID {reportId} cannot be marked as failed" +
             $" because it is not in the pending status.");
+
+        public static readonly Func<Guid, Error> ReportNotCompleted = reportId => new Error(
+            "FinancialReport.ReportNotCompleted",
+            $"The report with ID {reportId} is not completed.");
     }
 
     #endregion

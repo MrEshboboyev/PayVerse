@@ -175,15 +175,13 @@ public sealed class InvoiceController(ISender sender) : ApiController(sender)
 
     [HttpPost("create-recurring")]
     public async Task<IActionResult> CreateRecurringInvoice(
-        [FromBody] CreateRecurringInvoiceRequest request,
-        CancellationToken cancellationToken)
+    [FromBody] CreateRecurringInvoiceRequest request,
+    CancellationToken cancellationToken)
     {
         var command = new CreateRecurringInvoiceCommand(
-            request.InvoiceNumber,
-            request.InvoiceDate,
-            request.TotalAmount,
             GetUserId(),
-            request.FrequencyInMonths);
+            request.FrequencyInMonths,
+            request.Items);
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }

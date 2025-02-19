@@ -87,7 +87,7 @@ internal sealed class CreateUserCommandHandler(
 
         #region Add and Update database
 
-        userRepository.Add(user);
+        await userRepository.AddAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         #endregion
