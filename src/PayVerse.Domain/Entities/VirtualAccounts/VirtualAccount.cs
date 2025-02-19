@@ -1,6 +1,7 @@
 using PayVerse.Domain.Enums.VirtualAccounts;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.VirtualAccounts;
+using PayVerse.Domain.Mementos;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects;
@@ -189,11 +190,17 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
         
         return Result.Success();
     }
-    
+
+    public Result UpdateBalance(Balance newBalance)
+    {
+        Balance = newBalance;
+        return Result.Success();
+    }
+
     #endregion
 
     #region Transaction related Methods
-    
+
     public Transaction GetTransactionById(Guid transactionId) 
         => _transactions.FirstOrDefault(t => t.Id == transactionId);
     
@@ -229,7 +236,32 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
         #endregion
         
         return Result.Success(transaction);
-    } 
-    
+    }
+
+    #endregion
+
+    #region Memento
+
+    public VirtualAccountMemento SaveState()
+    {
+        return new VirtualAccountMemento(Id, Balance);
+    }
+
+    public Result RestoreState(VirtualAccountMemento memento)
+    {
+        if (memento.Id != Id)
+        {
+            return Result.Failure(
+                DomainErrors.VirtualAccount.MementoMismatch(Id, memento.Id));
+        }
+
+        var balanceResult = Balance.Create(memento.Balance);
+        if (balanceResult.IsFailure)
+            return Result.Failure(balanceResult.Error);
+
+        Balance = balanceResult.Value;
+        return Result.Success();
+    }
+
     #endregion
 }

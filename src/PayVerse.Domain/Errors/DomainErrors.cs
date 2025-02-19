@@ -209,6 +209,14 @@ public static class DomainErrors
 
     public static class VirtualAccount
     {
+        public static readonly Func<Guid, Guid, Error> MementoMismatch = (accountId, mementoId) => new Error(
+            "VirtualAccount.MementoMismatch",
+            $"Memento ID {mementoId} does not match this account ID {accountId}.");
+
+        public static readonly Error NoPreviousState = new(
+            "VirtualAccount.NoPreviousState",
+            "No previous state to restore for the virtual account.");
+
         public static readonly Func<Guid, Error> NotFound = id => new Error(
             "AccountNumber.NotFound",
             $"The account number with the identifier {id} was not found.");
