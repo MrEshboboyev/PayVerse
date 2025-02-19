@@ -502,4 +502,19 @@ public static class DomainErrors
     }
 
     #endregion
+
+    #region Sms
+
+    public static class Sms
+    {
+        public static readonly Func<string, string, Error> TwilioSendFailed = (phoneNumber, message) => new Error(
+            "Sms.TwilioSendFailed",
+            $"Failed to send SMS to {phoneNumber}: {message}");
+
+        public static readonly Func<string, Error> GatewaySendFailed = (message) => new Error(
+            "Sms.GatewaySendFailed",
+            $"Failed to send SMS via gateway: {message}");
+    }
+
+    #endregion
 }
