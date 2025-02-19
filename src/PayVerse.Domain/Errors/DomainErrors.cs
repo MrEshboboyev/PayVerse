@@ -288,6 +288,14 @@ public static class DomainErrors
         public static readonly Error NotExist = new(
             "Payment.NotExist",
             $"There is no payments");
+
+        public static readonly Func<Guid, string, Error> CryptoProcessingFailed = (paymentId, message) => new Error(
+            "Payment.CryptoProcessingFailed",
+            $"Error processing Crypto Payment for {paymentId}: {message}");
+
+        public static readonly Func<Guid, string, Error> CreditCardProcessingFailed = (paymentId, message) => new Error(
+            "Payment.CreditCardProcessingFailed",
+            $"Error processing Credit Card Payment for {paymentId}: {message}");
     }   
 
     #endregion
