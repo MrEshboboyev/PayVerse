@@ -4,6 +4,7 @@ using PayVerse.Domain.Events.VirtualAccounts;
 using PayVerse.Domain.Mementos;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
+using PayVerse.Domain.States;
 using PayVerse.Domain.ValueObjects;
 using PayVerse.Domain.ValueObjects.VirtualAccounts;
 
@@ -17,11 +18,14 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
     #region Private Fields
     
     private readonly List<Transaction> _transactions = [];
-    
+
+    // State pattern
+    private IVirtualAccountState _state;
+
     #endregion
 
     #region Constructor
-    
+
     private VirtualAccount(
         Guid id,
         AccountNumber accountNumber,
@@ -195,6 +199,16 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
     {
         Balance = newBalance;
         return Result.Success();
+    }
+
+    #endregion
+
+    #region State
+
+    public void SetState(IVirtualAccountState state)
+    {
+        _state = state;
+        _state.Handle(this);
     }
 
     #endregion
