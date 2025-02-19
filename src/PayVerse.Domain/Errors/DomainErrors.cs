@@ -473,8 +473,33 @@ public static class DomainErrors
             "ReportPeriod.InvalidDateRange",
             $"The report period start date {start} cannot be later than the end date {end}.");
     }
-    
+
     #endregion
-    
+
+    #endregion
+
+    #region Check
+
+    public static class BalanceCheck
+    {
+        public static readonly Func<Guid, decimal, decimal, Error> InsufficientFunds = (accountId, balance, amount) => new Error(
+            "BalanceCheck.InsufficientFunds",
+            $"Insufficient funds for account {accountId}. Balance: {balance}, Attempted Debit: {amount}");
+    }
+
+    public static class FraudCheck
+    {
+        public static readonly Func<Guid, decimal, Error> TransactionFlagged = (accountId, amount) => new Error(
+            "FraudCheck.TransactionFlagged",
+            $"High-value transaction flagged for account {accountId}. Amount: {amount}");
+    }
+
+    public static class AccountStatusCheck
+    {
+        public static readonly Func<Guid, Error> AccountInactive = accountId => new Error(
+            "AccountStatusCheck.AccountInactive",
+            $"Account {accountId} is inactive.");
+    }
+
     #endregion
 }
