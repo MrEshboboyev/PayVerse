@@ -1,7 +1,4 @@
-﻿using FluentValidation;
-using PayVerse.Domain.Entities.Wallets;
-using static PayVerse.Domain.Errors.DomainErrors;
-using static QuestPDF.Helpers.Colors;
+﻿using PayVerse.Domain.Entities.Wallets;
 
 namespace PayVerse.Infrastructure.Proxies;
 
