@@ -1,4 +1,4 @@
-﻿using PayVerse.Domain.Entities.Notifications;
+﻿using PayVerse.Domain.Enums.Payments;
 using PayVerse.Domain.Shared;
 
 namespace PayVerse.Domain.Errors;
@@ -143,9 +143,9 @@ public static class DomainErrors
     #endregion
 
     #endregion
-    
+
     #region Invoice
-    
+
     #region Entities
 
     public static class Invoice
@@ -157,7 +157,7 @@ public static class DomainErrors
         public static readonly Error NotExist = new(
             "Invoice.NotExist",
             $"There is no invoices");
-        
+
         public static readonly Func<Guid, Error> ItemNotFound = id => new Error(
             "Invoice.ItemNotFound",
             $"The invoice item with the identifier {id} was not found in this invoice.");
@@ -180,7 +180,7 @@ public static class DomainErrors
             "Amount.Negative",
             "Amount must not be negative.");
     }
-    
+
     public static class InvoiceDate
     {
         public static readonly Error FutureDate = new(
@@ -200,11 +200,11 @@ public static class DomainErrors
     }
 
     #endregion
-    
+
     #endregion
-    
+
     #region VirtualAccount
-    
+
     #region Entities
 
     public static class VirtualAccount
@@ -220,7 +220,7 @@ public static class DomainErrors
         public static readonly Func<Guid, Error> NotFound = id => new Error(
             "AccountNumber.NotFound",
             $"The account number with the identifier {id} was not found.");
-        
+
         public static readonly Error FromOrToAccountNotActive = new(
             "VirtualAccount.FromOrToAccountNotActive",
             "Both accounts must be active for a transfer.");
@@ -244,7 +244,7 @@ public static class DomainErrors
         public static readonly Func<decimal, Error> FinalBalanceFailure = amount => new Error(
             "VirtualAccount.FinalBalanceFailure",
             $"Unable to create balance with amount {amount}.");
-        
+
         public static readonly Func<Guid, Error> ItemNotFound = id => new Error(
             "Invoice.ItemNotFound",
             $"The invoice item with the identifier {id} was not found in this invoice.");
@@ -259,7 +259,7 @@ public static class DomainErrors
         public static readonly Error Empty = new(
             "AccountNumber.Empty",
             "Account number must not be empty.");
-        
+
         public static readonly Error InvalidLength = new(
             "AccountNumber.InvalidLength",
             "Account number must have a valid length.");
@@ -278,13 +278,13 @@ public static class DomainErrors
             "Currency.Invalid",
             "Currency must be valid.");
     }
-    
+
     #endregion
-    
+
     #endregion
-    
+
     #region Payments
-    
+
     #region Entities
 
     public static class Payment
@@ -304,7 +304,96 @@ public static class DomainErrors
         public static readonly Func<Guid, string, Error> CreditCardProcessingFailed = (paymentId, message) => new Error(
             "Payment.CreditCardProcessingFailed",
             $"Error processing Credit Card Payment for {paymentId}: {message}");
-    }   
+
+        public static readonly Func<PaymentStatus, PaymentStatus, Error> CannotChangeStatusFromTerminalState = (currentStatus, newStatus) => new Error(
+            "Payment.CannotChangeStatusFromTerminalState",
+            $"Cannot change status from {currentStatus} to {newStatus} because it is in a terminal state.");
+
+        public static readonly Func<PaymentStatus, Error> PaymentInTerminalState = status => new Error(
+            "Payment.PaymentInTerminalState",
+            $"Payment cannot be processed because it is in {status} state.");
+
+        public static readonly Error AmountMustBeGreaterThanZero = new(
+            "Payment.AmountMustBeGreaterThanZero",
+            "Payment amount must be greater than zero.");
+
+        public static readonly Error TransactionIdCannotBeEmpty = new(
+            "Payment.TransactionIdCannotBeEmpty",
+            "Transaction Id cannot be empty.");
+
+        public static readonly Error RefundTransactionIdCannotBeEmpty = new(
+            "Payment.RefundTransactionIdCannotBeEmpty",
+            "Refund Transaction Id cannot be empty.");
+
+        public static readonly Error ProviderNameCannotBeEmpty = new(
+            "Payment.ProviderNameCannotBeEmpty",
+            "Provider Name cannot be empty.");
+
+        public static readonly Func<PaymentStatus, Error> OnlyCompletedPaymentsCanBeRefunded = status => new Error(
+            "Payment.OnlyCompletedPaymentsCanBeRefunded",
+            $"Only completed payments can be refunded. Current status: {status}");
+
+        public static readonly Error CannotRefundWithoutTransactionId = new(
+            "Payment.CannotRefundWithoutTransactionId",
+            "Cannot refund a payment without a transaction ID.");
+
+        public static readonly Func<PaymentStatus, Error> CannotBeCancelledInTerminalState = status => new Error(
+            "Payment.CannotBeCancelledInTerminalState",
+            $"Payment cannot be cancelled because it is in {status} state.");
+
+        public static readonly Func<string, Error> TransactionCreationFailed = errorMessage => new Error(
+            "Payment.TransactionCreationFailed",
+            $"Transaction creation failed: {errorMessage}");
+
+        public static readonly Func<string, Error> ProviderNotFound = errorMessage => new Error(
+            "Payment.ProviderNotFound",
+            $"Provider not found: {errorMessage}");
+
+        public static readonly Func<string, Error> ConfigurationError = errorMessage => new Error(
+            "Payment.ConfigurationError",
+            $"Configuration error: {errorMessage}");
+
+        public static readonly Func<string, Error> UnexpectedError = errorMessage => new Error(
+            "Payment.UnexpectedError",
+            $"Unexpected error: {errorMessage}");
+
+
+        public static readonly Func<string, Error> RefundTransactionCreationFailed = errorMessage => new Error(
+            "Payment.RefundTransactionCreationFailed",
+            $"Refund transaction creation failed: {errorMessage}");
+
+        public static readonly Func<string, Error> RefundProcessingFailed = errorMessage => new Error(
+            "Payment.RefundProcessingFailed",
+            $"Refund processing failed: {errorMessage}");
+
+        public static readonly Func<string, Error> PaymentCancellationFailed = errorMessage => new Error(
+            "Payment.PaymentCancellationFailed",
+            $"Payment cancellation failed: {errorMessage}");
+
+        public static readonly Func<string, Error> PaymentCancellationError = exMessage => new Error(
+            "Payment.PaymentCancellationError",
+            $"Payment cancellation error: {exMessage}");
+
+        public static readonly Error TransactionIdMissing = new(
+            "Payment.TransactionIdMissing",
+            "Cannot generate receipt: payment has no transaction ID.");
+
+        public static readonly Error ProviderNameMissing = new(
+            "Payment.ProviderNameMissing",
+            "Cannot generate receipt: payment has no associated provider.");
+
+        public static readonly Func<PaymentStatus, Error> InvalidPaymentStatusForReceipt = status => new Error(
+            "Payment.InvalidPaymentStatusForReceipt",
+            $"Cannot generate receipt: payment status is {status}.");
+
+        public static readonly Func<string, Error> ReceiptGenerationError = exMessage => new Error(
+            "Payment.ReceiptGenerationError",
+            $"Receipt generation failed: {exMessage}");
+
+        public static readonly Func<string, Error> TransactionStatusRetrievalError = exMessage => new Error(
+            "Payment.TransactionStatusRetrievalError",
+            $"Failed to retrieve transaction status: {exMessage}");
+    }
 
     #endregion
 
@@ -319,20 +408,120 @@ public static class DomainErrors
 
     #endregion
 
-    #region Adapters
+    #region PayPal
 
     public static class PayPal
     {
         public static readonly Func<string, Error> ProcessingFailed = message => new Error(
             "PayPal.ProcessingFailed",
             $"PayPal payment processing failed: {message}");
+
+        public static readonly Func<string, Error> PaymentProcessingFailed = errorContent => new Error(
+            "PayPal.PaymentProcessingFailed",
+            $"PayPal payment processing failed: {errorContent}");
+
+        public static readonly Func<string, Error> PaymentFailedWithStatus = status => new Error(
+            "PayPal.PaymentFailedWithStatus",
+            $"PayPal payment failed with status: {status}");
+
+        public static readonly Func<string, Error> PaymentProcessingException = exMessage => new Error(
+            "PayPal.PaymentProcessingException",
+            $"PayPal payment processing error: {exMessage}");
+
+        public static readonly Error PaymentAmountMustBeGreaterThanZero = new(
+            "PayPal.PaymentAmountMustBeGreaterThanZero",
+            "Payment amount must be greater than zero.");
+
+        public static readonly Func<string, Error> PaymentCancellationFailed = errorContent => new Error(
+            "PayPal.PaymentCancellationFailed",
+            $"PayPal payment cancellation failed: {errorContent}");
+
+        public static readonly Func<string, Error> PaymentCancellationException = exMessage => new Error(
+            "PayPal.PaymentCancellationException",
+            $"PayPal payment cancellation error: {exMessage}");
+
+        public static readonly Func<string, Error> RefundFailed = errorContent => new Error(
+            "PayPal.RefundFailed",
+            $"PayPal refund failed: {errorContent}");
+
+        public static readonly Func<string, Error> RefundException = exMessage => new Error(
+            "PayPal.RefundException",
+            $"PayPal refund error: {exMessage}");
+
+        public static readonly Func<string, Error> FailedToCreateTransaction = exMessage => new Error(
+            "PayPal.FailedToCreateTransaction",
+            $"Failed to create PayPal transaction: {exMessage}");
+
+        public static readonly Func<string, Error> FailedToGetTransactionStatus = exMessage => new Error(
+            "PayPal.FailedToGetTransactionStatus",
+            $"Failed to get PayPal transaction status: {exMessage}");
+
+        public static readonly Func<string, Error> FailedToGenerateReceipt = exMessage => new Error(
+            "PayPal.FailedToGenerateReceipt",
+            $"Failed to generate PayPal receipt: {exMessage}");
     }
+
+    #endregion
+
+    #region Stripe
 
     public static class Stripe
     {
         public static readonly Func<string, Error> ProcessingFailed = message => new Error(
             "Stripe.ProcessingFailed",
             $"Stripe payment processing failed: {message}");
+
+        public static readonly Func<string, Error> PaymentFailedWithStatus = status => new Error(
+            "Stripe.PaymentFailedWithStatus",
+            $"Stripe payment failed with status: {status}");
+
+        public static readonly Func<string, Error> PaymentProcessingError = exMessage => new Error(
+            "Stripe.PaymentProcessingError",
+            $"Stripe payment processing error: {exMessage}");
+
+        public static readonly Func<string, Error> UnexpectedPaymentProcessingError = exMessage => new Error(
+            "Stripe.UnexpectedPaymentProcessingError",
+            $"Unexpected error during Stripe payment processing: {exMessage}");
+
+        public static readonly Error PaymentAmountMustBeGreaterThanZero = new(
+            "Stripe.PaymentAmountMustBeGreaterThanZero",
+            "Payment amount must be greater than zero.");
+
+        public static readonly Func<string, Error> PaymentCancellationFailed = status => new Error(
+            "Stripe.PaymentCancellationFailed",
+            $"Failed to cancel Stripe payment. Status: {status}");
+
+        public static readonly Func<string, Error> PaymentCancellationError = exMessage => new Error(
+            "Stripe.PaymentCancellationError",
+            $"Stripe payment cancellation error: {exMessage}");
+
+        public static readonly Func<string, Error> UnexpectedPaymentCancellationError = exMessage => new Error(
+            "Stripe.UnexpectedPaymentCancellationError",
+            $"Unexpected error during Stripe payment cancellation: {exMessage}");
+
+        public static readonly Func<string, Error> RefundFailedWithStatus = status => new Error(
+            "Stripe.RefundFailedWithStatus",
+            $"Stripe refund failed with status: {status}");
+
+        public static readonly Func<string, Error> RefundError = exMessage => new Error(
+            "Stripe.RefundError",
+            $"Stripe refund error: {exMessage}");
+
+        public static readonly Func<string, Error> UnexpectedRefundError = exMessage => new Error(
+            "Stripe.UnexpectedRefundError",
+            $"Unexpected error during Stripe refund: {exMessage}");
+
+        public static readonly Func<string, Error> FailedToCreateTransaction = exMessage => new Error(
+        "Stripe.FailedToCreateTransaction",
+        $"Failed to create Stripe transaction: {exMessage}");
+
+        public static readonly Func<string, Error> FailedToGetTransactionStatus = exMessage => new Error(
+            "Stripe.FailedToGetTransactionStatus",
+            $"Failed to get Stripe transaction status: {exMessage}");
+
+        public static readonly Func<string, Error> FailedToGenerateReceipt = exMessage => new Error(
+            "Stripe.FailedToGenerateReceipt",
+            $"Failed to generate Stripe receipt: {exMessage}");
     }
 
     #endregion
@@ -356,29 +545,29 @@ public static class DomainErrors
             $"Insufficient loyalty points." +
             $" Required: {requiredPoints}," +
             $" Available: {availablePoints}.");
-        
+
         public static Error TransactionNotFound(Guid transactionId) => new(
             "Wallet.TransactionNotFound",
             $"Transaction with ID {transactionId} was not found.");
     }
-    
+
     #endregion
 
     #region Value Objects
-    
+
     public static class WalletBalance
     {
         public static readonly Error Negative = new(
             "WalletBalance.Negative",
             "Wallet balance must not be negative.");
     }
-    
+
     #endregion
 
     #endregion
-    
+
     #region Security
-    
+
     public static class SecurityIncident
     {
         public static readonly Func<Guid, Error> IncidentAlreadyResolved = incidentId => new Error(
@@ -389,23 +578,23 @@ public static class DomainErrors
             "SecurityIncident.AlreadyEscalated",
             $"The security incident with ID {incidentId} is already escalated.");
     }
-    
+
     #endregion
-    
+
     #region Notifications
-    
+
     #region Entities
-    
+
     public static class Notification
     {
         public static readonly Func<Guid, Error> NotFound = notificationId => new Error(
             "Notification.NotFound",
             $"The notification with ID {notificationId} was not found.");
-        
+
         public static readonly Func<Guid, Error> AlreadyRead = notificationId => new Error(
             "Notification.AlreadyRead",
             $"The notification with ID {notificationId} has already been marked as read.");
-        
+
         public static readonly Func<Guid, Error> AlreadySent = notificationId => new Error(
             "Notification.AlreadySent",
             $"The notification with ID {notificationId} has already been sent.");
@@ -419,11 +608,11 @@ public static class DomainErrors
             $"The notification with ID {notificationId} cannot be modified because" +
             $" it has already been sent.");
     }
-    
+
     #endregion
-    
+
     #region Value objects
-    
+
     public static class NotificationMessage
     {
         // Existing error definitions...
@@ -449,21 +638,21 @@ public static class DomainErrors
             "NotificationType.Unsupported",
             $"Notification type '{type}' is not supported. Supported types are: {string.Join(", ", validTypes)}");
     }
-    
+
     #endregion
-    
+
     #endregion
-    
+
     #region Reports
-    
+
     #region Entities
-    
+
     public static class FinancialReport
     {
         public static readonly Func<Guid, Error> NotFound = reportId => new Error(
             "FinancialReport.NotFound",
             $"The report with ID {reportId} was not found.");
-        
+
         public static readonly Func<Guid, Error> CannotMarkAsCompleted = reportId => new Error(
             "FinancialReport.CannotMarkAsCompleted",
             $"The report with ID {reportId} cannot be marked as completed" +
@@ -480,9 +669,9 @@ public static class DomainErrors
     }
 
     #endregion
-    
+
     #region Value objects
-    
+
     public static class ReportPeriod
     {
         public static readonly Func<DateOnly, DateOnly, Error> InvalidDateRange = (start, end) => new Error(

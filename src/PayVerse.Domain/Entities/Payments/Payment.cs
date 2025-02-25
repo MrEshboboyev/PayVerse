@@ -1,4 +1,5 @@
 using PayVerse.Domain.Enums.Payments;
+using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Payments;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
@@ -12,7 +13,7 @@ namespace PayVerse.Domain.Entities.Payments;
 public sealed class Payment : AggregateRoot, IAuditableEntity
 {
     #region Constructor
-    
+
     private Payment(
         Guid id,
         Amount amount,
@@ -25,27 +26,34 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
         Status = status;
         UserId = userId;
         ScheduledDate = scheduledDate;
-
         RaiseDomainEvent(new PaymentInitiatedDomainEvent(
             Guid.NewGuid(),
             id));
     }
-    
+
     #endregion
 
     #region Properties
-    
+
     public Amount Amount { get; private set; }
     public PaymentStatus Status { get; private set; }
     public Guid UserId { get; private set; }
     public DateTime? ScheduledDate { get; private set; }
+    public string TransactionId { get; private set; }
+    public string RefundTransactionId { get; private set; }
+    public string ProviderName { get; private set; }
+    public DateTime? ProcessedDate { get; private set; }
+    public DateTime? RefundedDate { get; private set; }
+    public DateTime? CancelledDate { get; private set; }
+    public string FailureReason { get; private set; }
+    public PaymentMethod? PaymentMethod { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
-    
+
     #endregion
 
     #region Factory Method
-    
+
     public static Payment Create(
         Guid id,
         Amount amount,
@@ -55,35 +63,181 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
     {
         return new Payment(id, amount, status, userId, scheduledDate);
     }
-    
-    #endregion
-    
-    #region Own methods
 
+    #endregion
+
+    #region Domain Methods
+
+    /// <summary>
+    /// Updates the payment status with appropriate domain events.
+    /// </summary>
+    /// <param name="newStatus">The new payment status.</param>
+    /// <returns>Result indicating success or failure.</returns>
     public Result UpdateStatus(PaymentStatus newStatus)
     {
+        // Can't change status if already in a terminal state
+        if (IsInTerminalState() && newStatus != Status)
+        {
+            return Result.Failure(
+                DomainErrors.Payment.CannotChangeStatusFromTerminalState(Status, newStatus));
+        }
+
         var oldStatus = Status;
-        
-        // Status locking or checking with guards (coming soon)
-        
-        #region Update status
-        
         Status = newStatus;
-        
-        #endregion
-        
-        #region Domain Events
-        
+
+        // Set appropriate timestamps based on status
+        switch (newStatus)
+        {
+            case PaymentStatus.Completed:
+                ProcessedDate = DateTime.UtcNow;
+                break;
+            case PaymentStatus.Refunded:
+                RefundedDate = DateTime.UtcNow;
+                break;
+            case PaymentStatus.Cancelled:
+                CancelledDate = DateTime.UtcNow;
+                break;
+        }
+
         RaiseDomainEvent(new PaymentStatusUpdatedDomainEvent(
             Guid.NewGuid(),
             Id,
             oldStatus,
             newStatus));
-        
-        #endregion
-        
+
         return Result.Success();
     }
-    
+
+    /// <summary>
+    /// Records transaction details from a payment provider.
+    /// </summary>
+    /// <param name="transactionId">The transaction ID from the provider.</param>
+    /// <param name="providerName">The name of the payment provider.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result RecordTransactionDetails(string transactionId, string providerName)
+    {
+        if (string.IsNullOrEmpty(transactionId))
+        {
+            return Result.Failure(
+                DomainErrors.Payment.TransactionIdCannotBeEmpty);
+        }
+
+        if (string.IsNullOrEmpty(providerName))
+        {
+            return Result.Failure(
+                DomainErrors.Payment.ProviderNameCannotBeEmpty);
+        }
+
+        TransactionId = transactionId;
+        ProviderName = providerName;
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Records refund transaction details.
+    /// </summary>
+    /// <param name="refundTransactionId">The refund transaction ID.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result RecordRefundDetails(string refundTransactionId)
+    {
+        if (string.IsNullOrEmpty(refundTransactionId))
+        {
+            return Result.Failure(
+                DomainErrors.Payment.RefundTransactionIdCannotBeEmpty);
+        }
+
+        RefundTransactionId = refundTransactionId;
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Records a payment failure with reason.
+    /// </summary>
+    /// <param name="failureReason">The reason for the payment failure.</param>
+    /// <returns>Result indicating the status update.</returns>
+    public Result RecordFailure(string failureReason)
+    {
+        FailureReason = failureReason;
+        return UpdateStatus(PaymentStatus.Failed);
+    }
+
+    /// <summary>
+    /// Sets the payment method for this payment.
+    /// </summary>
+    /// <param name="paymentMethod">The payment method.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result SetPaymentMethod(PaymentMethod paymentMethod)
+    {
+        PaymentMethod = paymentMethod;
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Determines if the payment is in a terminal state (can't be changed).
+    /// </summary>
+    /// <returns>True if in terminal state, false otherwise.</returns>
+    private bool IsInTerminalState()
+    {
+        return Status == PaymentStatus.Completed ||
+               Status == PaymentStatus.Refunded ||
+               Status == PaymentStatus.Failed ||
+               Status == PaymentStatus.Cancelled;
+    }
+
+    /// <summary>
+    /// Validates if the payment can be processed.
+    /// </summary>
+    /// <returns>Result indicating if payment can be processed.</returns>
+    public Result CanBeProcessed()
+    {
+        if (IsInTerminalState())
+        {
+            return Result.Failure(
+                DomainErrors.Payment.PaymentInTerminalState(Status));
+        }
+
+        if (Amount.Value <= 0)
+        {
+            return Result.Failure(DomainErrors.Payment.AmountMustBeGreaterThanZero);
+        }
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Validates if the payment can be refunded.
+    /// </summary>
+    /// <returns>Result indicating if payment can be refunded.</returns>
+    public Result CanBeRefunded()
+    {
+        if (Status != PaymentStatus.Completed)
+        {
+            return Result.Failure(DomainErrors.Payment.OnlyCompletedPaymentsCanBeRefunded(Status));
+        }
+
+        if (string.IsNullOrEmpty(TransactionId))
+        {
+            return Result.Failure(DomainErrors.Payment.CannotRefundWithoutTransactionId);
+        }
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Validates if the payment can be cancelled.
+    /// </summary>
+    /// <returns>Result indicating if payment can be cancelled.</returns>
+    public Result CanBeCancelled()
+    {
+        if (IsInTerminalState())
+        {
+            return Result.Failure(DomainErrors.Payment.CannotBeCancelledInTerminalState(Status));
+        }
+
+        return Result.Success();
+    }
+
     #endregion
 }

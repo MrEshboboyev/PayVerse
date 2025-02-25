@@ -74,7 +74,7 @@ public sealed class Notification : AggregateRoot, IAuditableEntity
 
     #endregion
 
-    #region Domain Methods
+    #region Methods
 
     public Result MarkAsRead()
     {
