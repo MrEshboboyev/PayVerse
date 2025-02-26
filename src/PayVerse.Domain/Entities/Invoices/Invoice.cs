@@ -2,6 +2,7 @@ using PayVerse.Domain.Enums.Invoices;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Invoices;
 using PayVerse.Domain.Primitives;
+using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects;
 using PayVerse.Domain.ValueObjects.Invoices;
@@ -11,7 +12,7 @@ namespace PayVerse.Domain.Entities.Invoices;
 /// <summary>
 /// Represents an invoice in the system.
 /// </summary>
-public sealed class Invoice : AggregateRoot, IAuditableEntity
+public sealed class Invoice : PrototypeAggregateRoot, IAuditableEntity
 {
     #region Private Fields
 
@@ -43,6 +44,25 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
         #endregion
     }
 
+    // Copy constructor for Prototype pattern
+    private Invoice(Invoice source) : base(source.Id)
+    {
+        Status = source.Status;
+        RecurringFrequencyInMonths = source.RecurringFrequencyInMonths;
+        InvoiceNumber = source.InvoiceNumber;
+        InvoiceDate = source.InvoiceDate;
+        TotalAmount = source.TotalAmount;
+        UserId = source.UserId;
+        CreatedOnUtc = source.CreatedOnUtc;
+        ModifiedOnUtc = source.ModifiedOnUtc;
+
+        // Copy items for deep copy
+        foreach (var item in source._items)
+        {
+            _items.Add(item.DeepCopy() as InvoiceItem);
+        }
+    }
+
     #endregion
 
     #region Properties
@@ -71,10 +91,72 @@ public sealed class Invoice : AggregateRoot, IAuditableEntity
         return new Invoice(id, number, date, amount, userId);
     }
 
+    // Factory method to create from a prototype
+    public static Invoice CreateFromPrototype(Invoice prototype)
+    {
+        return prototype.DeepCopy() as Invoice;
+    }
+
+    // Factory method to create a recurring invoice from a prototype
+    public static Invoice CreateRecurringFromPrototype(Invoice prototype,
+                                                       int frequencyInMonths)
+    {
+        var newInvoice = prototype.DeepCopy() as Invoice;
+        newInvoice.SetRecurringFrequency(frequencyInMonths);
+        newInvoice.SetInvoiceDate(InvoiceDate.Create(DateTime.UtcNow.AddMonths(frequencyInMonths)).Value);
+        return newInvoice;
+    }
+
+    #endregion
+
+    #region Prototype Overrides
+
+    public override PrototypeAggregateRoot ShallowCopy()
+    {
+        return new Invoice(
+            Id,
+            InvoiceNumber,
+            InvoiceDate,
+            TotalAmount,
+            UserId);
+    }
+
+    public override PrototypeAggregateRoot DeepCopy()
+    {
+        return new Invoice(this);
+    }
+
+    #endregion
+
+    #region Own methods
+
+    #region Prototype related
+
+    public Result SetRecurringFrequency(int frequencyInMonths)
+    {
+        if (frequencyInMonths <= 0)
+        {
+            throw new ArgumentException("Recurring frequency must be a positive value"); // write a domain error
+        }
+
+        RecurringFrequencyInMonths = frequencyInMonths;
+
+        return Result.Success();
+    }
+
+    public Result SetInvoiceDate(InvoiceDate newDate)
+    {
+        InvoiceDate = newDate;
+
+        return Result.Success();
+    }
+
+    #endregion
+
     #endregion
 
     #region Item related Methods
-    
+
     public InvoiceItem GetItemById(Guid id) => _items.FirstOrDefault(i => i.Id == id);
 
     public Result<InvoiceItem> AddItem(

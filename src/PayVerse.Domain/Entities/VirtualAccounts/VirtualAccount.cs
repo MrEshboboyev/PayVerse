@@ -3,6 +3,7 @@ using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.VirtualAccounts;
 using PayVerse.Domain.Mementos;
 using PayVerse.Domain.Primitives;
+using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.States;
 using PayVerse.Domain.ValueObjects;
@@ -11,9 +12,9 @@ using PayVerse.Domain.ValueObjects.VirtualAccounts;
 namespace PayVerse.Domain.Entities.VirtualAccounts;
 
 /// <summary>
-/// Represents a virtual account in the system.
+/// Represents a virtual account in the system with Prototype pattern implementation
 /// </summary>
-public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
+public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity
 {
     #region Private Fields
     
@@ -24,7 +25,7 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
 
     #endregion
 
-    #region Constructor
+    #region Constructors
 
     private VirtualAccount(
         Guid id,
@@ -45,11 +46,33 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
             id,
             accountNumber.Value));
     }
-    
+
+    // Copy constructor for Prototype pattern
+    private VirtualAccount(VirtualAccount source) : base(source.Id)
+    {
+        AccountNumber = source.AccountNumber;
+        Currency = source.Currency;
+        Balance = source.Balance;
+        UserId = source.UserId;
+        Status = source.Status;
+        OverdraftLimit = source.OverdraftLimit;
+        CreatedOnUtc = source.CreatedOnUtc;
+        ModifiedOnUtc = source.ModifiedOnUtc;
+
+        // Deep copy the transactions
+        foreach (var transaction in source._transactions)
+        {
+            _transactions.Add(transaction.DeepCopy() as Transaction);
+        }
+
+        // Copy state (assuming state is immutable or has its own cloning mechanism)
+        _state = source._state;
+    }
+
     #endregion
 
     #region Properties
-    
+
     public AccountNumber AccountNumber { get; private set; }
     public Currency Currency { get; private set; }
     public Balance Balance { get; private set; }
@@ -73,11 +96,31 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
     {
         return new VirtualAccount(id, accountNumber, currency, balance, userId);
     }
-    
+
+    #region Prototype related
+
+    // Factory method to create from a prototype
+    public static VirtualAccount CreateFromPrototype(VirtualAccount prototype)
+    {
+        return prototype.DeepCopy() as VirtualAccount;
+    }
+
+    // Factory method to create a sub-account from a prototype
+    public static VirtualAccount CreateSubAccountFromPrototype(VirtualAccount prototype,
+                                                               AccountNumber newAccountNumber)
+    {
+        var newAccount = prototype.DeepCopy() as VirtualAccount;
+        newAccount.AccountNumber = newAccountNumber;
+        newAccount.Balance = Balance.Create(0).Value;
+        return newAccount;
+    }
+
     #endregion
-    
+
+    #endregion
+
     #region Own methods
-    
+
     public Result Close()
     {
         if (Status is VirtualAccountStatus.Closed)
@@ -237,11 +280,18 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
         #region Add Transaction to this Account
         
         _transactions.Add(transaction);
-        
+
         #endregion
-        
+
+        #region Update Balance
+
+        // Update balance
+        Balance = Balance.Create(Balance.Value + amount.Value).Value;
+
+        #endregion
+
         #region Domain Events
-        
+
         RaiseDomainEvent(new TransactionAddedDomainEvent(
             Guid.NewGuid(),
             Id,
@@ -275,6 +325,25 @@ public sealed class VirtualAccount : AggregateRoot, IAuditableEntity
 
         Balance = balanceResult.Value;
         return Result.Success();
+    }
+
+    #endregion
+
+    #region Prototype overrides
+
+    public override PrototypeAggregateRoot ShallowCopy()
+    {
+        return new VirtualAccount(
+            Id,
+            AccountNumber,
+            Currency,
+            Balance,
+            UserId);
+    }
+
+    public override PrototypeAggregateRoot DeepCopy()
+    {
+        return new VirtualAccount(this);
     }
 
     #endregion

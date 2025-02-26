@@ -2,17 +2,18 @@ using PayVerse.Domain.Enums.Payments;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Payments;
 using PayVerse.Domain.Primitives;
+using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects;
 
 namespace PayVerse.Domain.Entities.Payments;
 
 /// <summary>
-/// Represents a payment in the system.
+/// Represents a payment in the system with Prototype pattern implementation
 /// </summary>
-public sealed class Payment : AggregateRoot, IAuditableEntity
+public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
 {
-    #region Constructor
+    #region Constructors
 
     private Payment(
         Guid id,
@@ -29,6 +30,25 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
         RaiseDomainEvent(new PaymentInitiatedDomainEvent(
             Guid.NewGuid(),
             id));
+    }
+
+    // Copy constructor for Prototype pattern
+    private Payment(Payment source) : base(source.Id)
+    {
+        Amount = source.Amount;
+        Status = source.Status;
+        UserId = source.UserId;
+        ScheduledDate = source.ScheduledDate;
+        TransactionId = source.TransactionId;
+        RefundTransactionId = source.RefundTransactionId;
+        ProviderName = source.ProviderName;
+        ProcessedDate = source.ProcessedDate;
+        RefundedDate = source.RefundedDate;
+        CancelledDate = source.CancelledDate;
+        FailureReason = source.FailureReason;
+        PaymentMethod = source.PaymentMethod;
+        CreatedOnUtc = source.CreatedOnUtc;
+        ModifiedOnUtc = source.ModifiedOnUtc;
     }
 
     #endregion
@@ -64,9 +84,56 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
         return new Payment(id, amount, status, userId, scheduledDate);
     }
 
+    // Factory method to create from a prototype
+    public static Payment CreateFromPrototype(Payment prototype)
+    {
+        return prototype.DeepCopy() as Payment;
+    }
+
+    // Factory method to create a recurring payment from a prototype
+    public static Payment CreateRecurringFromPrototype(Payment prototype,
+                                                       DateTime newScheduledDate)
+    {
+        var newPayment = prototype.DeepCopy() as Payment;
+        newPayment.SetScheduledDate(newScheduledDate);
+        newPayment.SetStatus(PaymentStatus.Scheduled);
+        return newPayment;
+    }
+
     #endregion
 
-    #region Domain Methods
+    #region Own Methods
+
+    #region Prototype related
+
+    public Result SetStatus(PaymentStatus status)
+    {
+        Status = status;
+
+        switch (status)
+        {
+            case PaymentStatus.Processed:
+                ProcessedDate = DateTime.UtcNow;
+                break;
+            case PaymentStatus.Refunded:
+                RefundedDate = DateTime.UtcNow;
+                break;
+            case PaymentStatus.Cancelled:
+                CancelledDate = DateTime.UtcNow;
+                break;
+        }
+
+        return Result.Success();
+    }
+
+    public Result SetScheduledDate(DateTime scheduledDate)
+    {
+        ScheduledDate = scheduledDate;
+
+        return Result.Success();
+    }
+
+    #endregion
 
     /// <summary>
     /// Updates the payment status with appropriate domain events.
@@ -237,6 +304,25 @@ public sealed class Payment : AggregateRoot, IAuditableEntity
         }
 
         return Result.Success();
+    }
+
+    #endregion
+
+    #region Prototype overrides
+
+    public override PrototypeAggregateRoot ShallowCopy()
+    {
+        return new Payment(
+            Id,
+            Amount,
+            Status,
+            UserId,
+            ScheduledDate);
+    }
+
+    public override PrototypeAggregateRoot DeepCopy()
+    {
+        return new Payment(this);
     }
 
     #endregion

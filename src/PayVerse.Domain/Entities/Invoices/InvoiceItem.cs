@@ -1,12 +1,13 @@
 using PayVerse.Domain.Primitives;
+using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.ValueObjects;
 
 namespace PayVerse.Domain.Entities.Invoices;
 
 /// <summary>
-/// Represents an item in an invoice.
+/// Represents an invoice in the system with Prototype pattern implementation
 /// </summary>
-public sealed class InvoiceItem : Entity
+public sealed class InvoiceItem : Entity, IPrototype<InvoiceItem>
 {
     #region Constructor
     
@@ -20,7 +21,15 @@ public sealed class InvoiceItem : Entity
         Description = description;
         Amount = amount;
     }
-    
+
+    // Copy constructor for Prototype pattern
+    private InvoiceItem(InvoiceItem source) : base(source.Id)
+    {
+        InvoiceId = source.InvoiceId;
+        Description = source.Description;
+        Amount = source.Amount;
+    }
+
     #endregion
 
     #region Properties
@@ -28,6 +37,22 @@ public sealed class InvoiceItem : Entity
     public Guid InvoiceId { get; private set; }
     public string Description { get; private set; }
     public Amount Amount { get; private set; }
-    
+
+    #endregion
+
+    #region Prototype Methods
+    public InvoiceItem ShallowCopy()
+    {
+        return new InvoiceItem(
+            Id,
+            InvoiceId,
+            Description,
+            Amount);
+    }
+
+    public InvoiceItem DeepCopy()
+    {
+        return new InvoiceItem(this);
+    }
     #endregion
 }

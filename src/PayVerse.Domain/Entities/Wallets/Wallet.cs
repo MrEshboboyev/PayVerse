@@ -1,6 +1,7 @@
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Wallets;
 using PayVerse.Domain.Primitives;
+using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects;
 using PayVerse.Domain.ValueObjects.Wallets;
@@ -8,9 +9,9 @@ using PayVerse.Domain.ValueObjects.Wallets;
 namespace PayVerse.Domain.Entities.Wallets;
 
 /// <summary>
-/// Represents a wallet in the system.
+/// Represents a wallet in the system with Prototype pattern implementation
 /// </summary>
-public sealed class Wallet : AggregateRoot, IAuditableEntity
+public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity
 {
     #region Private Fields
     
@@ -35,11 +36,29 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
             Guid.NewGuid(),
             id));
     }
-    
+
+    // Copy constructor for Prototype pattern
+    private Wallet(Wallet source) : base(source.Id)
+    {
+        Balance = source.Balance;
+        Currency = source.Currency;
+        UserId = source.UserId;
+        SpendingLimit = source.SpendingLimit;
+        LoyaltyPoints = source.LoyaltyPoints;
+        CreatedOnUtc = source.CreatedOnUtc;
+        ModifiedOnUtc = source.ModifiedOnUtc;
+
+        // Deep copy the transactions
+        foreach (var transaction in source._transactions)
+        {
+            _transactions.Add(transaction.DeepCopy() as WalletTransaction);
+        }
+    }
+
     #endregion
 
     #region Properties
-    
+
     public WalletBalance Balance { get; private set; }
     public Currency Currency { get; private set; }
     public Guid UserId { get; private set; }
@@ -51,7 +70,7 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
     
     #endregion
 
-    #region Factory Method
+    #region Factory Methods
     
     public static Wallet Create(
         Guid id,
@@ -61,11 +80,30 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
     {
         return new Wallet(id, balance, currency, userId);
     }
-    
+
+    #region Prototype related
+
+    // Factory method to create from a prototype
+    public static Wallet CreateFromPrototype(Wallet prototype)
+    {
+        return prototype.DeepCopy() as Wallet;
+    }
+
+    // Factory method to create a wallet with spending limit from a prototype
+    public static Wallet CreateWithSpendingLimitFromPrototype(Wallet prototype,
+                                                              decimal spendingLimit)
+    {
+        var newWallet = prototype.DeepCopy() as Wallet;
+        newWallet.SetSpendingLimit(spendingLimit);
+        return newWallet;
+    }
+
     #endregion
-    
+
+    #endregion
+
     #region Own methods
-    
+
     public Result ConvertCurrency(
         Currency newCurrency,
         decimal newBalance)
@@ -139,11 +177,18 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
         #region Add transaction to wallet
         
         _transactions.Add(transaction);
-        
+
         #endregion
-        
+
+        #region Update balance
+
+        // Update balance
+        Balance = WalletBalance.Create(Balance.Value + amount.Value).Value;
+
+        #endregion
+
         #region Domain Events
-        
+
         RaiseDomainEvent(new WalletTransactionAddedDomainEvent(
             Guid.NewGuid(),
             Id,
@@ -184,6 +229,24 @@ public sealed class Wallet : AggregateRoot, IAuditableEntity
         
         return Result.Success();
     }
-    
+
+    #endregion
+
+    #region Prototype overrides
+
+    public override PrototypeAggregateRoot ShallowCopy()
+    {
+        return new Wallet(
+            Id,
+            Balance,
+            Currency,
+            UserId);
+    }
+
+    public override PrototypeAggregateRoot DeepCopy()
+    {
+        return new Wallet(this);
+    }
+
     #endregion
 }
