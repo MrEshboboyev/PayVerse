@@ -1,3 +1,4 @@
+using PayVerse.Domain.Builders.Payments;
 using PayVerse.Domain.Enums.Payments;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Payments;
@@ -84,6 +85,8 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
         return new Payment(id, amount, status, userId, scheduledDate);
     }
 
+    #region Prototypes
+
     // Factory method to create from a prototype
     public static Payment CreateFromPrototype(Payment prototype)
     {
@@ -99,6 +102,8 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
         newPayment.SetStatus(PaymentStatus.Scheduled);
         return newPayment;
     }
+
+    #endregion
 
     #endregion
 
@@ -242,6 +247,18 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
     }
 
     /// <summary>
+    /// Sets the provider name for this payment.
+    /// </summary>
+    /// <param name="providerName">The Provider name.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result SetProvider(string providerName)
+    {
+        ProviderName = providerName;
+
+        return Result.Success();
+    }
+
+    /// <summary>
     /// Determines if the payment is in a terminal state (can't be changed).
     /// </summary>
     /// <returns>True if in terminal state, false otherwise.</returns>
@@ -323,6 +340,17 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
     public override PrototypeAggregateRoot DeepCopy()
     {
         return new Payment(this);
+    }
+
+    #endregion
+
+    #region Builders
+
+    // Factory method for the builder
+    public static PaymentBuilder CreateBuilder(Guid userId,
+                                               decimal amount)
+    {
+        return new PaymentBuilder(userId, amount); // add currency - coming soon
     }
 
     #endregion
