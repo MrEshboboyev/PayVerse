@@ -1,6 +1,8 @@
-﻿using PayVerse.Domain.Entities.Invoices;
+﻿using PayVerse.Domain.Builders.Invoices;
+using PayVerse.Domain.Entities.Invoices;
 using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Repositories.Invoices;
+using PayVerse.Domain.ValueObjects;
 
 namespace PayVerse.Application.Invoices.Services;
 
@@ -8,6 +10,8 @@ namespace PayVerse.Application.Invoices.Services;
 public class InvoiceService(PrototypeRegistry prototypeRegistry,
                             IInvoiceRepository invoiceRepository)
 {
+    #region Prototypes
+
     public async Task<Guid> CreateRecurringInvoiceFromTemplate(string templateKey,
                                                                int frequencyInMonths)
     {
@@ -32,4 +36,46 @@ public class InvoiceService(PrototypeRegistry prototypeRegistry,
         // Register invoice as prototype
         prototypeRegistry.RegisterPrototype(templateKey, invoice);
     }
+
+    #endregion
+
+    #region Builders
+
+    /// <summary>
+    /// Creates a standard invoice with default settings
+    /// </summary>
+    public async Task<Guid> CreateStandardInvoice(Guid userId,
+                                                  IEnumerable<InvoiceItemDto> items,
+                                                  Currency currency)
+    {
+        var invoice = Invoice.CreateBuilder(userId)
+            .WithCurrency() // add currency - coming soon
+            .AddItems(items)
+            .Build();
+
+        await invoiceRepository.AddAsync(invoice);
+
+        return invoice.Id;
+    }
+
+    /// <summary>
+    /// Creates a recurring invoice
+    /// </summary>
+    public async Task<Guid> CreateRecurringInvoice(Guid userId,
+                                                   IEnumerable<InvoiceItemDto> items,
+                                                   Currency currency,
+                                                   int frequencyInMonths)
+    {
+        var invoice = Invoice.CreateBuilder(userId)
+            .WithCurrency() // add currency - coming soon
+            .AsRecurring(frequencyInMonths)
+            .AddItems(items)
+            .Build();
+
+        await invoiceRepository.AddAsync(invoice);
+
+        return invoice.Id;
+    }
+
+    #endregion
 }

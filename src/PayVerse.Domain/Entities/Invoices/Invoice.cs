@@ -1,3 +1,4 @@
+using PayVerse.Domain.Builders.Invoices;
 using PayVerse.Domain.Enums.Invoices;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Invoices;
@@ -124,6 +125,16 @@ public sealed class Invoice : PrototypeAggregateRoot, IAuditableEntity
     public override PrototypeAggregateRoot DeepCopy()
     {
         return new Invoice(this);
+    }
+
+    #endregion
+
+    #region Builders
+
+    // Factory method for the builder
+    public static InvoiceBuilder CreateBuilder(Guid userId)
+    {
+        return new InvoiceBuilder(userId);
     }
 
     #endregion

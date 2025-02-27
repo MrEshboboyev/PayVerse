@@ -1,5 +1,5 @@
 using PayVerse.Application.Abstractions.Messaging;
-using PayVerse.Domain.Builders.Invoices;
+using PayVerse.Domain.Entities.Invoices;
 using PayVerse.Domain.Repositories;
 using PayVerse.Domain.Repositories.Invoices;
 using PayVerse.Domain.Shared;
@@ -19,7 +19,7 @@ internal sealed class CreateRecurringInvoiceCommandHandler(
 
         #region Create Invoice using Builder
 
-        var invoiceBuilder = new InvoiceBuilder(userId);
+        var invoiceBuilder = Invoice.CreateBuilder(userId);
 
         foreach (var item in items)
         {
@@ -30,16 +30,12 @@ internal sealed class CreateRecurringInvoiceCommandHandler(
             {
                 return Result.Failure(amountResult.Error);
             }
-            invoiceBuilder.AddItem(description, amountResult.Value);
+            invoiceBuilder.AddItem(description, amountResult.Value.Value);
         }
 
-        var invoice = invoiceBuilder.Build();
-
-        var setRecurringResult = invoice.SetRecurring(frequencyInMonths);
-        if (setRecurringResult.IsFailure)
-        {
-            return Result.Failure(setRecurringResult.Error);
-        }
+        var invoice = invoiceBuilder
+            .AsRecurring(frequencyInMonths)
+            .Build();
 
         #endregion
 

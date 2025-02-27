@@ -27,15 +27,18 @@ public sealed class InvoiceNumber : ValueObject
     #region Properties
     
     public string Value { get; }
-    
+
     #endregion
 
     #region Methods
 
+    /// <summary>
+    /// Generates a unique invoice number
+    /// </summary>
     public static InvoiceNumber Generate()
     {
-        // Generates a new GUID and takes the first MaxLength characters.
-        var invoiceNumber = Guid.NewGuid().ToString("N")[..MaxLength];
+        var invoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMdd}-" +
+            $"{Guid.NewGuid().ToString()[..8].ToUpper()}";
         return new InvoiceNumber(invoiceNumber);
     }
 
