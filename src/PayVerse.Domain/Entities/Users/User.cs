@@ -1,3 +1,4 @@
+using PayVerse.Domain.Builders.Users;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Users;
 using PayVerse.Domain.Primitives;
@@ -217,8 +218,21 @@ public sealed class User : AggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
-    
+
     #endregion
+
+    #endregion
+
+    #region Builders
+
+    // Factory method for the builder
+    public static UserBuilder CreateBuilder(string email,
+                                            string passwordHash,
+                                            string firstName,
+                                            string lastName)
+    {
+        return new UserBuilder(email, passwordHash, firstName, lastName);
+    }
 
     #endregion
 }
