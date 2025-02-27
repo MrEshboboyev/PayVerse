@@ -1,3 +1,4 @@
+using PayVerse.Domain.Builders.Reports;
 using PayVerse.Domain.Enums.Reports;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Reports;
@@ -93,6 +94,17 @@ public sealed class FinancialReport : AggregateRoot, IAuditableEntity
         
         return Result.Success();
     }
-        
+
+    #endregion
+
+    #region Builders
+
+    // Factory method for the builder
+    public static FinancialReportBuilder CreateBuilder(Guid generatedBy,
+                                                       ReportType reportType)
+    {
+        return new FinancialReportBuilder(generatedBy, reportType);
+    }
+
     #endregion
 }
