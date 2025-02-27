@@ -1,3 +1,4 @@
+using PayVerse.Domain.Builders.VirtualAccounts;
 using PayVerse.Domain.Enums.VirtualAccounts;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.VirtualAccounts;
@@ -238,6 +239,22 @@ public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity
         return Result.Success();
     }
 
+    public Result SetStatus(VirtualAccountStatus status)
+    {
+        Status = status;
+
+        //// Update state based on status (State pattern implementation)
+        //_state = status switch
+        //{
+        //    VirtualAccountStatus.Active => new ActiveAccountState(this),
+        //    VirtualAccountStatus.Frozen => new FrozenAccountState(this),
+        //    VirtualAccountStatus.Closed => new ClosedAccountState(this),
+        //    _ => throw new ArgumentOutOfRangeException(nameof(status))
+        //};
+
+        return Result.Success();
+    }
+
     public Result UpdateBalance(Balance newBalance)
     {
         Balance = newBalance;
@@ -344,6 +361,17 @@ public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity
     public override PrototypeAggregateRoot DeepCopy()
     {
         return new VirtualAccount(this);
+    }
+
+    #endregion
+
+    #region Builders
+
+    // Factory method for the builder
+    public static VirtualAccountBuilder CreateBuilder(Guid userId,
+                                                      Currency currency)
+    {
+        return new VirtualAccountBuilder(userId, currency);
     }
 
     #endregion

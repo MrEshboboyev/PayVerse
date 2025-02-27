@@ -15,7 +15,7 @@ public static class VirtualAccountFactory
     public static VirtualAccount Create(Guid userId, Currency currency)
     {
         var accountId = Guid.NewGuid();
-        var accountNumber = AccountNumber.Generate();
+        var accountNumber = AccountNumber.Generate(currency);
         var balance = Balance.Create(0).Value;
 
         return VirtualAccount.Create(

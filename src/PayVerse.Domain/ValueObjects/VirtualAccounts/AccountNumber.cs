@@ -1,6 +1,4 @@
-using PayVerse.Domain.Errors;
 using PayVerse.Domain.Primitives;
-using PayVerse.Domain.Shared;
 
 namespace PayVerse.Domain.ValueObjects.VirtualAccounts;
 
@@ -27,22 +25,20 @@ public sealed class AccountNumber : ValueObject
     #region Properties
     
     public string Value { get; }
-    
+
     #endregion
 
     #region Methods
 
-    public static AccountNumber Generate()
+    /// <summary>
+    /// Generates a unique account number
+    /// </summary>
+    public static AccountNumber Generate(Currency currency)
     {
-        var random = new Random();
-        var buffer = new char[Length];
+        var accountNumber = $"{currency.Code}" +
+                            $"{DateTime.UtcNow:yyyyMMdd}" +
+                            $"{new Random().Next(10000, 99999)}";
 
-        for (int i = 0; i < Length; i++)
-        {
-            buffer[i] = (char)('0' + random.Next(10)); // Generates a random digit between 0 and 9.
-        }
-
-        var accountNumber = new string(buffer);
         return new AccountNumber(accountNumber);
     }
 
