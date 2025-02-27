@@ -1,3 +1,4 @@
+using PayVerse.Domain.Builders.Wallets;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Wallets;
 using PayVerse.Domain.Primitives;
@@ -133,6 +134,19 @@ public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity
         return Result.Success();
     }
 
+    // Additional methods to support the builder pattern
+    public Result AddLoyaltyPoints(int points)
+    {
+        if (points < 0)
+        {
+            throw new ArgumentException("Loyalty points must be a positive value"); // write a domain error
+        }
+
+        LoyaltyPoints += points;
+
+        return Result.Success();
+    }
+
     public Result RedeemLoyaltyPoints(int points)
     {
         if (points > LoyaltyPoints)
@@ -246,6 +260,16 @@ public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity
     public override PrototypeAggregateRoot DeepCopy()
     {
         return new Wallet(this);
+    }
+
+    #endregion
+
+    #region Builders
+
+    // Factory method for the builder
+    public static WalletBuilder CreateBuilder(Guid userId, Currency currency)
+    {
+        return new WalletBuilder(userId, currency);
     }
 
     #endregion
