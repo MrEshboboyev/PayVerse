@@ -1,3 +1,4 @@
+using PayVerse.Domain.Builders.Notifications;
 using PayVerse.Domain.Enums.Notifications;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Notifications;
@@ -74,7 +75,7 @@ public sealed class Notification : AggregateRoot, IAuditableEntity
 
     #endregion
 
-    #region Methods
+    #region Own Methods
 
     public Result MarkAsRead()
     {
@@ -145,6 +146,18 @@ public sealed class Notification : AggregateRoot, IAuditableEntity
             Id));
 
         return Result.Success();
+    }
+
+    #endregion
+
+    #region Builders
+
+    // Factory method for the builder
+    public static NotificationBuilder CreateBuilder(Guid userId,
+                                                    string message,
+                                                    NotificationType type)
+    {
+        return new NotificationBuilder(userId, message, type);
     }
 
     #endregion
