@@ -2,7 +2,7 @@
 
 // ✅ Subclasses implement specific behaviors.
 
-public abstract class FinancialReportGenerator
+public abstract class CompositeFinancialReportGenerator
 {
     // Template method
     public Report GenerateReport()

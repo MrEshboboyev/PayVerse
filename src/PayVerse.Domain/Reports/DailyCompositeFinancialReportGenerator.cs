@@ -1,6 +1,6 @@
 ﻿namespace PayVerse.Domain.Reports;
 
-public class DailyFinancialReportGenerator : FinancialReportGenerator
+public class DailyCompositeFinancialReportGenerator : CompositeFinancialReportGenerator
 {
     protected override List<DataPoint> CollectData()
     {

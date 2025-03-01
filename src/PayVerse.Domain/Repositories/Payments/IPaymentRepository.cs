@@ -18,4 +18,5 @@ public interface IPaymentRepository : IRepository<Payment>
         DateTime startDate,
         DateTime endDate,
         CancellationToken cancellationToken = default);
+    Task<IEnumerable<Payment>> GetPaymentsForPeriodAsync(DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken = default);
 }

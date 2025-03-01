@@ -30,4 +30,5 @@ public interface IInvoiceRepository : IRepository<Invoice>
     Task<decimal> GetTotalRevenueByUserAsync(
         Guid userId,
         CancellationToken cancellationToken = default);
+    Task<IEnumerable<Invoice>> GetInvoicesForPeriodAsync(object startDate, object endDate, CancellationToken cancellationToken);
 }

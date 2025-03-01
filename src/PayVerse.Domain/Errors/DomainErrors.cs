@@ -658,24 +658,24 @@ public static class DomainErrors
 
     #region Entities
 
-    public static class FinancialReport
+    public static class CompositeFinancialReport
     {
         public static readonly Func<Guid, Error> NotFound = reportId => new Error(
-            "FinancialReport.NotFound",
+            "CompositeFinancialReport.NotFound",
             $"The report with ID {reportId} was not found.");
 
         public static readonly Func<Guid, Error> CannotMarkAsCompleted = reportId => new Error(
-            "FinancialReport.CannotMarkAsCompleted",
+            "CompositeFinancialReport.CannotMarkAsCompleted",
             $"The report with ID {reportId} cannot be marked as completed" +
             $" because it is not in the pending status.");
 
         public static readonly Func<Guid, Error> CannotMarkAsFailed = reportId => new Error(
-            "FinancialReport.CannotMarkAsFailed",
+            "CompositeFinancialReport.CannotMarkAsFailed",
             $"The report with ID {reportId} cannot be marked as failed" +
             $" because it is not in the pending status.");
 
         public static readonly Func<Guid, Error> ReportNotCompleted = reportId => new Error(
-            "FinancialReport.ReportNotCompleted",
+            "CompositeFinancialReport.ReportNotCompleted",
             $"The report with ID {reportId} is not completed.");
     }
 
@@ -688,6 +688,17 @@ public static class DomainErrors
         public static readonly Func<DateOnly, DateOnly, Error> InvalidDateRange = (start, end) => new Error(
             "ReportPeriod.InvalidDateRange",
             $"The report period start date {start} cannot be later than the end date {end}.");
+    }
+
+    public static class ReportTitle
+    {
+        public static readonly Error Empty = new(
+            "ReportTitle.Empty",
+            "Report title is empty");
+
+        public static readonly Error TooLong = new(
+            "ReportTitle.TooLong",
+            "Report title is too long");
     }
 
     #endregion

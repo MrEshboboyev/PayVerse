@@ -1,25 +1,35 @@
 using PayVerse.Domain.Builders.Reports;
+using PayVerse.Domain.Composites.Reports;
 using PayVerse.Domain.Enums.Reports;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Reports;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects.Reports;
+using PayVerse.Domain.Visitors.Reports;
 
 namespace PayVerse.Domain.Entities.Reports;
 
-public sealed class FinancialReport : AggregateRoot, IAuditableEntity
+public sealed class CompositeFinancialReport : AggregateRoot, IAuditableEntity
 {
+    #region Private fields
+
+    private IReportComponent _rootComponent;
+
+    #endregion
+
     #region Constructors
-    
-    private FinancialReport(
+
+    private CompositeFinancialReport(
         Guid id,
+        ReportTitle title,
         ReportPeriod period,
         ReportType type,
         FileType fileType, 
         Guid generatedBy)
         : base(id)
     {
+        Title = title;
         Period = period;
         Type = type;
         FileType = fileType;
@@ -32,6 +42,7 @@ public sealed class FinancialReport : AggregateRoot, IAuditableEntity
     
     #region Properties
 
+    public ReportTitle Title { get; private set; }
     public ReportPeriod Period { get; private set; }
     public ReportType Type { get; private set; }
     public FileType FileType { get; private set; }
@@ -46,26 +57,49 @@ public sealed class FinancialReport : AggregateRoot, IAuditableEntity
     
     #region Factory Methods
 
-    public static FinancialReport Create(
+    public static CompositeFinancialReport Create(
         Guid id,
+        ReportTitle title,
         ReportPeriod period,
         ReportType type,
         FileType fileType,
         Guid userId)
     {
-        return new FinancialReport(id, period, type, fileType, userId);
+        return new CompositeFinancialReport(id, title, period, type, fileType, userId);
     }
-    
+
     #endregion
-    
+
     #region Own Methods
+
+    #region Composite related
+
+    public IReportComponent GetReportStructure() => _rootComponent;
+
+    public Result SetReportStructure(IReportComponent rootComponent)
+    {
+        _rootComponent = rootComponent;
+
+        return Result.Success();
+    }
+
+    public decimal GetTotalAmount() => _rootComponent.GetTotal();
+
+    public List<string> GenerateSummary()
+    {
+        var visitor = new ReportSummaryVisitor();
+        _rootComponent.Accept(visitor);
+        return visitor.GetSummaries() as List<string>;
+    }
+
+    #endregion
 
     public Result MarkAsCompleted(string filePath)
     {
         if (Status != ReportStatus.Pending)
         {
             return Result.Failure(
-                DomainErrors.FinancialReport.CannotMarkAsCompleted(Id));
+                DomainErrors.CompositeFinancialReport.CannotMarkAsCompleted(Id));
         }
         
         Status = ReportStatus.Completed;
@@ -79,18 +113,20 @@ public sealed class FinancialReport : AggregateRoot, IAuditableEntity
         return Result.Success();
     }
 
-    public Result MarkAsFailed()
+    public Result MarkAsFailed(string reason)
     {
         if (Status != ReportStatus.Pending)
         {
             return Result.Failure(
-                DomainErrors.FinancialReport.CannotMarkAsFailed(Id));
+                DomainErrors.CompositeFinancialReport.CannotMarkAsFailed(Id));
         }
         Status = ReportStatus.Failed;
         
         RaiseDomainEvent(new ReportFailedDomainEvent(
             Guid.NewGuid(),
-            Id));
+            Id,
+            reason,
+            DateTime.UtcNow));
         
         return Result.Success();
     }
@@ -100,10 +136,10 @@ public sealed class FinancialReport : AggregateRoot, IAuditableEntity
     #region Builders
 
     // Factory method for the builder
-    public static FinancialReportBuilder CreateBuilder(Guid generatedBy,
+    public static CompositeFinancialReportBuilder CreateBuilder(Guid generatedBy,
                                                        ReportType reportType)
     {
-        return new FinancialReportBuilder(generatedBy, reportType);
+        return new CompositeFinancialReportBuilder(generatedBy, reportType);
     }
 
     #endregion
