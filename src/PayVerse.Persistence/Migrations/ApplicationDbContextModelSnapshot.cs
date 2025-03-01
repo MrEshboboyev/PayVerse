@@ -167,7 +167,7 @@ namespace PayVerse.Persistence.Migrations
                     b.ToTable("Payments", (string)null);
                 });
 
-            modelBuilder.Entity("PayVerse.Domain.Entities.Reports.FinancialReport", b =>
+            modelBuilder.Entity("PayVerse.Domain.Entities.Reports.CompositeFinancialReport", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,7 +207,7 @@ namespace PayVerse.Persistence.Migrations
 
                     b.HasIndex("GeneratedBy");
 
-                    b.ToTable("FinancialReports", (string)null);
+                    b.ToTable("CompositeFinancialReports", (string)null);
                 });
 
             modelBuilder.Entity("PayVerse.Domain.Entities.Users.Role", b =>

@@ -6,7 +6,7 @@ namespace PayVerse.Infrastructure.Reports.Generators;
 
 public class JsonReportGenerator : IReportGenerator
 {
-    public async Task<string> GenerateAsync(FinancialReport report, CancellationToken cancellationToken)
+    public async Task<string> GenerateAsync(CompositeFinancialReport report, CancellationToken cancellationToken)
     {
         var filePath = Path.Combine("GeneratedReports", $"{report.Id}.json");
 

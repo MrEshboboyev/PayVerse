@@ -92,4 +92,40 @@ public sealed class InvoiceRepository(ApplicationDbContext dbContext) : IInvoice
                 && x.Status == InvoiceStatus.Paid)
             .SumAsync(x => x.TotalAmount.Value, cancellationToken);
     }
+
+    public async Task<IEnumerable<Invoice>> GetInvoicesForPeriodAsync(object startDate, object endDate, CancellationToken cancellationToken = default)
+    {
+        DateTime startDateTime;
+        DateTime endDateTime;
+
+        if (startDate is DateOnly startOnly)
+        {
+            startDateTime = startOnly.ToDateTime(TimeOnly.MinValue);
+        }
+        else if (startDate is DateTime startTime)
+        {
+            startDateTime = startTime;
+        }
+        else
+        {
+            throw new ArgumentException("Invalid start date type");
+        }
+
+        if (endDate is DateOnly endOnly)
+        {
+            endDateTime = endOnly.ToDateTime(TimeOnly.MaxValue);
+        }
+        else if (endDate is DateTime endTime)
+        {
+            endDateTime = endTime;
+        }
+        else
+        {
+            throw new ArgumentException("Invalid end date type");
+        }
+
+        return await dbContext.Set<Invoice>()
+            .Where(x => x.InvoiceDate.Value >= startDateTime && x.InvoiceDate.Value <= endDateTime)
+            .ToListAsync(cancellationToken);
+    }
 }

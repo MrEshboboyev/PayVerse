@@ -5,11 +5,11 @@ using PayVerse.Persistence.Reports.Constants;
 
 namespace PayVerse.Persistence.Reports.Configurations;
 
-internal sealed class FinancialReportConfiguration : IEntityTypeConfiguration<FinancialReport>
+internal sealed class CompositeFinancialReportConfiguration : IEntityTypeConfiguration<CompositeFinancialReport>
 {
-    public void Configure(EntityTypeBuilder<FinancialReport> builder)
+    public void Configure(EntityTypeBuilder<CompositeFinancialReport> builder)
     {
-        builder.ToTable(ReportTableNames.FinancialReports);
+        builder.ToTable(ReportTableNames.CompositeFinancialReports);
 
         builder.HasKey(x => x.Id);
 

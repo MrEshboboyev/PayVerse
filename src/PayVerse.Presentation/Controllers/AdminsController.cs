@@ -16,8 +16,8 @@ using PayVerse.Application.Payments.Queries.GetAllPayments;
 using PayVerse.Application.Payments.Queries.GetPaymentsByDateRange;
 using PayVerse.Application.Payments.Queries.GetPaymentsByUserId;
 using PayVerse.Application.Reports.Queries.GetAllReports;
-using PayVerse.Application.Reports.Queries.GetFinancialReportsByPeriod;
-using PayVerse.Application.Reports.Queries.GetFinancialReportsByUser;
+using PayVerse.Application.Reports.Queries.GetCompositeFinancialReportsByPeriod;
+using PayVerse.Application.Reports.Queries.GetCompositeFinancialReportsByUser;
 using PayVerse.Application.Users.Commands.AssignRoleToUser;
 using PayVerse.Application.Users.Commands.BlockUser;
 using PayVerse.Application.Users.Commands.ResetPassword;
@@ -480,7 +480,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
             return BadRequest("Invalid end date format.");
         }
 
-        var query = new GetFinancialReportsByPeriodQuery(startDateOnly, endDateOnly);
+        var query = new GetCompositeFinancialReportsByPeriodQuery(startDateOnly, endDateOnly);
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }
@@ -490,7 +490,7 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
         Guid userId,
         CancellationToken cancellationToken)
     {
-        var query = new GetFinancialReportsByUserQuery(userId);
+        var query = new GetCompositeFinancialReportsByUserQuery(userId);
         var response = await Sender.Send(query, cancellationToken);
         return response.IsSuccess ? Ok(response.Value) : NotFound(response.Error);
     }

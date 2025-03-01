@@ -51,4 +51,14 @@ public sealed class PaymentRepository(ApplicationDbContext dbContext) : IPayment
             .Where(payment => payment.CreatedOnUtc >= startDate && payment.CreatedOnUtc <= endDate)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<Payment>> GetPaymentsForPeriodAsync(DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken = default)
+    {
+        var startDateTime = startDate.ToDateTime(TimeOnly.MinValue);
+        var endDateTime = endDate.ToDateTime(TimeOnly.MaxValue);
+
+        return await dbContext.Set<Payment>()
+            .Where(payment => payment.CreatedOnUtc >= startDateTime && payment.CreatedOnUtc <= endDateTime)
+            .ToListAsync(cancellationToken);
+    }
 }

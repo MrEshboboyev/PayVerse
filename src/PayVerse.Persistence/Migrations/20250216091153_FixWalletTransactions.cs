@@ -15,7 +15,7 @@ namespace PayVerse.Persistence.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "FinancialReports",
+                name: "CompositeFinancialReports",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -31,7 +31,7 @@ namespace PayVerse.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FinancialReports", x => x.Id);
+                    table.PrimaryKey("PK_CompositeFinancialReports", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -287,8 +287,8 @@ namespace PayVerse.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FinancialReports_GeneratedBy",
-                table: "FinancialReports",
+                name: "IX_CompositeFinancialReports_GeneratedBy",
+                table: "CompositeFinancialReports",
                 column: "GeneratedBy");
 
             migrationBuilder.CreateIndex(
@@ -327,7 +327,7 @@ namespace PayVerse.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "FinancialReports");
+                name: "CompositeFinancialReports");
 
             migrationBuilder.DropTable(
                 name: "InvoiceItems");

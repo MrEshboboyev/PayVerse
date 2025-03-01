@@ -9,25 +9,27 @@ using PayVerse.Domain.ValueObjects.Reports;
 
 namespace PayVerse.Infrastructure.Services;
 
-public class FinancialReportService(
-    IFinancialReportRepository reportRepository, 
+public class CompositeFinancialReportService(
+    ICompositeFinancialReportRepository reportRepository, 
     IUnitOfWork unitOfWork, 
-    IEmailService emailService) : IFinancialReportService
+    IEmailService emailService) : ICompositeFinancialReportService
 {
-    private readonly IFinancialReportRepository _reportRepository = reportRepository;
+    private readonly ICompositeFinancialReportRepository _reportRepository = reportRepository;
     private readonly IEmailService _emailService = emailService;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task<Result<FinancialReport>> GenerateReportAsync(
+    public async Task<Result<CompositeFinancialReport>> GenerateReportAsync(
         Guid userId, 
+        ReportTitle title, 
         ReportPeriod period, 
         ReportType type, 
         FileType fileType)
     {
         Console.WriteLine($"[Generating Report] Fetching transactions for user {userId} and period {period}...");
 
-        var report = FinancialReport.Create(
+        var report = CompositeFinancialReport.Create(
             Guid.NewGuid(),
+            title,
             period,
             type,
             fileType,
@@ -40,7 +42,7 @@ public class FinancialReportService(
     }
 
     public async Task<Result> SaveReportAsync(
-        FinancialReport report, 
+        CompositeFinancialReport report, 
         string filePath)
     {
         var markResult = report.MarkAsCompleted(filePath);
@@ -59,13 +61,13 @@ public class FinancialReportService(
     }
 
     public async Task<Result> SendReportByEmailAsync(
-        FinancialReport report, 
+        CompositeFinancialReport report, 
         string email)
     {
         if (report.Status != ReportStatus.Completed)
         {
             return Result.Failure(
-                DomainErrors.FinancialReport.ReportNotCompleted(report.Id)); // write this domain error
+                DomainErrors.CompositeFinancialReport.ReportNotCompleted(report.Id)); // write this domain error
         }
 
         Console.WriteLine($"[Emailing Report] Sending report {report.Id} to {email}...");
