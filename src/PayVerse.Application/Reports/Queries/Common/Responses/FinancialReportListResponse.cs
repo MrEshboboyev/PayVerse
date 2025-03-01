@@ -1,3 +1,3 @@
 namespace PayVerse.Application.Reports.Queries.Common.Responses;
 
-public sealed record FinancialReportListResponse(IReadOnlyList<FinancialReportResponse> FinancialReports);
+public sealed record CompositeFinancialReportListResponse(IReadOnlyList<CompositeFinancialReportResponse> CompositeFinancialReports);

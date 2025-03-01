@@ -3,13 +3,13 @@ using PayVerse.Domain.Entities.Reports;
 
 namespace PayVerse.Application.Reports.Queries.Common.Factories;
 
-public static class FinancialReportResponseFactory
+public static class CompositeFinancialReportResponseFactory
 {
-    public static FinancialReportResponse Create(FinancialReport report)
+    public static CompositeFinancialReportResponse Create(CompositeFinancialReport report)
     {
         var period = ReportPeriodResponseFactory.Create(report.Period);
 
-        return new FinancialReportResponse(
+        return new CompositeFinancialReportResponse(
             period,
             report.Type,
             report.Status,

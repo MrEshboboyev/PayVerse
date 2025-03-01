@@ -6,9 +6,13 @@ using PayVerse.Domain.ValueObjects.Reports;
 namespace PayVerse.Application.Interfaces;
 
 // ✅ Handles multiple reporting operations.
-public interface IFinancialReportService
+public interface ICompositeFinancialReportService
 {
-    Task<Result<FinancialReport>> GenerateReportAsync(Guid userId, ReportPeriod period, ReportType type, FileType fileType);
-    Task<Result> SaveReportAsync(FinancialReport report, string filePath);
-    Task<Result> SendReportByEmailAsync(FinancialReport report, string email);
+    Task<Result<CompositeFinancialReport>> GenerateReportAsync(Guid userId,
+                                                               ReportTitle title,
+                                                               ReportPeriod period,
+                                                               ReportType type,
+                                                               FileType fileType);
+    Task<Result> SaveReportAsync(CompositeFinancialReport report, string filePath);
+    Task<Result> SendReportByEmailAsync(CompositeFinancialReport report, string email);
 }

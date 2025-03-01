@@ -11,9 +11,9 @@ namespace PayVerse.Application.Facades;
 // Prevents code duplication by providing a unified interface.
 // Easily extends to support PDF exports, API integrations.
 
-public class FinancialReportFacade(IFinancialReportService reportService)
+public class CompositeFinancialReportFacade(ICompositeFinancialReportService reportService)
 {
-    private readonly IFinancialReportService _reportService =
+    private readonly ICompositeFinancialReportService _reportService =
         reportService ?? throw new ArgumentNullException(nameof(reportService));
 
     /// <summary>
@@ -25,7 +25,8 @@ public class FinancialReportFacade(IFinancialReportService reportService)
     /// <param name="period">The period for which the report is to be generated.</param>
     /// <returns>A Result indicating success or failure of the operation.</returns>
     public async Task<Result> GenerateAndSendReportAsync(
-        Guid userId, 
+        Guid userId,
+        ReportTitle title,
         string email, 
         ReportType reportType, 
         ReportPeriod period)
@@ -36,6 +37,7 @@ public class FinancialReportFacade(IFinancialReportService reportService)
 
         var generateResult = await _reportService.GenerateReportAsync(
             userId, 
+            title,
             period, 
             reportType, 
             FileType.Pdf);

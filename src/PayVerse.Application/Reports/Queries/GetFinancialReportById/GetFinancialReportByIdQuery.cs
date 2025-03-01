@@ -1,7 +1,7 @@
 using PayVerse.Application.Abstractions.Messaging;
 using PayVerse.Application.Reports.Queries.Common.Responses;
 
-namespace PayVerse.Application.Reports.Queries.GetFinancialReportById;
+namespace PayVerse.Application.Reports.Queries.GetCompositeFinancialReportById;
 
-public sealed record GetFinancialReportByIdQuery(
-    Guid ReportId) : IQuery<FinancialReportResponse>;
+public sealed record GetCompositeFinancialReportByIdQuery(
+    Guid ReportId) : IQuery<CompositeFinancialReportResponse>;

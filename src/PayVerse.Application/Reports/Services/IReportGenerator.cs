@@ -4,5 +4,5 @@ namespace PayVerse.Application.Reports.Services;
 
 public interface IReportGenerator
 {
-    Task<string> GenerateAsync(FinancialReport report, CancellationToken cancellationToken = default);
+    Task<string> GenerateAsync(CompositeFinancialReport report, CancellationToken cancellationToken = default);
 }

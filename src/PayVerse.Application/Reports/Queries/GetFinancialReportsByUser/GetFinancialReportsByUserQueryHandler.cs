@@ -4,13 +4,13 @@ using PayVerse.Application.Reports.Queries.Common.Responses;
 using PayVerse.Domain.Repositories.Reports;
 using PayVerse.Domain.Shared;
 
-namespace PayVerse.Application.Reports.Queries.GetFinancialReportsByUser;
+namespace PayVerse.Application.Reports.Queries.GetCompositeFinancialReportsByUser;
 
-internal sealed class GetFinancialReportsByUserQueryHandler(
-    IFinancialReportRepository financialReportRepository) : IQueryHandler<GetFinancialReportsByUserQuery, FinancialReportListResponse>
+internal sealed class GetCompositeFinancialReportsByUserQueryHandler(
+    ICompositeFinancialReportRepository financialReportRepository) : IQueryHandler<GetCompositeFinancialReportsByUserQuery, CompositeFinancialReportListResponse>
 {
-    public async Task<Result<FinancialReportListResponse>> Handle(
-        GetFinancialReportsByUserQuery request,
+    public async Task<Result<CompositeFinancialReportListResponse>> Handle(
+        GetCompositeFinancialReportsByUserQuery request,
         CancellationToken cancellationToken)
     {
         var userId = request.UserId;
@@ -19,8 +19,8 @@ internal sealed class GetFinancialReportsByUserQueryHandler(
             userId,
             cancellationToken);
 
-        var response = new FinancialReportListResponse(
-            reports.Select(FinancialReportResponseFactory.Create)
+        var response = new CompositeFinancialReportListResponse(
+            reports.Select(CompositeFinancialReportResponseFactory.Create)
                 .ToList().AsReadOnly());
         
         return Result.Success(response);

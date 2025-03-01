@@ -5,13 +5,13 @@ using PayVerse.Domain.Errors;
 using PayVerse.Domain.Repositories.Reports;
 using PayVerse.Domain.Shared;
 
-namespace PayVerse.Application.Reports.Queries.GetFinancialReportById;
+namespace PayVerse.Application.Reports.Queries.GetCompositeFinancialReportById;
 
-internal sealed class GetFinancialReportByIdQueryHandler(
-    IFinancialReportRepository financialReportRepository) : IQueryHandler<GetFinancialReportByIdQuery, FinancialReportResponse>
+internal sealed class GetCompositeFinancialReportByIdQueryHandler(
+    ICompositeFinancialReportRepository financialReportRepository) : IQueryHandler<GetCompositeFinancialReportByIdQuery, CompositeFinancialReportResponse>
 {
-    public async Task<Result<FinancialReportResponse>> Handle(
-        GetFinancialReportByIdQuery request,
+    public async Task<Result<CompositeFinancialReportResponse>> Handle(
+        GetCompositeFinancialReportByIdQuery request,
         CancellationToken cancellationToken)
     {
         var reportId = request.ReportId;
@@ -23,15 +23,15 @@ internal sealed class GetFinancialReportByIdQueryHandler(
             cancellationToken);
         if (report is null)
         {
-            return Result.Failure<FinancialReportResponse>(
-                DomainErrors.FinancialReport.NotFound(reportId));
+            return Result.Failure<CompositeFinancialReportResponse>(
+                DomainErrors.CompositeFinancialReport.NotFound(reportId));
         }
         
         #endregion
         
         #region Prepare response
         
-        var response = FinancialReportResponseFactory.Create(report);
+        var response = CompositeFinancialReportResponseFactory.Create(report);
         
         #endregion
         

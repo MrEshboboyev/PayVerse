@@ -2,7 +2,7 @@ using PayVerse.Domain.Enums.Reports;
 
 namespace PayVerse.Application.Reports.Queries.Common.Responses;
 
-public sealed record FinancialReportResponse(
+public sealed record CompositeFinancialReportResponse(
     ReportPeriodResponse ReportPeriod,
     ReportType ReportType,
     ReportStatus ReportStatus,

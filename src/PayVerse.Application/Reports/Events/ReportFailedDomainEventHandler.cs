@@ -4,7 +4,7 @@ using PayVerse.Domain.Repositories.Reports;
 
 namespace PayVerse.Application.Reports.Events;
 
-internal sealed class ReportFailedDomainEventHandler(IFinancialReportRepository financialReportRepository)
+internal sealed class ReportFailedDomainEventHandler(ICompositeFinancialReportRepository financialReportRepository)
     : IDomainEventHandler<ReportFailedDomainEvent>
 {
     public async Task Handle(ReportFailedDomainEvent notification, CancellationToken cancellationToken)

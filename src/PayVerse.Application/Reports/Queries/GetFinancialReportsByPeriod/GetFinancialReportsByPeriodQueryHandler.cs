@@ -5,13 +5,13 @@ using PayVerse.Domain.Repositories.Reports;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects.Reports;
 
-namespace PayVerse.Application.Reports.Queries.GetFinancialReportsByPeriod;
+namespace PayVerse.Application.Reports.Queries.GetCompositeFinancialReportsByPeriod;
 
-internal sealed class GetFinancialReportsByPeriodQueryHandler(
-    IFinancialReportRepository financialReportRepository) : IQueryHandler<GetFinancialReportsByPeriodQuery, FinancialReportListResponse>
+internal sealed class GetCompositeFinancialReportsByPeriodQueryHandler(
+    ICompositeFinancialReportRepository financialReportRepository) : IQueryHandler<GetCompositeFinancialReportsByPeriodQuery, CompositeFinancialReportListResponse>
 {
-    public async Task<Result<FinancialReportListResponse>> Handle(
-        GetFinancialReportsByPeriodQuery request,
+    public async Task<Result<CompositeFinancialReportListResponse>> Handle(
+        GetCompositeFinancialReportsByPeriodQuery request,
         CancellationToken cancellationToken)
     {
         var (startDate, endDate) = request;
@@ -21,7 +21,7 @@ internal sealed class GetFinancialReportsByPeriodQueryHandler(
         var periodResult = ReportPeriod.Create(startDate, endDate);
         if (periodResult.IsFailure)
         {
-            return Result.Failure<FinancialReportListResponse>(
+            return Result.Failure<CompositeFinancialReportListResponse>(
                 periodResult.Error);
         }
         
@@ -31,8 +31,8 @@ internal sealed class GetFinancialReportsByPeriodQueryHandler(
             periodResult.Value,
             cancellationToken);
         
-        var response = new FinancialReportListResponse(
-            reports.Select(FinancialReportResponseFactory.Create)
+        var response = new CompositeFinancialReportListResponse(
+            reports.Select(CompositeFinancialReportResponseFactory.Create)
                 .ToList().AsReadOnly());
 
         return Result.Success(response);

@@ -4,7 +4,7 @@ using PayVerse.Domain.Repositories.Reports;
 
 namespace PayVerse.Application.Reports.Events;
 
-internal sealed class ReportGeneratedDomainEventHandler(IFinancialReportRepository financialReportRepository)
+internal sealed class ReportGeneratedDomainEventHandler(ICompositeFinancialReportRepository financialReportRepository)
     : IDomainEventHandler<ReportGeneratedDomainEvent>
 {
     public async Task Handle(ReportGeneratedDomainEvent notification, CancellationToken cancellationToken)

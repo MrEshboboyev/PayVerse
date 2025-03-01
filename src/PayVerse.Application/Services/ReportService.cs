@@ -6,13 +6,13 @@ public class ReportService
 {
     public Report GenerateDailyReport()
     {
-        var generator = new DailyFinancialReportGenerator();
+        var generator = new DailyCompositeFinancialReportGenerator();
         return generator.GenerateReport();
     }
 
     public Report GenerateMonthlyReport()
     {
-        var generator = new MonthlyFinancialReportGenerator();
+        var generator = new MonthlyCompositeFinancialReportGenerator();
         return generator.GenerateReport();
     }
 }

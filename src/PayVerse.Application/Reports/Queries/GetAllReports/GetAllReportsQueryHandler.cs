@@ -7,16 +7,16 @@ using PayVerse.Domain.Shared;
 namespace PayVerse.Application.Reports.Queries.GetAllReports;
 
 internal sealed class GetAllReportsQueryHandler(
-    IFinancialReportRepository financialReportRepository) : IQueryHandler<GetAllReportsQuery, FinancialReportListResponse>
+    ICompositeFinancialReportRepository financialReportRepository) : IQueryHandler<GetAllReportsQuery, CompositeFinancialReportListResponse>
 {
-    public async Task<Result<FinancialReportListResponse>> Handle(
+    public async Task<Result<CompositeFinancialReportListResponse>> Handle(
         GetAllReportsQuery request,
         CancellationToken cancellationToken)
     {
         var allReports = await financialReportRepository.GetAllAsync(cancellationToken);
 
-        var response = new FinancialReportListResponse(
-            allReports.Select(FinancialReportResponseFactory.Create)
+        var response = new CompositeFinancialReportListResponse(
+            allReports.Select(CompositeFinancialReportResponseFactory.Create)
                 .ToList().AsReadOnly());
         
         return Result.Success(response);
