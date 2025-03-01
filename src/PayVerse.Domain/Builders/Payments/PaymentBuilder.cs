@@ -88,7 +88,7 @@ public class PaymentBuilder(Guid userId, decimal amount) : IBuilder<Payment>
 
         if (!string.IsNullOrEmpty(_providerName))
         {
-            payment.SetProvider(_providerName);
+            payment.SetProviderName(_providerName);
         }
 
         return payment;

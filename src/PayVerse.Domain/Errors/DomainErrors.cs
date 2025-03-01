@@ -526,6 +526,17 @@ public static class DomainErrors
 
     #endregion
 
+    #region Providers
+    
+    public static class PaymentProvider 
+    {
+        public static readonly Func<string, Error> NotFound = providerName => new Error(
+            "PaymentProvider.NotFound",
+            $"Payment provider {providerName} not found");
+    }
+
+    #endregion
+
     #endregion
 
     #region Wallet

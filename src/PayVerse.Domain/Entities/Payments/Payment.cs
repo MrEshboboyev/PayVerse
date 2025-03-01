@@ -154,20 +154,38 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
                 DomainErrors.Payment.CannotChangeStatusFromTerminalState(Status, newStatus));
         }
 
+        if (Status == newStatus)
+            return Result.Success();
+
         var oldStatus = Status;
         Status = newStatus;
 
         // Set appropriate timestamps based on status
         switch (newStatus)
         {
-            case PaymentStatus.Completed:
+            case PaymentStatus.Processed:
                 ProcessedDate = DateTime.UtcNow;
+                RaiseDomainEvent(new PaymentProcessedDomainEvent(
+                    Guid.NewGuid(),
+                    Id));
                 break;
             case PaymentStatus.Refunded:
                 RefundedDate = DateTime.UtcNow;
+                RaiseDomainEvent(new PaymentRefundedDomainEvent(
+                    Guid.NewGuid(),
+                    Id));
                 break;
             case PaymentStatus.Cancelled:
                 CancelledDate = DateTime.UtcNow;
+                RaiseDomainEvent(new PaymentCancelledDomainEvent(
+                    Guid.NewGuid(),
+                    Id));
+                break;
+            case PaymentStatus.Failed:
+                RaiseDomainEvent(new PaymentFailedDomainEvent(
+                    Guid.NewGuid(),
+                    Id,
+                    FailureReason ?? "Unknown failure"));
                 break;
         }
 
@@ -251,9 +269,17 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
     /// </summary>
     /// <param name="providerName">The Provider name.</param>
     /// <returns>Result indicating success or failure.</returns>
-    public Result SetProvider(string providerName)
+    public Result SetProviderName(string providerName)
     {
         ProviderName = providerName;
+
+        return Result.Success();
+    }
+
+    // Methods to support the bridge pattern
+    public Result SetTransactionId(string transactionId)
+    {
+        TransactionId = transactionId;
 
         return Result.Success();
     }
@@ -322,6 +348,59 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
+
+    #region Status related
+
+    public Result MarkAsProcessing()
+    {
+        Status = PaymentStatus.Processing;
+        ProcessedDate = DateTime.UtcNow;
+
+        RaiseDomainEvent(new PaymentProcessingDomainEvent(
+            Guid.NewGuid(),
+            Id));
+
+        return Result.Success();
+    }
+
+    public Result MarkAsProcessed()
+    {
+        Status = PaymentStatus.Processed;
+        ProcessedDate = DateTime.UtcNow;
+
+        RaiseDomainEvent(new PaymentProcessedDomainEvent(
+            Guid.NewGuid(),
+            Id));
+
+        return Result.Success();
+    }
+
+    public Result MarkAsFailed(string reason)
+    {
+        Status = PaymentStatus.Failed;
+        FailureReason = reason;
+
+        RaiseDomainEvent(new PaymentFailedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            reason));
+
+        return Result.Success();
+    }
+
+    public Result MarkAsRefunded()
+    {
+        Status = PaymentStatus.Refunded;
+        RefundedDate = DateTime.UtcNow;
+
+        RaiseDomainEvent(new PaymentRefundedDomainEvent(
+            Guid.NewGuid(),
+            Id));
+
+        return Result.Success();
+    }
+
+    #endregion
 
     #endregion
 
