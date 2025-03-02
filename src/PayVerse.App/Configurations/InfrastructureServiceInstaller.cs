@@ -2,6 +2,7 @@
 using PayVerse.Application.Bridges;
 using PayVerse.Application.Reports.Services;
 using PayVerse.Application.Wallets.Converters;
+using PayVerse.Domain.Adapters.Payments;
 using PayVerse.Domain.Bridges;
 using PayVerse.Domain.Repositories.Payments;
 using PayVerse.Infrastructure.Converters;
@@ -57,17 +58,17 @@ public class InfrastructureServiceInstaller : IServiceInstaller
         switch (defaultProvider?.ToLower())
         {
             case "paypal":
-                services.AddScoped<IPaymentProcessor, PayPalPaymentAdapter>();
+                services.AddScoped<IPaymentGatewayAdapter, PayPalPaymentAdapter>();
                 break;
             case "stripe":
             default:
-                services.AddScoped<IPaymentProcessor, StripePaymentAdapter>();
+                services.AddScoped<IPaymentGatewayAdapter, StripePaymentAdapter>();
                 break;
         }
 
         // Optionally, you could register named instances for different scenarios
-        services.AddKeyedScoped<IPaymentProcessor, StripePaymentAdapter>("stripe");
-        services.AddKeyedScoped<IPaymentProcessor, PayPalPaymentAdapter>("paypal");
+        services.AddKeyedScoped<IPaymentGatewayAdapter, StripePaymentAdapter>("stripe");
+        services.AddKeyedScoped<IPaymentGatewayAdapter, PayPalPaymentAdapter>("paypal");
 
         #endregion
 

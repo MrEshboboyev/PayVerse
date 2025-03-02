@@ -6,6 +6,11 @@ namespace PayVerse.Persistence.Notifications.Repositories;
 
 public sealed class NotificationRepository(ApplicationDbContext dbContext) : INotificationRepository
 {
+    public Task<List<Notification>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return dbContext.Set<Notification>().ToListAsync(cancellationToken);
+    }
+
     public async Task<Notification> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await dbContext.Set<Notification>()
