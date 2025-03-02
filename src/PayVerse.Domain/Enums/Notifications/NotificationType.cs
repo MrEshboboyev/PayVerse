@@ -5,5 +5,6 @@ public enum NotificationType
     System,
     Transaction,
     Security,
-    Promotion
+    Promotion,
+    PaymentConfirmation
 }

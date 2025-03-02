@@ -363,9 +363,10 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
         return Result.Success();
     }
 
-    public Result MarkAsProcessed()
+    public Result MarkAsProcessed(string transactionId)
     {
         Status = PaymentStatus.Processed;
+        TransactionId = transactionId;
         ProcessedDate = DateTime.UtcNow;
 
         RaiseDomainEvent(new PaymentProcessedDomainEvent(
