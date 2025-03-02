@@ -98,4 +98,29 @@ public sealed class SecurityIncident : AggregateRoot
     }
 
     #endregion
+
+    #region Resolution related methods
+    
+    public Result<SecurityIncidentResolution> AddResolution(
+        Guid id,
+        string details,
+        Guid resolvedBy)
+    {
+        if (Status is not SecurityIncidentStatus.Resolved)
+        {
+            return Result.Failure<SecurityIncidentResolution>(
+                DomainErrors.SecurityIncident.IncidentNotResolved(Id));
+        }
+
+        var resolution = new SecurityIncidentResolution(
+            id,
+            Id,
+            details,
+            resolvedBy);
+
+        // Add resolution logic here
+        return Result.Success(resolution);
+    }
+
+    #endregion
 }

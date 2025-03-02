@@ -579,6 +579,8 @@ public static class DomainErrors
 
     #region Security
 
+    #region Entities
+
     public static class SecurityIncident
     {
         public static readonly Func<Guid, Error> IncidentAlreadyResolved = incidentId => new Error(
@@ -588,7 +590,13 @@ public static class DomainErrors
         public static readonly Func<Guid, Error> IncidentAlreadyEscalated = incidentId => new Error(
             "SecurityIncident.AlreadyEscalated",
             $"The security incident with ID {incidentId} is already escalated.");
+
+        public static readonly Func<Guid, Error> IncidentNotResolved = incidentId => new Error(
+            "SecurityIncident.IncidentNotResolved",
+            $"The security incident with ID {incidentId} is not resolved.");
     }
+
+    #endregion
 
     #endregion
 
