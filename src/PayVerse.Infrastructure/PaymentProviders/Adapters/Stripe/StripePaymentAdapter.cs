@@ -1,10 +1,11 @@
-﻿using PayVerse.Domain.Entities.Payments;
+﻿using PayVerse.Domain.Adapters.Payments;
+using PayVerse.Domain.Entities.Payments;
 using PayVerse.Domain.Enums.Payments;
 
 namespace PayVerse.Infrastructure.PaymentProviders.Adapters.Stripe;
 
 // The Adapter class - adapts Stripe's interface to our PayVerse interface
-public class StripePaymentAdapter(StripePaymentService stripeService) : IPaymentProcessor
+public class StripePaymentAdapter(StripePaymentService stripeService) : IPaymentGatewayAdapter
 {
     public async Task<PaymentProcessResult> ProcessPaymentAsync(Payment payment)
     {

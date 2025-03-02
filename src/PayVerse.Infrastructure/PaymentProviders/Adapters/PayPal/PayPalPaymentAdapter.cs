@@ -1,10 +1,11 @@
-﻿using PayVerse.Domain.Entities.Payments;
+﻿using PayVerse.Domain.Adapters.Payments;
+using PayVerse.Domain.Entities.Payments;
 using PayVerse.Domain.Enums.Payments;
 
 namespace PayVerse.Infrastructure.PaymentProviders.Adapters.PayPal;
 
 // PayPal Adapter - another example of adapting a different payment system
-public class PayPalPaymentAdapter(PayPalService payPalService) : IPaymentProcessor
+public class PayPalPaymentAdapter(PayPalService payPalService) : IPaymentGatewayAdapter
 {
     public async Task<PaymentProcessResult> ProcessPaymentAsync(Payment payment)
     {
