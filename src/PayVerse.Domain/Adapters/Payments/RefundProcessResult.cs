@@ -1,4 +1,4 @@
-﻿namespace PayVerse.Infrastructure.PaymentProviders.Adapters;
+﻿namespace PayVerse.Domain.Adapters.Payments;
 
 public class RefundProcessResult
 {

@@ -1,6 +1,6 @@
 ﻿using PayVerse.Domain.Enums.Payments;
 
-namespace PayVerse.Infrastructure.PaymentProviders.Adapters;
+namespace PayVerse.Domain.Adapters.Payments;
 
 public class PaymentVerificationResult
 {

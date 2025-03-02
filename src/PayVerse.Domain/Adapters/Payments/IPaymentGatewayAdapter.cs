@@ -1,9 +1,9 @@
 ﻿using PayVerse.Domain.Entities.Payments;
 
-namespace PayVerse.Infrastructure.PaymentProviders.Adapters;
+namespace PayVerse.Domain.Adapters.Payments;
 
 // Define the target interface that our application expects
-public interface IPaymentProcessor
+public interface IPaymentGatewayAdapter
 {
     Task<PaymentProcessResult> ProcessPaymentAsync(Payment payment);
     Task<RefundProcessResult> ProcessRefundAsync(Payment payment);
