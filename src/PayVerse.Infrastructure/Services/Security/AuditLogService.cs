@@ -1,18 +1,78 @@
-﻿namespace PayVerse.Infrastructure.Services.Security;
+﻿using Microsoft.Extensions.Logging;
+using PayVerse.Application.Common.Interfaces.Security;
+using PayVerse.Domain.Entities.Security;
+using System.Collections.Concurrent;
 
+namespace PayVerse.Infrastructure.Services.Security;
 
-// ✅ Benefits:
-// Prevents multiple logging instances that could create duplicate audit records.
-// Ensures consistent logging structure for all actions.
-public sealed class AuditLogService
+public class AuditLogService(ILogger<AuditLogService> logger) : IAuditLogService
 {
-    private static readonly Lazy<AuditLogService> _instance = 
-        new(() => new AuditLogService());
+    private readonly ConcurrentDictionary<Guid, AuditLog> _auditLogs = new();
 
-    private AuditLogService() { }
+    public Task<Guid> CreateAuditLogAsync(
+        Guid userId,
+        string action,
+        string details,
+        string ipAddress,
+        string deviceInfo,
+        CancellationToken cancellationToken = default)
+    {
+        var auditLog = AuditLog.Record(
+            Guid.NewGuid(),
+            userId,
+            action,
+            details,
+            ipAddress,
+            deviceInfo);
 
-    public static AuditLogService Instance => _instance.Value;
+        _auditLogs[auditLog.Id] = auditLog;
+        logger.LogInformation("Audit log created: {AuditLogId}", auditLog.Id);
 
-    public void LogAction(string action, Guid userId) =>
-        Console.WriteLine($"[AUDIT] User {userId} - {action} at {DateTime.UtcNow}");
+        return Task.FromResult(auditLog.Id);
+    }
+
+    public Task<IEnumerable<AuditLog>> GetUserAuditLogsAsync(
+        Guid userId,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        CancellationToken cancellationToken = default)
+    {
+        var logs = _auditLogs.Values
+            .Where(log => log.UserId == userId &&
+                          (!startDate.HasValue || log.Timestamp >= startDate) &&
+                          (!endDate.HasValue || log.Timestamp <= endDate))
+            .ToList();
+
+        return Task.FromResult<IEnumerable<AuditLog>>(logs);
+    }
+
+    public Task<IEnumerable<AuditLog>> GetActionAuditLogsAsync(
+        string action,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        CancellationToken cancellationToken = default)
+    {
+        var logs = _auditLogs.Values
+            .Where(log => log.Action.Equals(action, StringComparison.OrdinalIgnoreCase) &&
+                          (!startDate.HasValue || log.Timestamp >= startDate) &&
+                          (!endDate.HasValue || log.Timestamp <= endDate))
+            .ToList();
+
+        return Task.FromResult<IEnumerable<AuditLog>>(logs);
+    }
+
+    public Task<IEnumerable<AuditLog>> GetIpAddressAuditLogsAsync(
+        string ipAddress,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        CancellationToken cancellationToken = default)
+    {
+        var logs = _auditLogs.Values
+            .Where(log => log.IpAddress == ipAddress &&
+                          (!startDate.HasValue || log.Timestamp >= startDate) &&
+                          (!endDate.HasValue || log.Timestamp <= endDate))
+            .ToList();
+
+        return Task.FromResult<IEnumerable<AuditLog>>(logs);
+    }
 }
