@@ -40,6 +40,7 @@ using PayVerse.Application.Wallets.Queries.GetWalletsByUserId;
 using PayVerse.Domain.Enums.Invoices;
 using PayVerse.Presentation.Abstractions;
 using PayVerse.Presentation.Contracts.Admins;
+using PayVerse.Presentation.Contracts.Payments;
 using PayVerse.Presentation.Contracts.Users;
 
 namespace PayVerse.Presentation.Controllers;
@@ -358,9 +359,13 @@ public sealed class AdminsController(ISender sender) : ApiController(sender)
     [HttpPatch("{paymentId:guid}/refund")]
     public async Task<IActionResult> RefundPayment(
         Guid paymentId,
+        [FromBody] RefundPaymentRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new RefundPaymentCommand(paymentId);
+        var command = new RefundPaymentCommand(
+            paymentId,
+            request.RefundTransactionId,
+            request.Reason);
         var result = await Sender.Send(command, cancellationToken);
         return result.IsFailure ? HandleFailure(result) : Ok(result);
     }

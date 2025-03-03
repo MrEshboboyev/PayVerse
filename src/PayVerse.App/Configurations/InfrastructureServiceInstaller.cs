@@ -33,8 +33,6 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                       .AsMatchingInterface()
                       .WithScopedLifetime());
 
-        services.AddSingleton<AuditLogService>(AuditLogService.Instance);
-
         services.AddHttpClient<ICurrencyConverter, CurrencyConverter>();
         services.AddScoped<IReportGeneratorFactory, ReportGeneratorFactory>();
 

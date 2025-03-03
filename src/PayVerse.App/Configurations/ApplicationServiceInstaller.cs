@@ -5,6 +5,8 @@ using PayVerse.Application.Behaviors;
 using PayVerse.Application.Common.Interfaces;
 using PayVerse.Application.Common.Interfaces.Security;
 using PayVerse.Application.Decorators.Payments;
+using PayVerse.Application.Facades;
+using PayVerse.Application.Interfaces;
 using PayVerse.Application.Payments.Decorators;
 using PayVerse.Application.Security.Commands.TransferFundsWithDecorators;
 using PayVerse.Application.Security.Decorators;
@@ -81,6 +83,13 @@ public class ApplicationServiceInstaller : IServiceInstaller
                 inner,
                 provider.GetRequiredService<ICurrentUserService>(),
                 provider.GetRequiredService<IIpFilteringService>()));
+
+        #endregion
+
+        #region PayVerse Facade
+
+        // Register the PayVerse Facade
+        services.AddScoped<IPayVerseFacade, PayVerseFacade>();
 
         #endregion
     }
