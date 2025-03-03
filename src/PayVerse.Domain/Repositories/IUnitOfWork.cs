@@ -19,5 +19,27 @@ public interface IUnitOfWork
     /// </summary> 
     /// <returns>IDbTransaction representing the transaction.</returns>
     IDbTransaction BeginTransaction();
+
+
+    /// <summary>
+    /// Begins a new database transaction asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Task representing the transaction.</returns>
+    Task<IDbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Commits the current transaction asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Task representing the commit operation.</returns>
+    Task CommitTransactionAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Rolls back the current transaction asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Task representing the rollback operation.</returns>
+    Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
 }
 

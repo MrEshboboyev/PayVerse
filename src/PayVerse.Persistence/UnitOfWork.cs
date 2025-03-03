@@ -1,10 +1,10 @@
-﻿using PayVerse.Domain.Primitives;
-using PayVerse.Domain.Repositories;
-using PayVerse.Persistence.Outbox;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
+using PayVerse.Domain.Primitives;
+using PayVerse.Domain.Repositories;
+using PayVerse.Persistence.Outbox;
 using System.Data;
 
 namespace PayVerse.Persistence;
@@ -12,23 +12,9 @@ namespace PayVerse.Persistence;
 /// <summary> 
 /// Implements the unit of work pattern, managing the application database context. 
 /// </summary>
-internal sealed class UnitOfWork : IUnitOfWork
+internal sealed class UnitOfWork(ApplicationDbContext dbContext) : IUnitOfWork
 {
-    private readonly ApplicationDbContext _dbContext;
-    public UnitOfWork(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
-    /// <summary> 
-    /// Begins a new database transaction. 
-    /// </summary> 
-    /// <returns>IDbTransaction representing the transaction.</returns>
-    public IDbTransaction BeginTransaction()
-    {
-        var transaction = _dbContext.Database.BeginTransaction();
-        return transaction.GetDbTransaction();
-    }
+    private IDbContextTransaction _currentTransaction;
 
     /// <summary> 
     /// Saves changes to the database asynchronously. 
@@ -39,16 +25,96 @@ internal sealed class UnitOfWork : IUnitOfWork
     {
         ConvertDomainEventsToOutboxMessages();
         UpdateAuditableEntities();
-        return _dbContext.SaveChangesAsync(cancellationToken);
+        return dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary> 
+    /// Begins a new database transaction. 
+    /// </summary> 
+    /// <returns>IDbTransaction representing the transaction.</returns>
+    public IDbTransaction BeginTransaction()
+    {
+        var transaction = dbContext.Database.BeginTransaction();
+        return transaction.GetDbTransaction();
+    }
+
+    /// <summary>
+    /// Begins a new database transaction asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Task representing the transaction.</returns>
+    public async Task<IDbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        if (_currentTransaction != null)
+        {
+            throw new InvalidOperationException("A transaction is already in progress");
+        }
+
+        _currentTransaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        return _currentTransaction.GetDbTransaction();
+    }
+
+    /// <summary>
+    /// Commits the current transaction asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Task representing the commit operation.</returns>
+    public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        if (_currentTransaction == null)
+        {
+            throw new InvalidOperationException("No active transaction to commit");
+        }
+
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await _currentTransaction.CommitAsync(cancellationToken);
+        }
+        finally
+        {
+            if (_currentTransaction != null)
+            {
+                await _currentTransaction.DisposeAsync();
+                _currentTransaction = null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Rolls back the current transaction asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Task representing the rollback operation.</returns>
+    public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        if (_currentTransaction == null)
+        {
+            throw new InvalidOperationException("No active transaction to roll back");
+        }
+
+        try
+        {
+            await _currentTransaction.RollbackAsync(cancellationToken);
+        }
+        finally
+        {
+            if (_currentTransaction != null)
+            {
+                await _currentTransaction.DisposeAsync();
+                _currentTransaction = null;
+            }
+        }
     }
 
     #region Private Methods
+
     /// <summary> 
     /// Converts domain events to outbox messages for reliable event processing. 
     /// </summary>
     private void ConvertDomainEventsToOutboxMessages()
     {
-        var outboxMessages = _dbContext.ChangeTracker
+        var outboxMessages = dbContext.ChangeTracker
             .Entries<AggregateRoot>()
             .Select(x => x.Entity)
             .SelectMany(aggregateRoot =>
@@ -70,7 +136,7 @@ internal sealed class UnitOfWork : IUnitOfWork
                     })
             })
             .ToList();
-        _dbContext.Set<OutboxMessage>().AddRange(outboxMessages);
+        dbContext.Set<OutboxMessage>().AddRange(outboxMessages);
     }
 
     /// <summary> 
@@ -79,7 +145,7 @@ internal sealed class UnitOfWork : IUnitOfWork
     private void UpdateAuditableEntities()
     {
         IEnumerable<EntityEntry<IAuditableEntity>> entries =
-           _dbContext
+           dbContext
               .ChangeTracker
               .Entries<IAuditableEntity>();
         foreach (EntityEntry<IAuditableEntity> entityEntry in entries)
@@ -94,5 +160,6 @@ internal sealed class UnitOfWork : IUnitOfWork
             }
         }
     }
+
     #endregion
 }
