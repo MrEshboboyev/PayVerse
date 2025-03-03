@@ -59,6 +59,7 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
     public Amount Amount { get; private set; }
     public PaymentStatus Status { get; private set; }
     public Guid UserId { get; private set; }
+    public Guid? InvoiceId { get; private set; }
     public DateTime? ScheduledDate { get; private set; }
     public string TransactionId { get; private set; }
     public string RefundTransactionId { get; private set; }
@@ -173,7 +174,8 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
                 RefundedDate = DateTime.UtcNow;
                 RaiseDomainEvent(new PaymentRefundedDomainEvent(
                     Guid.NewGuid(),
-                    Id));
+                    Id,
+                    "NONE"));
                 break;
             case PaymentStatus.Cancelled:
                 CancelledDate = DateTime.UtcNow;
@@ -197,6 +199,45 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
+
+    /// <summary>
+    /// Processes a refund for the payment.
+    /// </summary>
+    /// <param name="refundReason">The reason for the refund.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result Refund(
+        string refundTransactionId,
+        string refundReason)
+    {
+        // Ensure payment is in a refundable state
+        if (Status != PaymentStatus.Processed)
+        {
+            return Result.Failure(
+                DomainErrors.Payment.CannotRefundFromCurrentStatus(Status));
+        }
+
+        // Update status and timestamps
+        var oldStatus = Status;
+        Status = PaymentStatus.Refunded;
+        RefundTransactionId = refundTransactionId;
+        RefundedDate = DateTime.UtcNow;
+
+        // Raise refund domain event
+        RaiseDomainEvent(new PaymentRefundedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            refundReason));
+
+        // Raise status updated event
+        RaiseDomainEvent(new PaymentStatusUpdatedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            oldStatus,
+            PaymentStatus.Refunded));
+
+        return Result.Success();
+    }
+
 
     /// <summary>
     /// Records transaction details from a payment provider.
@@ -396,12 +437,34 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
 
         RaiseDomainEvent(new PaymentRefundedDomainEvent(
             Guid.NewGuid(),
-            Id));
+            Id,
+            "NONE"));
 
         return Result.Success();
     }
 
     #endregion
+
+    #endregion
+
+    #region Invoice related
+
+    /// <summary>
+    /// Links the payment to an invoice.
+    /// </summary>
+    /// <param name="invoiceId">The ID of the invoice to link.</param>
+    public Result LinkToInvoice(Guid invoiceId)
+    {
+        InvoiceId = invoiceId;
+
+        RaiseDomainEvent(new PaymentLinkedToInvoiceDomainEvent(
+            Guid.NewGuid(), 
+            Id, 
+            invoiceId));
+
+        return Result.Success();
+    }
+
 
     #endregion
 

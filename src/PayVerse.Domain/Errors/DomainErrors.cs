@@ -154,6 +154,10 @@ public static class DomainErrors
             "Invoice.NotFound",
             $"The invoice with the identifier {id} was not found.");
 
+        public static readonly Func<Guid, Error> CannotCancelFinalizedInvoice = id => new Error(
+            "Invoice.CannotCancelFinalizedInvoice",
+            $"The invoice with ID {id} has already been finalized and cannot be canceled.");
+
         public static readonly Error NotExist = new(
             "Invoice.NotExist",
             $"There is no invoices");
@@ -161,6 +165,18 @@ public static class DomainErrors
         public static readonly Func<Guid, Error> ItemNotFound = id => new Error(
             "Invoice.ItemNotFound",
             $"The invoice item with the identifier {id} was not found in this invoice.");
+
+        public static readonly Func<Guid, Error> AlreadyFinalized = id => new Error(
+            "Invoice.AlreadyFinalized", 
+            $"The invoice with ID [{id}] has already been finalized.");
+
+        public static readonly Func<Guid, Error> AlreadyCancelled = id => new Error(
+            "Invoice.AlreadyCancelled",
+            $"The invoice with ID [{id}] has already been cancelled.");
+
+        public static readonly Func<Guid, Error> CannotCancelFinalized = id => new Error(
+            "Invoice.CannotCancelFinalized", 
+            $"Cannot cancel a finalized invoice with ID [{id}].");
     }
 
     public static class InvoiceItem
@@ -248,6 +264,26 @@ public static class DomainErrors
         public static readonly Func<Guid, Error> ItemNotFound = id => new Error(
             "Invoice.ItemNotFound",
             $"The invoice item with the identifier {id} was not found in this invoice.");
+
+        public static readonly Func<Guid, Error> AccountInactive = id => new Error(
+            "VirtualAccount.Inactive", 
+            $"The account with ID [{id}] is not active.");
+
+        public static readonly Func<Guid, Error> SourceAccountNotFound = id => new Error(
+            "VirtualAccount.SourceNotFound",
+            $"Source account with ID [{id}] was not found.");
+
+        public static readonly Func<Guid, Error> DestinationAccountNotFound = id => new Error(
+            "VirtualAccount.DestinationNotFound",
+            $"Destination account with ID [{id}] was not found.");
+        
+        public static readonly Func<Guid, Error> SameAccountTransfer = id => new Error(
+            "VirtualAccount.SameAccountTransfer",
+            $"Cannot transfer funds with ID [{id}] to the same account.");
+
+        public static readonly Error CurrencyMismatch = new(
+            "VirtualAccount.CurrencyMismatch", 
+            $"The accounts have different currencies.");
     }
 
     #endregion
@@ -292,6 +328,10 @@ public static class DomainErrors
         public static readonly Func<Guid, Error> NotFound = id => new Error(
             "Payment.NotFound",
             $"The payment with the identifier {id} was not found.");
+
+        public static readonly Func<PaymentStatus, Error> CannotRefundFromCurrentStatus = status => new Error(
+            "Payment.CannotRefundFromCurrentStatus",
+            $"Cannot refund a payment that is in the {status} state.");
 
         public static readonly Error NotExist = new(
             "Payment.NotExist",
@@ -548,6 +588,10 @@ public static class DomainErrors
         public static readonly Func<Guid, Error> NotFound = id => new Error(
             "Wallet.NotFound",
             $"The wallet with the identifier {id} was not found.");
+
+        public static readonly Func<Guid, Error> InsufficientFunds = id => new Error(
+            "Wallet.InsufficientFunds",
+            $"The wallet with ID {id} does not have sufficient funds for this transaction.");
 
         public static readonly Func<int, int, Error> InsufficientLoyaltyPoints = (
             requiredPoints,

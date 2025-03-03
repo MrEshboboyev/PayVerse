@@ -8,5 +8,6 @@ public enum PaymentMethod
     Stripe = 40,
     BankTransfer = 50,
     Cash = 60,
-    Other = 70
+    Other = 70,
+    VirtualAccount = 80
 }

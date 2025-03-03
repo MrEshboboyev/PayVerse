@@ -70,6 +70,8 @@ public sealed class Invoice : PrototypeAggregateRoot, IAuditableEntity
 
     public InvoiceStatus Status { get; private set; }
     public int? RecurringFrequencyInMonths { get; private set; }
+    public bool IsFinalized { get; private set; }
+    public DateTime FinalizedDate { get; private set; }
     public InvoiceNumber InvoiceNumber { get; private set; }
     public InvoiceDate InvoiceDate { get; private set; }
     public Amount TotalAmount { get; private set; }
@@ -163,6 +165,50 @@ public sealed class Invoice : PrototypeAggregateRoot, IAuditableEntity
     }
 
     #endregion
+
+    /// <summary>
+    /// Cancels the invoice with a given reason.
+    /// </summary>
+    /// <param name="reason">The reason for cancellation.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result Cancel(string reason)
+    {
+        if (IsFinalized)
+        {
+            return Result.Failure(
+                DomainErrors.Invoice.CannotCancelFinalizedInvoice(Id));
+        }
+
+        Status = InvoiceStatus.Cancelled;
+
+        RaiseDomainEvent(new InvoiceCancelledDomainEvent(
+            Guid.NewGuid(),
+            Id, 
+            reason));
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Finalizes the invoice.
+    /// </summary>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result Finalize()
+    {
+        if (IsFinalized)
+        {
+            return Result.Failure(DomainErrors.Invoice.AlreadyFinalized(Id));
+        }
+
+        Status = InvoiceStatus.Finalized;
+        FinalizedDate = DateTime.UtcNow;
+
+        RaiseDomainEvent(new InvoiceFinalizedDomainEvent(
+            Guid.NewGuid(),
+            Id));
+
+        return Result.Success();
+    }
 
     #endregion
 

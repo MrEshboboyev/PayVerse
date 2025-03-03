@@ -261,6 +261,53 @@ public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity
         return Result.Success();
     }
 
+    /// <summary>
+    /// Deposits an amount into the virtual account.
+    /// </summary>
+    /// <param name="amount">The amount to deposit.</param>
+    /// <param name="description">A description of the deposit.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result Deposit(
+        Amount amount,
+        string description)
+    {
+        Balance = Balance.Create(Balance.Value + amount.Value).Value;
+
+        RaiseDomainEvent(new VirtualAccountDepositedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            amount.Value, 
+            description));
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Withdraws an amount from the virtual account.
+    /// </summary>
+    /// <param name="amount">The amount to withdraw.</param>
+    /// <param name="description">A description of the withdrawal.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result Withdraw(Amount amount, string description)
+    {
+        if (Balance.Value < amount.Value)
+        {
+            return Result.Failure(
+                DomainErrors.VirtualAccount.InsufficientFunds(Id));
+        }
+
+        Balance = Balance.Create(Balance.Value - amount.Value).Value;
+        
+        RaiseDomainEvent(new VirtualAccountWithdrawnDomainEvent(
+            Guid.NewGuid(),
+            Id, 
+            amount.Value, 
+            description));
+
+        return Result.Success();
+    }
+
+
     #endregion
 
     #region State

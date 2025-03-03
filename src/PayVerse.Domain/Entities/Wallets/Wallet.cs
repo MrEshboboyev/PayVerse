@@ -164,11 +164,60 @@ public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
-    
+
+    /// <summary>
+    /// Adds funds to the wallet.
+    /// </summary>
+    /// <param name="amount">The amount to add.</param>
+    /// <param name="description">A description of the transaction.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result AddFunds(
+        Amount amount, 
+        string description)
+    {
+        Balance = WalletBalance.Create(Balance.Value + amount.Value).Value;
+
+        RaiseDomainEvent(new WalletFundsAddedDomainEvent(
+            Guid.NewGuid(),
+            Id, 
+            amount.Value, 
+            description));
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Deducts funds from the wallet.
+    /// </summary>
+    /// <param name="amount">The amount to deduct.</param>
+    /// <param name="description">A description of the transaction.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Result DeductFunds(
+        Amount amount, 
+        string description)
+    {
+        if (Balance.Value < amount.Value)
+        {
+            return Result.Failure(
+                DomainErrors.Wallet.InsufficientFunds(Id));
+        }
+
+        Balance = WalletBalance.Create(Balance.Value - amount.Value).Value;
+
+        RaiseDomainEvent(new WalletFundsDeductedDomainEvent(
+            Guid.NewGuid(), 
+            Id, 
+            amount.Value, 
+            description));
+
+        return Result.Success();
+    }
+
+
     #endregion
-    
+
     #region Transaction related Methods
-    
+
     public WalletTransaction GetTransactionById(Guid transactionId) => 
         _transactions.FirstOrDefault(t => t.Id == transactionId);
 
