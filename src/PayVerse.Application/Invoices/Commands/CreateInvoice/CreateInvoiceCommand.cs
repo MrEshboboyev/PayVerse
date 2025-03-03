@@ -4,4 +4,4 @@ namespace PayVerse.Application.Invoices.Commands.CreateInvoice;
 
 public sealed record CreateInvoiceCommand(
     Guid UserId,
-    List<(string Description, decimal Amount)> Items) : ICommand;
+    List<(string Description, decimal Amount)> Items) : ICommand<Guid>;

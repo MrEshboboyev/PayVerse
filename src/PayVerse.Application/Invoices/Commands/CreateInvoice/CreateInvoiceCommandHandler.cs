@@ -9,9 +9,9 @@ namespace PayVerse.Application.Invoices.Commands.CreateInvoice;
 
 internal sealed class CreateInvoiceCommandHandler(
     IInvoiceRepository invoiceRepository,
-    IUnitOfWork unitOfWork) : ICommandHandler<CreateInvoiceCommand>
+    IUnitOfWork unitOfWork) : ICommandHandler<CreateInvoiceCommand, Guid>
 {
-    public async Task<Result> Handle(
+    public async Task<Result<Guid>> Handle(
         CreateInvoiceCommand request,
         CancellationToken cancellationToken)
     {
@@ -28,7 +28,7 @@ internal sealed class CreateInvoiceCommandHandler(
             var amountResult = Amount.Create(amount);
             if (amountResult.IsFailure)
             {
-                return Result.Failure(amountResult.Error);
+                return Result.Failure<Guid>(amountResult.Error);
             }
             invoiceBuilder.AddItem(description, amountResult.Value.Value);
         }
@@ -40,7 +40,7 @@ internal sealed class CreateInvoiceCommandHandler(
         await invoiceRepository.AddAsync(invoice, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success();
+        return Result.Success(invoice.Id);
     }
 }
 

@@ -15,7 +15,7 @@ internal sealed class RefundPaymentCommandHandler(
         RefundPaymentCommand request,
         CancellationToken cancellationToken)
     {
-        var paymentId = request.PaymentId;
+        var (paymentId, refundTransactionId, reason) = request;
         
         #region Get this payment
         
@@ -32,7 +32,9 @@ internal sealed class RefundPaymentCommandHandler(
         
         #region Refund payment
 
-        var refundResult = payment.UpdateStatus(PaymentStatus.Refunded);
+        var refundResult = payment.Refund(
+            refundTransactionId,
+            reason);
         if (refundResult.IsFailure)
         {
             return Result.Failure(refundResult.Error);
