@@ -2,6 +2,8 @@ using PayVerse.Domain.Builders.VirtualAccounts;
 using PayVerse.Domain.Enums.VirtualAccounts;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.VirtualAccounts;
+using PayVerse.Domain.Iterators;
+using PayVerse.Domain.Iterators.VirtualAccounts;
 using PayVerse.Domain.Mementos;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Prototypes;
@@ -15,7 +17,7 @@ namespace PayVerse.Domain.Entities.VirtualAccounts;
 /// <summary>
 /// Represents a virtual account in the system with Prototype pattern implementation
 /// </summary>
-public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity
+public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity, IIterable<Transaction>
 {
     #region Private Fields
     
@@ -419,6 +421,38 @@ public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity
                                                       Currency currency)
     {
         return new VirtualAccountBuilder(userId, currency);
+    }
+
+    #endregion
+
+    #region Iterator Implementation
+
+    /// <summary>
+    /// Creates a default transaction iterator
+    /// </summary>
+    /// <returns>Iterator over all transactions</returns>
+    public IIterator<Transaction> CreateIterator()
+    {
+        return new TransactionIterator(Transactions);
+    }
+
+    /// <summary>
+    /// Creates an iterator filtered by minimum transaction amount
+    /// </summary>
+    /// <param name="minimumAmount">Minimum amount to include in iteration</param>
+    /// <returns>Filtered transaction iterator</returns>
+    public IIterator<Transaction> CreateAmountFilteredIterator(decimal minimumAmount)
+    {
+        return new AmountFilteredTransactionIterator(Transactions, minimumAmount);
+    }
+
+    /// <summary>
+    /// Creates an iterator that presents transactions ordered by date
+    /// </summary>
+    /// <returns>Date-ordered transaction iterator</returns>
+    public IIterator<Transaction> CreateDateOrderedIterator()
+    {
+        return new DateOrderedTransactionIterator(Transactions);
     }
 
     #endregion

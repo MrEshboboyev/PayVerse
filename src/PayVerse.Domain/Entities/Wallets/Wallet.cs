@@ -1,6 +1,8 @@
 using PayVerse.Domain.Builders.Wallets;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Wallets;
+using PayVerse.Domain.Iterators;
+using PayVerse.Domain.Iterators.Wallets;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
@@ -12,7 +14,7 @@ namespace PayVerse.Domain.Entities.Wallets;
 /// <summary>
 /// Represents a wallet in the system with Prototype pattern implementation
 /// </summary>
-public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity
+public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity, IIterable<WalletTransaction>
 {
     #region Private Fields
     
@@ -319,6 +321,19 @@ public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity
     public static WalletBuilder CreateBuilder(Guid userId, Currency currency)
     {
         return new WalletBuilder(userId, currency);
+    }
+
+    #endregion
+
+    #region Iterator Implementation
+
+    /// <summary>
+    /// Creates a default wallet transaction iterator
+    /// </summary>
+    /// <returns>Iterator over all wallet transactions</returns>
+    public IIterator<WalletTransaction> CreateIterator()
+    {
+        return new WalletTransactionIterator(Transactions);
     }
 
     #endregion
