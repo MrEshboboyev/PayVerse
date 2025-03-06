@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PayVerse.Domain.Entities.VirtualAccounts;
+using PayVerse.Domain.Enums.VirtualAccounts;
 using PayVerse.Domain.Repositories.VirtualAccounts;
 
 namespace PayVerse.Persistence.VirtualAccounts.Repositories;
@@ -49,4 +50,9 @@ public sealed class VirtualAccountRepository(ApplicationDbContext dbContext) : I
 
         return account?.Transactions.Where(t => t.Date >= startDate && t.Date <= endDate) ?? Enumerable.Empty<Transaction>();
     }
+
+    public async Task<IEnumerable<VirtualAccount>> GetAllActiveAccountsAsync(CancellationToken cancellationToken = default)
+        => await dbContext.Set<VirtualAccount>()
+                .Where(a => a.Status == VirtualAccountStatus.Active)
+                .ToListAsync(cancellationToken);
 }
