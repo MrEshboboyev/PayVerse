@@ -370,31 +370,6 @@ public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity, I
 
     #endregion
 
-    #region Memento
-
-    public VirtualAccountMemento SaveState()
-    {
-        return new VirtualAccountMemento(Id, Balance);
-    }
-
-    public Result RestoreState(VirtualAccountMemento memento)
-    {
-        if (memento.Id != Id)
-        {
-            return Result.Failure(
-                DomainErrors.VirtualAccount.MementoMismatch(Id, memento.Id));
-        }
-
-        var balanceResult = Balance.Create(memento.Balance);
-        if (balanceResult.IsFailure)
-            return Result.Failure(balanceResult.Error);
-
-        Balance = balanceResult.Value;
-        return Result.Success();
-    }
-
-    #endregion
-
     #region Prototype overrides
 
     public override PrototypeAggregateRoot ShallowCopy()
