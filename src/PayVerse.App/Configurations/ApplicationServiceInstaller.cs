@@ -7,11 +7,14 @@ using PayVerse.Application.Common.Interfaces.Security;
 using PayVerse.Application.Decorators.Payments;
 using PayVerse.Application.Facades;
 using PayVerse.Application.Interfaces;
+using PayVerse.Application.Mementos.Payments;
 using PayVerse.Application.Payments.Decorators;
 using PayVerse.Application.Security.Commands.TransferFundsWithDecorators;
 using PayVerse.Application.Security.Decorators;
 using PayVerse.Domain.Decorators.Payments;
 using PayVerse.Domain.Decorators.Security;
+using PayVerse.Domain.Mementos;
+using PayVerse.Domain.Mementos.Payments;
 using PayVerse.Infrastructure.Idempotence;
 
 namespace PayVerse.App.Configurations;
@@ -90,6 +93,16 @@ public class ApplicationServiceInstaller : IServiceInstaller
 
         // Register the PayVerse Facade
         services.AddScoped<IPayVerseFacade, PayVerseFacade>();
+
+        #endregion
+
+        #region Memento
+
+        // Register the caretaker as a singleton to maintain state across requests
+        services.AddSingleton<MementoCaretaker<PaymentMemento>>();
+
+        // Register the history service
+        services.AddScoped<IPaymentHistoryService, PaymentHistoryService>();
 
         #endregion
     }
