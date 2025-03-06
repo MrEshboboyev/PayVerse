@@ -433,6 +433,31 @@ public static class DomainErrors
         public static readonly Func<string, Error> TransactionStatusRetrievalError = exMessage => new Error(
             "Payment.TransactionStatusRetrievalError",
             $"Failed to retrieve transaction status: {exMessage}");
+
+        #region State related
+
+        public static readonly Error DeserializationFailed = new(
+            "Payment.DeserializationFailed",
+            "Failed to deserialize payment state.");
+
+        public static readonly Func<string, Error> RestoreStateError = exMessage => new Error(
+            "Payment.RestoreStateError",
+            $"Failed to restore payment state: {exMessage}");
+
+        public static readonly Func<Guid, Error> NoHistoryFound = paymentId => new Error(
+            "Payment.NoHistoryFound",
+            $"No history found for payment {paymentId}");
+
+
+        public static readonly Func<string, Error> SaveStateError = exMessage => new Error(
+            "Payment.SaveStateError",
+            $"Failed to save payment state: {exMessage}");
+
+        public static readonly Func<string, Error> GetHistoryError = exMessage => new Error(
+            "Payment.GetHistoryError",
+            $"Failed to get payment history: {exMessage}");
+
+        #endregion
     }
 
     #endregion

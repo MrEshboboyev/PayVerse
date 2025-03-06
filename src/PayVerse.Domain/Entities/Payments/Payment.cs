@@ -2,17 +2,20 @@ using PayVerse.Domain.Builders.Payments;
 using PayVerse.Domain.Enums.Payments;
 using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Payments;
+using PayVerse.Domain.Mementos;
+using PayVerse.Domain.Mementos.Payments;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects;
+using System.Text.Json;
 
 namespace PayVerse.Domain.Entities.Payments;
 
 /// <summary>
 /// Represents a payment in the system with Prototype pattern implementation
 /// </summary>
-public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
+public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOriginator<PaymentMemento>
 {
     #region Constructors
 
@@ -494,6 +497,93 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity
                                                decimal amount)
     {
         return new PaymentBuilder(userId, amount); // add currency - coming soon
+    }
+
+    #endregion
+
+    #region Memento Pattern Implementation
+
+    /// <summary>
+    /// Creates a memento containing a snapshot of the current state
+    /// </summary>
+    public PaymentMemento CreateMemento(string metadata = "")
+    {
+        return new PaymentMemento(this, metadata);
+    }
+
+    /// <summary>
+    /// Restores the state from a memento
+    /// </summary>
+    public Result RestoreFromMemento(PaymentMemento memento)
+    {
+        try
+        {
+            var state = JsonSerializer.Deserialize<PaymentState>(memento.GetState());
+
+            if (state == null)
+            {
+                return Result.Failure(
+                    DomainErrors.Payment.DeserializationFailed);
+            }
+
+            // Restore properties from memento
+            Amount = Amount.Create(state.Amount).Value;
+            Status = state.Status;
+            UserId = state.UserId;
+            ScheduledDate = state.ScheduledDate;
+            TransactionId = state.TransactionId;
+            RefundTransactionId = state.RefundTransactionId;
+            ProviderName = state.ProviderName;
+            ProcessedDate = state.ProcessedDate;
+            RefundedDate = state.RefundedDate;
+            CancelledDate = state.CancelledDate;
+            FailureReason = state.FailureReason;
+
+            if (!string.IsNullOrEmpty(state.PaymentMethod))
+            {
+                PaymentMethod = Enum.Parse<PaymentMethod>(state.PaymentMethod);
+            }
+            else
+            {
+                PaymentMethod = null;
+            }
+
+            CreatedOnUtc = state.CreatedOnUtc;
+            ModifiedOnUtc = DateTime.UtcNow; // Update modified time
+
+            // Raise domain event for state restoration
+            RaiseDomainEvent(new PaymentStateRestoredDomainEvent(
+                Guid.NewGuid(),
+                Id));
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure(
+                DomainErrors.Payment.RestoreStateError(ex.Message));
+        }
+    }
+
+    // Private class to help with deserialization
+    private class PaymentState
+    {
+        public Guid Id { get; set; }
+        public decimal Amount { get; set; }
+        public string Currency { get; set; }
+        public PaymentStatus Status { get; set; }
+        public Guid UserId { get; set; }
+        public DateTime? ScheduledDate { get; set; }
+        public string TransactionId { get; set; }
+        public string RefundTransactionId { get; set; }
+        public string ProviderName { get; set; }
+        public DateTime? ProcessedDate { get; set; }
+        public DateTime? RefundedDate { get; set; }
+        public DateTime? CancelledDate { get; set; }
+        public string FailureReason { get; set; }
+        public string PaymentMethod { get; set; }
+        public DateTime CreatedOnUtc { get; set; }
+        public DateTime? ModifiedOnUtc { get; set; }
     }
 
     #endregion
