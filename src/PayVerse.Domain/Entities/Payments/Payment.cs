@@ -8,19 +8,23 @@ using PayVerse.Domain.Observers;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
+using PayVerse.Domain.States.Payments;
+using PayVerse.Domain.States.Payments.ConcreteStates;
 using PayVerse.Domain.ValueObjects;
 using System.Text.Json;
 
 namespace PayVerse.Domain.Entities.Payments;
 
 /// <summary>
-/// Represents a payment in the system with (Prototype, Builder, Memento, Observer) pattern implementation
+/// Represents a payment in the system with (Prototype, Builder, Memento, Observer, State) pattern implementation
 /// </summary>
 public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOriginator<PaymentMemento>, ISubject
 {
     #region Private Fields
 
     private readonly List<IObserver> _observers = [];
+
+    private IPaymentState _state;
 
     #endregion
 
@@ -38,10 +42,16 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
         Status = status;
         UserId = userId;
         ScheduledDate = scheduledDate;
+
+        // Initialize with the initiated state
+        _state = new InitiatedPaymentState();
+
         RaiseDomainEvent(new PaymentInitiatedDomainEvent(
             Guid.NewGuid(),
             id));
     }
+
+    #region Prototype related
 
     // Copy constructor for Prototype pattern
     private Payment(Payment source) : base(source.Id)
@@ -60,7 +70,12 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
         PaymentMethod = source.PaymentMethod;
         CreatedOnUtc = source.CreatedOnUtc;
         ModifiedOnUtc = source.ModifiedOnUtc;
+
+        // Copy the state
+        _state = source._state;
     }
+
+    #endregion
 
     #endregion
 
@@ -68,6 +83,7 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
 
     public Amount Amount { get; private set; }
     public PaymentStatus Status { get; private set; }
+    //public PaymentStatus Status => _state.Status;
     public Guid UserId { get; private set; }
     public Guid? InvoiceId { get; private set; }
     public DateTime? ScheduledDate { get; private set; }
@@ -641,6 +657,78 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
             await observer.UpdateAsync(this);
         }
     }
+
+    #endregion
+
+    #region State Pattern Methods
+
+    //// Method to change the current state
+    //internal void ChangeState(IPaymentState newState)
+    //{
+    //    _state = newState;
+    //    ModifiedOnUtc = DateTime.UtcNow;
+    //}
+
+    //// Methods to expose the state operations
+    //public void Process(string transactionId, string providerName)
+    //{
+    //    _state.Process(this, transactionId, providerName);
+    //}
+
+    //public void Refund(string refundTransactionId)
+    //{
+    //    _state.Refund(this, refundTransactionId);
+    //}
+
+    //public void Cancel(string reason)
+    //{
+    //    _state.Cancel(this, reason);
+    //}
+
+    //public void Fail(string reason)
+    //{
+    //    _state.Fail(this, reason);
+    //}
+
+    //#endregion
+
+    //#region Helper Methods for State Pattern
+
+    //// These methods are called by the state classes to update properties
+    //internal void SetTransactionId(string transactionId)
+    //{
+    //    TransactionId = transactionId;
+    //}
+
+    //internal void SetRefundTransactionId(string refundTransactionId)
+    //{
+    //    RefundTransactionId = refundTransactionId;
+    //}
+
+    //internal void SetProviderName(string providerName)
+    //{
+    //    ProviderName = providerName;
+    //}
+
+    //internal void SetProcessedDate(DateTime processedDate)
+    //{
+    //    ProcessedDate = processedDate;
+    //}
+
+    //internal void SetRefundedDate(DateTime refundedDate)
+    //{
+    //    RefundedDate = refundedDate;
+    //}
+
+    //internal void SetCancelledDate(DateTime cancelledDate)
+    //{
+    //    CancelledDate = cancelledDate;
+    //}
+
+    //internal void SetFailureReason(string reason)
+    //{
+    //    FailureReason = reason;
+    //}
 
     #endregion
 }

@@ -4,27 +4,22 @@ using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.VirtualAccounts;
 using PayVerse.Domain.Iterators;
 using PayVerse.Domain.Iterators.VirtualAccounts;
-using PayVerse.Domain.Mementos;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
-using PayVerse.Domain.States;
 using PayVerse.Domain.ValueObjects;
 using PayVerse.Domain.ValueObjects.VirtualAccounts;
 
 namespace PayVerse.Domain.Entities.VirtualAccounts;
 
 /// <summary>
-/// Represents a virtual account in the system with Prototype pattern implementation
+/// Represents a virtual account in the system with (Prototype, Iterator) pattern implementation
 /// </summary>
 public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity, IIterable<Transaction>
 {
     #region Private Fields
     
     private readonly List<Transaction> _transactions = [];
-
-    // State pattern
-    private IVirtualAccountState _state;
 
     #endregion
 
@@ -67,9 +62,6 @@ public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity, I
         {
             _transactions.Add(transaction.DeepCopy() as Transaction);
         }
-
-        // Copy state (assuming state is immutable or has its own cloning mechanism)
-        _state = source._state;
     }
 
     #endregion
@@ -309,16 +301,6 @@ public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity, I
         return Result.Success();
     }
 
-
-    #endregion
-
-    #region State
-
-    public void SetState(IVirtualAccountState state)
-    {
-        _state = state;
-        _state.Handle(this);
-    }
 
     #endregion
 

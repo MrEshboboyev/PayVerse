@@ -2,6 +2,7 @@ namespace PayVerse.Domain.Enums.Payments;
 
 public enum PaymentStatus
 {
+    Initiated = 1,
     Pending = 10,
     Processing = 12,
     Processed = 15,
