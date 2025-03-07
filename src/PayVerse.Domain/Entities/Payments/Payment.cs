@@ -4,6 +4,7 @@ using PayVerse.Domain.Errors;
 using PayVerse.Domain.Events.Payments;
 using PayVerse.Domain.Mementos;
 using PayVerse.Domain.Mementos.Payments;
+using PayVerse.Domain.Observers;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
@@ -13,10 +14,16 @@ using System.Text.Json;
 namespace PayVerse.Domain.Entities.Payments;
 
 /// <summary>
-/// Represents a payment in the system with Prototype pattern implementation
+/// Represents a payment in the system with (Prototype, Builder, Memento, Observer) pattern implementation
 /// </summary>
-public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOriginator<PaymentMemento>
+public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOriginator<PaymentMemento>, ISubject
 {
+    #region Private Fields
+
+    private readonly List<IObserver> _observers = [];
+
+    #endregion
+
     #region Constructors
 
     private Payment(
@@ -446,6 +453,30 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
         return Result.Success();
     }
 
+    #region Observer related
+
+    public async Task FailPayment(string failureReason)
+    {
+        if (Status != PaymentStatus.Pending && Status != PaymentStatus.Scheduled)
+        {
+            throw new InvalidOperationException($"Cannot fail payment in {Status} status");
+        }
+
+        Status = PaymentStatus.Failed;
+        FailureReason = failureReason;
+        ModifiedOnUtc = DateTime.UtcNow;
+
+        RaiseDomainEvent(new PaymentFailedDomainEvent(
+            Guid.NewGuid(),
+            Id,
+            failureReason));
+
+        // Notify observers about the payment status change
+        await NotifyAsync();
+    }
+
+    #endregion
+
     #endregion
 
     #endregion
@@ -584,6 +615,31 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
         public string PaymentMethod { get; set; }
         public DateTime CreatedOnUtc { get; set; }
         public DateTime? ModifiedOnUtc { get; set; }
+    }
+
+    #endregion
+
+    #region Observer Pattern Implementation
+
+    public async Task AttachAsync(IObserver observer)
+    {
+        if (!_observers.Contains(observer))
+        {
+            _observers.Add(observer);
+        }
+    }
+
+    public async Task DetachAsync(IObserver observer)
+    {
+        _observers.Remove(observer);
+    }
+
+    public async Task NotifyAsync()
+    {
+        foreach (var observer in _observers)
+        {
+            await observer.UpdateAsync(this);
+        }
     }
 
     #endregion
