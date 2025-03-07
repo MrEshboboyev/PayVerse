@@ -4,6 +4,9 @@ using PayVerse.Application.Reports.Services;
 using PayVerse.Application.Wallets.Converters;
 using PayVerse.Domain.Adapters.Payments;
 using PayVerse.Domain.Bridges;
+using PayVerse.Domain.Observers;
+using PayVerse.Domain.Observers.Reports;
+using PayVerse.Domain.Observers.VirtualAccounts;
 using PayVerse.Domain.Repositories.Payments;
 using PayVerse.Infrastructure.Converters;
 using PayVerse.Infrastructure.PaymentProviders.Adapters;
@@ -12,6 +15,7 @@ using PayVerse.Infrastructure.PaymentProviders.Adapters.Stripe;
 using PayVerse.Infrastructure.Payments.Providers;
 using PayVerse.Infrastructure.Reports.Factories;
 using PayVerse.Infrastructure.Reports.Generators;
+using PayVerse.Infrastructure.Services.Observers;
 using PayVerse.Infrastructure.Services.Security;
 using Scrutor;
 using Stripe;
@@ -118,6 +122,17 @@ public class InfrastructureServiceInstaller : IServiceInstaller
                 _ => throw new ArgumentOutOfRangeException(nameof(type))
             };
         });
+
+        #endregion
+
+        #region Observers Configuration
+
+        // Register the observers as singletons
+        services.AddSingleton<IObserver, VirtualAccountBalanceObserver>();
+        services.AddSingleton<IObserver, FinancialReportObserver>();
+
+        // Add a payment observer registration service
+        services.AddScoped<IPaymentObserverRegistrationService, PaymentObserverRegistrationService>();
 
         #endregion
     }
