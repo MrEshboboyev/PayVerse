@@ -6,11 +6,12 @@ using PayVerse.Domain.Events.Reports;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects.Reports;
+using PayVerse.Domain.Visitors;
 using PayVerse.Domain.Visitors.Reports;
 
 namespace PayVerse.Domain.Entities.Reports;
 
-public sealed class CompositeFinancialReport : AggregateRoot, IAuditableEntity
+public sealed class CompositeFinancialReport : AggregateRoot, IAuditableEntity, IVisitable
 {
     #region Private fields
 
@@ -140,6 +141,15 @@ public sealed class CompositeFinancialReport : AggregateRoot, IAuditableEntity
                                                        ReportType reportType)
     {
         return new CompositeFinancialReportBuilder(generatedBy, reportType);
+    }
+
+    #endregion
+
+    #region Visitor Pattern Implementation
+
+    public void Accept(IVisitor visitor)
+    {
+        visitor.Visit(this);
     }
 
     #endregion

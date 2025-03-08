@@ -5,10 +5,11 @@ using PayVerse.Domain.Events.Notifications;
 using PayVerse.Domain.Primitives;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects.Notifications;
+using PayVerse.Domain.Visitors;
 
 namespace PayVerse.Domain.Entities.Notifications;
 
-public sealed class Notification : AggregateRoot, IAuditableEntity
+public sealed class Notification : AggregateRoot, IAuditableEntity, IVisitable
 {
     #region Constructors
 
@@ -158,6 +159,15 @@ public sealed class Notification : AggregateRoot, IAuditableEntity
                                                     NotificationType type)
     {
         return new NotificationBuilder(userId, message, type);
+    }
+
+    #endregion
+
+    #region Visitor Pattern Implementation
+
+    public void Accept(IVisitor visitor)
+    {
+        visitor.Visit(this);
     }
 
     #endregion

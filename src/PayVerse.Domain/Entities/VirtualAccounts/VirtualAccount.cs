@@ -9,13 +9,14 @@ using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects;
 using PayVerse.Domain.ValueObjects.VirtualAccounts;
+using PayVerse.Domain.Visitors;
 
 namespace PayVerse.Domain.Entities.VirtualAccounts;
 
 /// <summary>
-/// Represents a virtual account in the system with (Prototype, Iterator) pattern implementation
+/// Represents a virtual account in the system with (Prototype, Iterator, Visitor) pattern implementation
 /// </summary>
-public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity, IIterable<Transaction>
+public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity, IIterable<Transaction>, IVisitable
 {
     #region Private Fields
     
@@ -410,6 +411,15 @@ public sealed class VirtualAccount : PrototypeAggregateRoot, IAuditableEntity, I
     public IIterator<Transaction> CreateDateOrderedIterator()
     {
         return new DateOrderedTransactionIterator(Transactions);
+    }
+
+    #endregion
+
+    #region Visitor Pattern Implementation
+
+    public void Accept(IVisitor visitor)
+    {
+        visitor.Visit(this);
     }
 
     #endregion

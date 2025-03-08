@@ -11,14 +11,15 @@ using PayVerse.Domain.Shared;
 using PayVerse.Domain.States.Payments;
 using PayVerse.Domain.States.Payments.ConcreteStates;
 using PayVerse.Domain.ValueObjects;
+using PayVerse.Domain.Visitors;
 using System.Text.Json;
 
 namespace PayVerse.Domain.Entities.Payments;
 
 /// <summary>
-/// Represents a payment in the system with (Prototype, Builder, Memento, Observer, State) pattern implementation
+/// Represents a payment in the system with (Prototype, Builder, Memento, Observer, State, Visitor) pattern implementation
 /// </summary>
-public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOriginator<PaymentMemento>, ISubject
+public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOriginator<PaymentMemento>, ISubject, IVisitable
 {
     #region Private Fields
 
@@ -730,6 +731,15 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
     //{
     //    FailureReason = reason;
     //}
+
+    #endregion
+
+    #region Visitor Pattern Implementation
+
+    public void Accept(IVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
 
     #endregion
 }

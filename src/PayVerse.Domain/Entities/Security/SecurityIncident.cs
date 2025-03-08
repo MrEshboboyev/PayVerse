@@ -39,6 +39,7 @@ public sealed class SecurityIncident : AggregateRoot
     #region Properties
 
     public SecurityIncidentType Type { get; private set; }
+    public SecurityIncidentSeverity Severity { get; private set; }
     public string Description { get; private set; }
     public Guid? UserId { get; private set; }
     public string IpAddress { get; private set; }

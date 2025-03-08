@@ -4,5 +4,7 @@ public enum RiskLevel
 {
     Low = 100,
     Medium = 200,
-    High = 300
+    High = 300,
+    Critical = 400,
+    Unknown = 500
 }

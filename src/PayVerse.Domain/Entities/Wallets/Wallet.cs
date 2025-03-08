@@ -8,13 +8,14 @@ using PayVerse.Domain.Prototypes;
 using PayVerse.Domain.Shared;
 using PayVerse.Domain.ValueObjects;
 using PayVerse.Domain.ValueObjects.Wallets;
+using PayVerse.Domain.Visitors;
 
 namespace PayVerse.Domain.Entities.Wallets;
 
 /// <summary>
 /// Represents a wallet in the system with Prototype pattern implementation
 /// </summary>
-public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity, IIterable<WalletTransaction>
+public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity, IIterable<WalletTransaction>, IVisitable
 {
     #region Private Fields
     
@@ -333,6 +334,16 @@ public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity, IIterable
     public IIterator<WalletTransaction> CreateIterator()
     {
         return new WalletTransactionIterator(Transactions);
+    }
+
+    #endregion
+
+
+    #region Visitor Pattern Implementation
+
+    public void Accept(IVisitor visitor)
+    {
+        visitor.Visit(this);
     }
 
     #endregion
