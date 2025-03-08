@@ -11,14 +11,12 @@ using PayVerse.Domain.Repositories.Payments;
 using PayVerse.Domain.Strategies.Factories;
 using PayVerse.Domain.Strategies.Payments;
 using PayVerse.Infrastructure.Converters;
-using PayVerse.Infrastructure.PaymentProviders.Adapters;
 using PayVerse.Infrastructure.PaymentProviders.Adapters.PayPal;
 using PayVerse.Infrastructure.PaymentProviders.Adapters.Stripe;
 using PayVerse.Infrastructure.Payments.Providers;
 using PayVerse.Infrastructure.Reports.Factories;
 using PayVerse.Infrastructure.Reports.Generators;
 using PayVerse.Infrastructure.Services.Observers;
-using PayVerse.Infrastructure.Services.Security;
 using Scrutor;
 using Stripe;
 
