@@ -68,6 +68,7 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
         CancelledDate = source.CancelledDate;
         FailureReason = source.FailureReason;
         PaymentMethod = source.PaymentMethod;
+        PaymentMethodEntity = source.PaymentMethodEntity;
         CreatedOnUtc = source.CreatedOnUtc;
         ModifiedOnUtc = source.ModifiedOnUtc;
 
@@ -95,6 +96,7 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
     public DateTime? CancelledDate { get; private set; }
     public string FailureReason { get; private set; }
     public PaymentMethod? PaymentMethod { get; private set; }
+    public PaymentMethodEntity PaymentMethodEntity { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
 
@@ -596,7 +598,6 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
             }
 
             CreatedOnUtc = state.CreatedOnUtc;
-            ModifiedOnUtc = DateTime.UtcNow; // Update modified time
 
             // Raise domain event for state restoration
             RaiseDomainEvent(new PaymentStateRestoredDomainEvent(

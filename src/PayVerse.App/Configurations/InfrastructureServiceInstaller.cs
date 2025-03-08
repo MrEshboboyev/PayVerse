@@ -8,6 +8,8 @@ using PayVerse.Domain.Observers;
 using PayVerse.Domain.Observers.Reports;
 using PayVerse.Domain.Observers.VirtualAccounts;
 using PayVerse.Domain.Repositories.Payments;
+using PayVerse.Domain.Strategies.Factories;
+using PayVerse.Domain.Strategies.Payments;
 using PayVerse.Infrastructure.Converters;
 using PayVerse.Infrastructure.PaymentProviders.Adapters;
 using PayVerse.Infrastructure.PaymentProviders.Adapters.PayPal;
@@ -133,6 +135,19 @@ public class InfrastructureServiceInstaller : IServiceInstaller
 
         // Add a payment observer registration service
         services.AddScoped<IPaymentObserverRegistrationService, PaymentObserverRegistrationService>();
+
+        #endregion
+
+        #region Strategy Configuration
+
+        // Register all strategies
+        services.AddScoped<WalletPaymentStrategy>();
+
+        // Register the factory
+        services.AddScoped<IPaymentProcessingStrategyFactory, PaymentProcessingStrategyFactory>();
+
+        // Register the processor
+        services.AddScoped<PaymentProcessor>();
 
         #endregion
     }

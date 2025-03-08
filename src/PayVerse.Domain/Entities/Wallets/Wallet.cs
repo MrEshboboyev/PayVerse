@@ -215,7 +215,6 @@ public sealed class Wallet : PrototypeAggregateRoot, IAuditableEntity, IIterable
         return Result.Success();
     }
 
-
     #endregion
 
     #region Transaction related Methods
