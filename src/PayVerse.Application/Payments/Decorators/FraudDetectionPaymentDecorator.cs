@@ -10,8 +10,7 @@ namespace PayVerse.Application.Payments.Decorators;
 /// </summary>
 public class FraudDetectionPaymentDecorator(
     IPaymentProcessor paymentProcessor,
-    IFraudDetectionService fraudDetectionService,
-    ISecurityIncidentService securityIncidentService) : PaymentProcessorDecorator(paymentProcessor)
+    IFraudDetectionService fraudDetectionService) : PaymentProcessorDecorator(paymentProcessor)
 {
     public override async Task<PaymentResult> ProcessPaymentAsync(Payment payment, CancellationToken cancellationToken = default)
     {

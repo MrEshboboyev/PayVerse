@@ -58,28 +58,28 @@ public class ApplicationServiceInstaller : IServiceInstaller
         // Register transfer funds operation
         services.AddScoped<ISecureOperation<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>, TransferFundsWirthDecoratorsOperation>();
 
-        // Decorate with security layers
-        services.Decorate<ISecureOperation<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>>(
-            (inner, provider) => new AuthenticationDecorator<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>(
-                inner,
-                provider.GetRequiredService<ICurrentUserService>(),
-                provider.GetRequiredService<IAuthenticationService>()));
+        //// Decorate with security layers
+        //services.Decorate<ISecureOperation<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>>(
+        //    (inner, provider) => new AuthenticationDecorator<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>(
+        //        inner,
+        //        provider.GetRequiredService<ICurrentUserService>(),
+        //        provider.GetRequiredService<IAuthenticationService>()));
 
-        services.Decorate<ISecureOperation<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>>(
-            (inner, provider) => new AuthorizationDecorator<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>(
-                inner,
-                provider.GetRequiredService<ICurrentUserService>(),
-                provider.GetRequiredService<IAuthorizationService>(),
-                "VirtualAccount.Transfer"));
+        //services.Decorate<ISecureOperation<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>>(
+        //    (inner, provider) => new AuthorizationDecorator<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>(
+        //        inner,
+        //        provider.GetRequiredService<ICurrentUserService>(),
+        //        provider.GetRequiredService<IAuthorizationService>(),
+        //        "VirtualAccount.Transfer"));
 
-        services.Decorate<ISecureOperation<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>>(
-            (inner, provider) => new RateLimitingDecorator<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>(
-                inner,
-                provider.GetRequiredService<ICurrentUserService>(),
-                provider.GetRequiredService<IRateLimitingService>(),
-                "TransferFunds",
-                10, // Max 10 attempts
-                TimeSpan.FromMinutes(5))); // Within 5 minutes
+        //services.Decorate<ISecureOperation<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>>(
+        //    (inner, provider) => new RateLimitingDecorator<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>(
+        //        inner,
+        //        provider.GetRequiredService<ICurrentUserService>(),
+        //        provider.GetRequiredService<IRateLimitingService>(),
+        //        "TransferFunds",
+        //        10, // Max 10 attempts
+        //        TimeSpan.FromMinutes(5))); // Within 5 minutes
 
         services.Decorate<ISecureOperation<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>>(
             (inner, provider) => new IpFilteringDecorator<TransferFundsWithDecoratorsCommand, TransferFundsWithDecoratorsResult>(

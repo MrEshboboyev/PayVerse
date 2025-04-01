@@ -40,15 +40,21 @@ public sealed class InvoiceRepository(ApplicationDbContext dbContext) : IInvoice
             .AddAsync(invoice, cancellationToken);
 
     public async Task UpdateAsync(Invoice invoice, CancellationToken cancellationToken = default)
-        => dbContext
-            .Set<Invoice>()
-            .Update(invoice);
+    {
+        await Task.Delay(100); // Simulate async operation
+
+        dbContext.Set<Invoice>().Update(invoice);
+    }
 
     public async Task DeleteAsync(Invoice invoice, CancellationToken cancellationToken = default)
-        => dbContext
+    {
+        await Task.Delay(100); // Simulate async operation
+
+        dbContext
             .Set<Invoice>()
             .Remove(invoice);
-    
+    }
+
     public async Task<IEnumerable<Invoice>> GetOverdueAsync(
         CancellationToken cancellationToken = default)
     {

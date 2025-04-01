@@ -29,6 +29,8 @@ internal sealed class StripeTransactionManager : IPaymentTransaction
 
     public async Task<Result<string>> CreateTransactionAsync(Payment payment)
     {
+        await Task.Delay(100); // Simulate async operation
+
         try
         {
             // In a real implementation, we would create a proper transaction record
@@ -47,6 +49,8 @@ internal sealed class StripeTransactionManager : IPaymentTransaction
 
     public async Task<Result<string>> GetTransactionStatusAsync(string transactionId)
     {
+        await Task.Delay(100); // Simulate async operation
+
         try
         {
             // In a real implementation, we would make an API call to Stripe to get transaction status
@@ -61,6 +65,8 @@ internal sealed class StripeTransactionManager : IPaymentTransaction
 
     public async Task<Result<string>> GenerateReceiptAsync(string transactionId)
     {
+        await Task.Delay(100); // Simulate async operation
+
         try
         {
             // In a real implementation, we would generate a proper receipt with transaction details

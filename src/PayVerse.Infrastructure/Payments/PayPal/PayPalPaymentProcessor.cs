@@ -74,6 +74,8 @@ internal sealed class PayPalPaymentProcessor(
 
     public async Task<Result> ValidatePaymentAsync(Payment payment)
     {
+        await Task.Delay(100); // Simulate async operation
+
         // Validate payment amount, currency, etc.
         if (payment.Amount.Value <= 0)
         {

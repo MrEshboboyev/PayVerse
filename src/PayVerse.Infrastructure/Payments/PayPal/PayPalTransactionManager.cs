@@ -65,6 +65,9 @@ internal sealed class PayPalTransactionManager(
 
     public async Task<Result<string>> GenerateReceiptAsync(string transactionId)
     {
+
+        await Task.Delay(100); // Simulate async operation
+
         try
         {
             // In a real implementation, we would generate a proper receipt with transaction details

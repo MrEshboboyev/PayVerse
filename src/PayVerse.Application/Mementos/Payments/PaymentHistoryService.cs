@@ -16,6 +16,8 @@ public class PaymentHistoryService(
 {
     public async Task<Result> SavePaymentStateAsync(Payment payment, string metadata = "")
     {
+        await Task.Delay(100); // Simulate async operation
+
         try
         {
             var memento = payment.CreateMemento(metadata);
@@ -97,6 +99,8 @@ public class PaymentHistoryService(
 
     public async Task<Result<List<PaymentHistoryDto>>> GetPaymentHistoryAsync(Guid paymentId)
     {
+        await Task.Delay(100); // Simulate async operation
+
         try
         {
             if (!caretaker.HasMementos(paymentId))

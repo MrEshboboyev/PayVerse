@@ -24,7 +24,7 @@ public sealed class PaymentProcessingService(
     /// <returns>A result containing the transaction ID.</returns>
     public async Task<Result<string>> ProcessPaymentAsync(
         Payment payment,
-        string? providerName = null,
+        string providerName = null,
         CancellationToken cancellationToken = default)
     {
         try

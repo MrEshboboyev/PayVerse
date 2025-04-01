@@ -7,7 +7,7 @@ public class ProcessedPaymentState : IPaymentState
 {
     public PaymentStatus Status => PaymentStatus.Processed;
 
-    public async Task ProcessAsync(Payment payment, string transactionId, string providerName)
+    public Task ProcessAsync(Payment payment, string transactionId, string providerName)
     {
         // Already processed
         throw new InvalidOperationException("Payment has already been processed.");
@@ -24,13 +24,13 @@ public class ProcessedPaymentState : IPaymentState
         await payment.NotifyAsync();
     }
 
-    public async Task CancelAsync(Payment payment, string reason)
+    public Task CancelAsync(Payment payment, string reason)
     {
         // Cannot cancel a payment that has been processed
         throw new InvalidOperationException("Cannot cancel a payment that has already been processed.");
     }
 
-    public async Task FailAsync(Payment payment, string reason)
+    public Task FailAsync(Payment payment, string reason)
     {
         // A processed payment cannot fail
         throw new InvalidOperationException("Cannot fail a payment that has already been processed.");

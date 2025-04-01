@@ -10,7 +10,6 @@ namespace PayVerse.Infrastructure.Services.Payments;
 /// </summary>
 public class PaymentValidationService(
     IVirtualAccountRepository virtualAccountRepository,
-    IWalletRepository walletRepository,
     ILogger<PaymentValidationService> logger) : IPaymentValidationService
 {
     public Task<bool> ValidatePaymentAmountAsync(decimal amount, string currency, CancellationToken cancellationToken = default)

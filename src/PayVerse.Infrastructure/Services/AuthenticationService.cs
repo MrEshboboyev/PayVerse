@@ -20,7 +20,6 @@ public class AuthenticationService(
     IJwtProvider jwtProvider,
     IAuditLogService auditLogService,
     ISecurityIncidentService securityIncidentService,
-    IConfiguration configuration,
     ILogger<AuthenticationService> logger) : IAuthenticationService
 {
     public async Task<(bool Success, string Token, User User)> AuthenticateAsync(

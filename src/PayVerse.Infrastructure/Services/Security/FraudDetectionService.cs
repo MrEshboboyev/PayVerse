@@ -13,8 +13,6 @@ namespace PayVerse.Infrastructure.Services.Security;
 /// </summary>
 public class FraudDetectionService(
     IPaymentRepository paymentRepository,
-    ISecurityIncidentRepository securityIncidentRepository,
-    ICurrentUserService currentUserService,
     ILogger<FraudDetectionService> logger) : IFraudDetectionService
 {
     public async Task<bool> AnalyzePaymentAsync(
@@ -53,6 +51,8 @@ public class FraudDetectionService(
 
     public async Task<int> CheckLoginPatternAsync(Guid userId, string ipAddress, CancellationToken cancellationToken = default)
     {
+        await Task.Delay(100); // Simulate async operation
+
         // Implement logic to check for suspicious login patterns
         // For example, multiple failed login attempts, logins from unusual locations, etc.
 
@@ -67,6 +67,8 @@ public class FraudDetectionService(
 
     public async Task<bool> ValidateTransactionAmountAsync(Guid userId, decimal amount, string currency, CancellationToken cancellationToken = default)
     {
+        await Task.Delay(100); // Simulate async operation
+
         // Implement logic to check if transaction amount is within normal patterns for user
         // This could involve looking at user's history, comparing to similar users, etc.
 
@@ -88,6 +90,8 @@ public class FraudDetectionService(
         Guid userId,
         CancellationToken cancellationToken)
     {
+        await Task.Delay(100); // Simulate async operation
+
         // This would use a factory or repository method to create the incident
         // For simplicity, we're not showing the full implementation
         logger.LogWarning("Security incident detected: {Description} for user {UserId}", description, userId);

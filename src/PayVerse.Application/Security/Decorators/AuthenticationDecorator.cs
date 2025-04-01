@@ -9,8 +9,7 @@ namespace PayVerse.Application.Security.Decorators;
 /// </summary>
 public class AuthenticationDecorator<TRequest, TResult>(
     ISecureOperation<TRequest, TResult> decoratedOperation,
-    ICurrentUserService currentUserService,
-    IAuthenticationService authenticationService) : SecureOperationDecorator<TRequest, TResult>(decoratedOperation)
+    ICurrentUserService currentUserService) : SecureOperationDecorator<TRequest, TResult>(decoratedOperation)
 {
     public override async Task<TResult> ExecuteAsync(TRequest request, CancellationToken cancellationToken = default)
     {

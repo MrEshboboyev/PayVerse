@@ -19,7 +19,7 @@ public class InitiatedPaymentState : IPaymentState
         await payment.NotifyAsync();
     }
 
-    public async Task RefundAsync(Payment payment, string refundTransactionId)
+    public Task RefundAsync(Payment payment, string refundTransactionId)
     {
         // Cannot refund a payment that hasn't been processed
         throw new InvalidOperationException("Cannot refund a payment that hasn't been processed yet.");

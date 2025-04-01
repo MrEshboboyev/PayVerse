@@ -5,8 +5,10 @@ namespace PayVerse.Application.Notifications.Events;
 
 internal sealed class NotificationSentDomainEventHandler : IDomainEventHandler<NotificationSentDomainEvent>
 {
-    public async Task Handle(NotificationSentDomainEvent notification, CancellationToken cancellationToken)
+    public Task Handle(NotificationSentDomainEvent notification, CancellationToken cancellationToken)
     {
         Console.WriteLine($"Notification Sent: {notification.NotificationId}");
+
+        return Task.CompletedTask;
     }
 }

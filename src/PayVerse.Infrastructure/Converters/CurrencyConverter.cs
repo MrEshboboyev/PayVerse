@@ -3,7 +3,7 @@ using PayVerse.Application.Wallets.Converters;
 
 namespace PayVerse.Infrastructure.Converters;
 
-public class CurrencyConverter(HttpClient httpClient) : ICurrencyConverter
+public class CurrencyConverter() : ICurrencyConverter
 {
     public async Task<Result<decimal>> ConvertAsync(
         decimal amount,
@@ -11,6 +11,9 @@ public class CurrencyConverter(HttpClient httpClient) : ICurrencyConverter
         string targetCurrencyCode,
         CancellationToken cancellationToken = default)
     {
+
+        await Task.Delay(100); // Simulate async operation
+
         // try
         // {
         //     // Logic to call external currency conversion API and calculate the conversion

@@ -64,6 +64,8 @@ internal sealed class StripePaymentProcessor : IPaymentProcessor
 
     public async Task<Result> ValidatePaymentAsync(Payment payment)
     {
+        await Task.Delay(100); // Simulate async operation
+
         // Validate payment amount, currency, etc.
         if (payment.Amount.Value <= 0)
         {
@@ -77,6 +79,8 @@ internal sealed class StripePaymentProcessor : IPaymentProcessor
 
     public async Task<Result> CancelPaymentAsync(Payment payment)
     {
+        await Task.Delay(100); // Simulate async operation
+
         try
         {
             // In a real implementation, we would use the stored Stripe payment intent ID

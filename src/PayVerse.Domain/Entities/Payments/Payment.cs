@@ -639,17 +639,21 @@ public sealed class Payment : PrototypeAggregateRoot, IAuditableEntity, IOrigina
 
     #region Observer Pattern Implementation
 
-    public async Task AttachAsync(IObserver observer)
+    public Task AttachAsync(IObserver observer)
     {
         if (!_observers.Contains(observer))
         {
             _observers.Add(observer);
         }
+
+        return Task.CompletedTask;
     }
 
-    public async Task DetachAsync(IObserver observer)
+    public Task DetachAsync(IObserver observer)
     {
         _observers.Remove(observer);
+
+        return Task.CompletedTask;
     }
 
     public async Task NotifyAsync()

@@ -77,9 +77,17 @@ public sealed class UserRepository(ApplicationDbContext dbContext) : IUserReposi
     public async Task AddAsync(User user, CancellationToken cancellationToken = default) 
         => await dbContext.Set<User>().AddAsync(user, cancellationToken);
 
-    public async Task UpdateAsync(User user, CancellationToken cancellationToken = default) 
-        =>dbContext.Set<User>().Update(user);
+    public Task UpdateAsync(User user, CancellationToken cancellationToken = default)
+    {
+        dbContext.Set<User>().Update(user);
 
-    public async Task DeleteAsync(User user, CancellationToken cancellationToken = default)
-        => dbContext.Set<User>().Remove(user);
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAsync(User user, CancellationToken cancellationToken = default)
+    {
+        dbContext.Set<User>().Remove(user);
+
+        return Task.CompletedTask;
+    }
 }

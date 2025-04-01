@@ -12,9 +12,11 @@ public class RateLimitingDecorator<TRequest, TResult>(
     ISecureOperation<TRequest, TResult> decoratedOperation,
     ICurrentUserService currentUserService,
     IRateLimitingService rateLimitingService,
-    string operationKey,
-    int maxAttempts,
-    TimeSpan timeWindow) : SecureOperationDecorator<TRequest, TResult>(decoratedOperation)
+    string operationKey
+    //,
+    //int maxAttempts,
+    //TimeSpan timeWindow
+    ) : SecureOperationDecorator<TRequest, TResult>(decoratedOperation)
 {
     public override async Task<TResult> ExecuteAsync(TRequest request, CancellationToken cancellationToken = default)
     {

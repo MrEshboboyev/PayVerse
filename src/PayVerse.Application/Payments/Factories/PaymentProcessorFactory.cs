@@ -27,8 +27,8 @@ public class PaymentProcessorFactory(IServiceProvider serviceProvider) : IPaymen
         if (options.EnableFraudDetection)
         {
             var fraudDetectionService = serviceProvider.GetRequiredService<IFraudDetectionService>();
-            var securityIncidentService = serviceProvider.GetRequiredService<ISecurityIncidentService>();
-            decorated = new FraudDetectionPaymentDecorator(decorated, fraudDetectionService, securityIncidentService);
+            //var securityIncidentService = serviceProvider.GetRequiredService<ISecurityIncidentService>();
+            decorated = new FraudDetectionPaymentDecorator(decorated, fraudDetectionService);
         }
 
         if (options.EnableLogging)

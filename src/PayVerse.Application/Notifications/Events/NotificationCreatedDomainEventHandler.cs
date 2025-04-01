@@ -10,5 +10,7 @@ internal sealed class NotificationCreatedDomainEventHandler : IDomainEventHandle
         CancellationToken cancellationToken)
     {
         Console.WriteLine($"Notification Created: {notification.NotificationId}");
+
+        await Task.CompletedTask;
     }
 }

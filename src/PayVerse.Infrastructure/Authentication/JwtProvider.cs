@@ -20,6 +20,8 @@ internal sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
     /// </summary>
     public async Task<string> GenerateAsync(User user)
     {
+        await Task.Delay(100); // Simulate async operation
+
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),

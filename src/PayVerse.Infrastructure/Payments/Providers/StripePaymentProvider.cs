@@ -19,7 +19,7 @@ public class StripePaymentProvider(IStripeClient stripeClient, ILogger<StripePay
                 Currency = currency.ToLower(),
                 PaymentMethod = paymentDetails["paymentMethodId"],
                 Confirm = true,
-                ReturnUrl = paymentDetails.TryGetValue("returnUrl", out string? value) ? value : null, // Fix here
+                ReturnUrl = paymentDetails.TryGetValue("returnUrl", out string value) ? value : null, // Fix here
                 Description = $"Payment {paymentId}"
             };
 

@@ -8,10 +8,7 @@ namespace PayVerse.Application.Security.Decorators;
 /// Adds authorization checks to operations
 /// </summary>
 public class AuthorizationDecorator<TRequest, TResult>(
-    ISecureOperation<TRequest, TResult> decoratedOperation,
-    ICurrentUserService currentUserService,
-    IAuthorizationService authorizationService,
-    params string[] requiredPermissions) : SecureOperationDecorator<TRequest, TResult>(decoratedOperation)
+    ISecureOperation<TRequest, TResult> decoratedOperation) : SecureOperationDecorator<TRequest, TResult>(decoratedOperation)
 {
     public override async Task<TResult> ExecuteAsync(TRequest request, CancellationToken cancellationToken = default)
     {

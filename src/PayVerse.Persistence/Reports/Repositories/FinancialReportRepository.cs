@@ -55,6 +55,8 @@ public sealed class CompositeFinancialReportRepository(ApplicationDbContext dbCo
         CompositeFinancialReport report,
         CancellationToken cancellationToken = default)
     {
+        await Task.Delay(100); // Simulate async operation
+
         dbContext.Set<CompositeFinancialReport>().Update(report);
     }
 }

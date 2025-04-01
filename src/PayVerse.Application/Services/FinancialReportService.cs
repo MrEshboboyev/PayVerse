@@ -43,7 +43,7 @@ public class FinancialReportService(
                 // Store the result with a key based on the expression
                 results[expr] = expressionResult;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log error and continue with other expressions
                 // In a real application, you might want to handle this differently
